@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MadarsaController;
+use App\Http\Controllers\Api\MemberCategoryController;
+use App\Http\Controllers\Api\MasjidController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,5 +25,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('user')->group(function(){
 
     Route::post('signup/send-otp',[AuthController::class,'userSignup']);
-    Route::post('signup/verify-otp',[AuthController::class,'verifyOtp']);
+    Route::post('signup/verify-otp',[AuthController::class,'verifyUserOtp']);
+
 });
+
+Route::prefix('member')->group(function(){
+
+    Route::post('signup/send-otp',[AuthController::class,'sendMemberOtp']);
+    Route::post('signup/verify-otp',[AuthController::class,'verifyOtpAndCreateMember']);
+
+});
+
+Route::get('member-categories',[MemberCategoryController::class,'show']);
+Route::get('masjid',[MasjidController::class,'show']);
+Route::get('madarsa',[MadarsaController::class,'show']);
