@@ -181,5 +181,42 @@ class AuthController extends Controller
         });
     }
 
+    public function userSendLoginOtp(Request $request, OtpService $otpService)
+    {
+        $request->validate(['phone' => 'required|string|exists:users,phone']);
+        $otp = $otpService->generate($request->phone);
 
+        return response()->json([
+            'message' => 'OTP send successfully',
+            'otp' => $otp
+        ]);
+    }
+
+    public function userVerifyOtp(Request $request, OtpService $otpService)
+    {
+        $request->validate([
+            'phone' => 'required|string|exists:users,phone',
+            'otp'   => 'required|string'
+        ]);
+
+        if (!$otpService->verify($request->phone, $request->otp)) {
+            return response()->json([
+                'message' => 'Invalid or expired OTP'
+            ], 422);
+        }
+
+        $user = User::where('phone', $request->phone)->first();
+
+        $token = $user->createToken('api')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'token'   => $token,
+            'user'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+            ],
+        ]);
+    }
 }

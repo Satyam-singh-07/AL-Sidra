@@ -26,7 +26,7 @@ Route::prefix('user')->group(function(){
 
     Route::post('signup/send-otp',[AuthController::class,'userSignup']);
     Route::post('signup/verify-otp',[AuthController::class,'verifyUserOtp']);
-
+    
 });
 
 Route::prefix('member')->group(function(){
@@ -39,3 +39,5 @@ Route::prefix('member')->group(function(){
 Route::get('member-categories',[MemberCategoryController::class,'show']);
 Route::get('masjid',[MasjidController::class,'show']);
 Route::get('madarsa',[MadarsaController::class,'show']);
+Route::post('login/send-otp',[AuthController::class,'userSendLoginOtp']);
+Route::post('login/verify-otp',[AuthController::class,'userVerifyOtp']);
