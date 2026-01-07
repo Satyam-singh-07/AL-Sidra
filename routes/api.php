@@ -27,6 +27,9 @@ Route::prefix('user')->group(function(){
     Route::post('signup/send-otp',[AuthController::class,'userSignup']);
     Route::post('signup/verify-otp',[AuthController::class,'verifyUserOtp']);
     
+    Route::middleware('auth:sanctum')->group( function(){
+        Route::get('profile',[AuthController::class,'userProfile']);
+    });
 });
 
 Route::prefix('member')->group(function(){
@@ -34,6 +37,9 @@ Route::prefix('member')->group(function(){
     Route::post('signup/send-otp',[AuthController::class,'sendMemberOtp']);
     Route::post('signup/verify-otp',[AuthController::class,'verifyOtpAndCreateMember']);
 
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::get('profile',[AuthController::class,'memberProfile']);
+    });
 });
 
 Route::get('member-categories',[MemberCategoryController::class,'show']);
@@ -41,3 +47,9 @@ Route::get('masjid',[MasjidController::class,'show']);
 Route::get('madarsa',[MadarsaController::class,'show']);
 Route::post('login/send-otp',[AuthController::class,'userSendLoginOtp']);
 Route::post('login/verify-otp',[AuthController::class,'userVerifyOtp']);
+
+Route::middleware('auth:sanctum')->group(function(){
+
+    Route::post('logout',[AuthController::class,'logout']);
+
+});

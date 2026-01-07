@@ -219,4 +219,34 @@ class AuthController extends Controller
             ],
         ]);
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully'
+        ]);
+    }
+
+    public function userProfile(Request $request)
+    {   
+        $user = $request->user();
+        return response($user);
+    }
+
+    public function memberProfile(Request $request)
+    {
+        $user = $request->user()->load([
+            'memberProfile.category',
+            'memberProfile.kyc',
+            'memberProfile.place',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
+    }
+
 }
