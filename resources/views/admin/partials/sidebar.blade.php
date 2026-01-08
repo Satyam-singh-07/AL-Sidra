@@ -24,6 +24,11 @@
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 
+            <a href="{{route('banners.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('banners.index') ? 'active' : '' }}">
+                <i class="fas fa-image"></i> Banners
+            </a>
+
         </div>
     </div>
 </div>

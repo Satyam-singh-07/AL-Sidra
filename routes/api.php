@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -47,6 +48,7 @@ Route::get('masjid',[MasjidController::class,'show']);
 Route::get('madarsa',[MadarsaController::class,'show']);
 Route::post('login/send-otp',[AuthController::class,'userSendLoginOtp']);
 Route::post('login/verify-otp',[AuthController::class,'userVerifyOtp']);
+Route::get('banners',[BannerController::class,'getBanners']);
 
 Route::middleware('auth:sanctum')->group(function(){
 
