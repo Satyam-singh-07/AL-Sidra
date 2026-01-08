@@ -19,7 +19,7 @@
                 <li><a class="dropdown-item" href="#">Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <form method="POST" action="">
+                    <form method="POST" action="{{route('logout')}}">
                         @csrf
                         <button class="dropdown-item text-danger">Logout</button>
                     </form>

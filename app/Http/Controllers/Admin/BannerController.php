@@ -59,7 +59,7 @@ class BannerController extends Controller
 
     public function getBanners()
     {
-        $banners = Banner::get('image');
+        $banners = Banner::where('status','active')->get('image');
         return response($banners);
     }
 }
