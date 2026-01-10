@@ -53,7 +53,7 @@ class CommunityController extends Controller
             'status' => $community->status === 'active' ? 'inactive' : 'active',
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success','Status updated successfully');
     }
 
 }
