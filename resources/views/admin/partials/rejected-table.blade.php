@@ -6,6 +6,7 @@
                                                 <th width="50">#</th>
                                                 <th>Applicant Details</th>
                                                 <th>Category & Place</th>
+                                                <th>Active Status</th>
                                                 <th>Rejected By</th>
                                                 <th>Rejected Date</th>
                                                 <th>Reason</th>
@@ -25,9 +26,9 @@
                                                     <div>
                                                         <div class="user-name">{{ $member->name }}</div>
                                                         <div class="phone-number">{{ $member->phone }}</div>
-                                                        <small class="text-muted">
+                                                        {{-- <small class="text-muted">
                                                             Member ID: M{{ str_pad($member->id, 3, '0', STR_PAD_LEFT) }}
-                                                        </small>
+                                                        </small> --}}
                                                     </div>
                                                 </div>
                                             </td>
@@ -43,6 +44,23 @@
                                                 </div>
                                             </td>
 
+                                            <td>
+                                                    <form
+                                                        action="{{ route('members.toggle-status', $member->id) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                    >
+                                                        @csrf
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-sm {{ $member->status === 'active' ? 'btn-success' : 'btn-secondary' }}"
+                                                        >
+                                                            {{ ucfirst($member->status) }}
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                                
                                             <td>
                                                 <div class="small">Admin</div>
                                                 <small class="text-muted">System</small>

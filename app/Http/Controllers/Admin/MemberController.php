@@ -34,17 +34,17 @@ public function index(Request $request)
 
     $pendingMembers = (clone $baseQuery)
         ->whereHas('memberProfile', fn ($q) => $q->where('kyc_status', 'submitted'))
-        ->paginate(10, ['*'], 'pending_page')
+        ->paginate(50, ['*'], 'pending_page')
         ->withQueryString();
 
     $approvedMembers = (clone $baseQuery)
         ->whereHas('memberProfile', fn ($q) => $q->where('kyc_status', 'approved'))
-        ->paginate(10, ['*'], 'approved_page')
+        ->paginate(50, ['*'], 'approved_page')
         ->withQueryString();
 
     $rejectedMembers = (clone $baseQuery)
         ->whereHas('memberProfile', fn ($q) => $q->where('kyc_status', 'rejected'))
-        ->paginate(10, ['*'], 'rejected_page')
+        ->paginate(50, ['*'], 'rejected_page')
         ->withQueryString();
 
     $stats = [
@@ -143,6 +143,13 @@ public function rejectKyc(Request $request, User $member)
     return response()->json([
         'message' => 'KYC rejected successfully'
     ]);
+}
+
+public function toggleStatus(User $member)
+{
+    $member->toggleStatus();
+
+    return back()->with('success', 'Member status updated successfully');
 }
 
 

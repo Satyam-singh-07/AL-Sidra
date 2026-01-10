@@ -24,16 +24,20 @@
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 
-            <a href="{{route('banners.index')}}" 
-               class="list-group-item list-group-item-action {{ request()->routeIs('banners.index') ? 'active' : '' }}">
-                <i class="fas fa-image"></i> Banners
+             <a href="{{route('users.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('users.index') ? 'active' : '' }}">
+                <i class="fas fa-user"></i> Users
             </a>
 
-            <a href="{{route('members.index')}}" 
+             <a href="{{route('members.index')}}" 
                class="list-group-item list-group-item-action {{ request()->routeIs('members.index') ? 'active' : '' }}">
                 <i class="fas fa-users"></i> Members
             </a>
 
+            <a href="{{route('banners.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('banners.index') ? 'active' : '' }}">
+                <i class="fas fa-image"></i> Banners
+            </a>
         </div>
     </div>
 </div>

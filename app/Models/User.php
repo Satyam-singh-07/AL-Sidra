@@ -31,4 +31,17 @@ class User extends Authenticatable
         )->whereHas('memberProfile');
     }
 
+    public function scopeUsers($query)
+    {
+        return $query->whereHas('roles', fn ($q) =>
+            $q->where('slug', 'user')
+        );
+    }
+
+    public function toggleStatus(): void
+    {
+        $this->status = $this->status === 'active' ? 'blocked' : 'active';
+        $this->save();
+    }
+
 }

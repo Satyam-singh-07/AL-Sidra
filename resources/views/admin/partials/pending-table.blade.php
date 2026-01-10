@@ -6,6 +6,7 @@
                                                 <th width="50">#</th>
                                                 <th>Applicant Details</th>
                                                 <th>Category & Place</th>
+                                                <th>Active Status</th>
                                                 <th>KYC Documents</th>
                                                 <th>Submitted</th>
                                                 <th>Actions</th>
@@ -43,6 +44,23 @@
                                                             -
                                                         @endif
                                                     </div>
+                                                </td>
+
+                                                <td>
+                                                    <form
+                                                        action="{{ route('members.toggle-status', $member->id) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                    >
+                                                        @csrf
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-sm {{ $member->status === 'active' ? 'btn-success' : 'btn-secondary' }}"
+                                                        >
+                                                            {{ ucfirst($member->status) }}
+                                                        </button>
+                                                    </form>
                                                 </td>
 
                                                 <td>

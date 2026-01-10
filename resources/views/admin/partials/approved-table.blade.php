@@ -1,4 +1,4 @@
-<div class="card-body">
+                            <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead class="table-light">
@@ -6,6 +6,7 @@
                                                 <th width="50">#</th>
                                                 <th>Member Details</th>
                                                 <th>Category & Place</th>
+                                                <th>Active Status</th>
                                                 <th>Approved By</th>
                                                 <th>Approved Date</th>
                                                 <th>Status</th>
@@ -24,9 +25,9 @@
                                                         <div>
                                                             <div class="user-name">{{ $member->name }}</div>
                                                             <div class="phone-number">{{ $member->phone }}</div>
-                                                            <small class="text-muted">
+                                                            {{-- <small class="text-muted">
                                                                 Member ID: M{{ str_pad($member->id, 3, '0', STR_PAD_LEFT) }}
-                                                            </small>
+                                                            </small> --}}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -41,6 +42,24 @@
                                                         {{ optional($member->memberProfile->place)->name ?? '-' }}
                                                     </div>
                                                 </td>
+
+                                                <td>
+                                                    <form
+                                                        action="{{ route('members.toggle-status', $member->id) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                    >
+                                                        @csrf
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-sm {{ $member->status === 'active' ? 'btn-success' : 'btn-secondary' }}"
+                                                        >
+                                                            {{ ucfirst($member->status) }}
+                                                        </button>
+                                                    </form>
+                                                </td>
+
 
                                                 <td>
                                                     <div class="small">Admin</div>

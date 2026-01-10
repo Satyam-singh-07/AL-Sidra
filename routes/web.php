@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\MemberController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +42,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/members/{member}/kyc',[MemberController::class, 'kyc'])->name('admin.members.kyc');
         Route::post('/members/{member}/kyc/approve',[MemberController::class, 'approveKyc'])->name('admin.members.kyc.approve');
         Route::post('/members/{member}/kyc/reject',[MemberController::class, 'rejectKyc'])->name('admin.members.kyc.reject');
+        Route::post('/members/{member}/toggle-status',[MemberController::class, 'toggleStatus'])->name('members.toggle-status');
+
+        Route::get('users',[UserController::class,'index'])->name('users.index');
+        Route::post('/users/{user}/toggle-status',[UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
     });
 });
