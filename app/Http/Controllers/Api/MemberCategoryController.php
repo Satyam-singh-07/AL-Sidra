@@ -10,7 +10,10 @@ class MemberCategoryController extends Controller
 {
     public function show()
     {
-        $memberCategories = MemberCategory::select('id','name')->get();
+        $$memberCategories = MemberCategory::where('status', 'active')
+        ->select('id', 'name')
+        ->orderBy('name')
+        ->get();
         return response($memberCategories);
     }
 }

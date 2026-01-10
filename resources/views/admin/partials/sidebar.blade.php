@@ -24,6 +24,11 @@
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 
+            <a href="{{route('membercategories.index')}}" 
+              class="list-group-item list-group-item-action {{ request()->routeIs('membercategories.index') ? 'active' : '' }}">
+                <i class="fas fa-users-cog"></i> Member Categories
+            </a>
+
              <a href="{{route('users.index')}}" 
                class="list-group-item list-group-item-action {{ request()->routeIs('users.index') ? 'active' : '' }}">
                 <i class="fas fa-user"></i> Users

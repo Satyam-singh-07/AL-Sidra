@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\MemberCategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +47,9 @@ Route::prefix('admin')->group(function () {
 
         Route::get('users',[UserController::class,'index'])->name('users.index');
         Route::post('/users/{user}/toggle-status',[UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+        Route::resource('membercategories', MemberCategoryController::class);
+        Route::patch('membercategories/{membercategory}/toggle-status',[MemberCategoryController::class, 'toggleStatus'])->name('membercategories.toggle-status');
 
     });
 });
