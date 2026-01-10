@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MadarsaController;
 use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
+use App\Http\Controllers\Api\MemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::prefix('member')->group(function(){
 
     Route::middleware('auth:sanctum')->group(function(){
         Route::get('profile',[AuthController::class,'memberProfile']);
+        Route::post('kyc',[MemberController::class,'store']);
+        Route::post('kyc/submit',[MemberController::class,'submit']);
     });
 });
 

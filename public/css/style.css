@@ -207,3 +207,24 @@ body.toggled #page-content-wrapper {
 .toggled #sidebar-wrapper {
     margin-left: -250px;
 }
+.admin-pagination .page-link {
+    border-radius: 8px;
+    margin: 0 4px;
+    color: #198754;
+    border: 1px solid #dee2e6;
+}
+
+.admin-pagination .page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+.admin-pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.admin-pagination .page-link:hover {
+    background-color: rgba(25, 135, 84, 0.08);
+}

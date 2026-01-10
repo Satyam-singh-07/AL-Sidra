@@ -12,7 +12,11 @@ class MemberProfile extends Model
         'member_category_id',
         'place_type',
         'place_id',
-        'kyc_status'
+        'kyc_status',
+        'kyc_reviewed_by',
+        'kyc_reviewed_at',
+        'rejection_reason',
+        'rejection_notes',
     ];
 
     public function user()
@@ -30,6 +34,11 @@ class MemberProfile extends Model
         return $this->hasOne(MemberKycDocument::class);
     }
 
+    public function reviewedBy()
+    {
+        return $this->belongsTo(User::class, 'kyc_reviewed_by');
+    }
+    
     // Polymorphic-style resolver
     public function place()
     {

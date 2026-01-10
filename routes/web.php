@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\MemberController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,19 +30,18 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware('auth')->group(function () {
 
-        Route::post('logout', function () {
-            Auth::logout();
-            request()->session()->invalidate();
-            request()->session()->regenerateToken();
-
-            return redirect('/admin/login');
-        })->name('logout');
+        Route::post('logout',[AuthController::class,'logout'])->name('logout');
 
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
         })->name('dashboard');
 
         Route::resource('banners', BannerController::class);
+        Route::get('members',[MemberController::class,'index'])->name('members.index');
+        Route::get('/members/{member}/kyc',[MemberController::class, 'kyc'])->name('admin.members.kyc');
+        Route::post('/members/{member}/kyc/approve',[MemberController::class, 'approveKyc'])->name('admin.members.kyc.approve');
+        Route::post('/members/{member}/kyc/reject',[MemberController::class, 'rejectKyc'])->name('admin.members.kyc.reject');
+
     });
 });
 

@@ -23,4 +23,12 @@ class User extends Authenticatable
     {
         return $this->hasOne(MemberProfile::class);
     }
+
+    public function scopeMembers($query)
+    {
+        return $query->whereHas('roles', fn ($q) =>
+            $q->where('slug', 'member')
+        )->whereHas('memberProfile');
+    }
+
 }

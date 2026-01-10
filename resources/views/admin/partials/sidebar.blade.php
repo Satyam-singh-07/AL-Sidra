@@ -29,6 +29,11 @@
                 <i class="fas fa-image"></i> Banners
             </a>
 
+            <a href="{{route('members.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('members.index') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Members
+            </a>
+
         </div>
     </div>
 </div>

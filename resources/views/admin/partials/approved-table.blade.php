@@ -1,0 +1,76 @@
+<div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="50">#</th>
+                                                <th>Member Details</th>
+                                                <th>Category & Place</th>
+                                                <th>Approved By</th>
+                                                <th>Approved Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($approvedMembers as $index => $member)
+                                            <tr>
+                                                <td class="text-muted">{{ $index + 1 }}</td>
+
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="user-avatar me-3">
+                                                            {{ strtoupper(substr($member->name, 0, 2)) }}
+                                                        </div>
+                                                        <div>
+                                                            <div class="user-name">{{ $member->name }}</div>
+                                                            <div class="phone-number">{{ $member->phone }}</div>
+                                                            <small class="text-muted">
+                                                                Member ID: M{{ str_pad($member->id, 3, '0', STR_PAD_LEFT) }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-info bg-opacity-10 text-info border border-info">
+                                                            {{ $member->memberProfile->category->name }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="text-muted small">
+                                                        {{ optional($member->memberProfile->place)->name ?? '-' }}
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <div class="small">Admin</div>
+                                                    <small class="text-muted">System</small>
+                                                </td>
+
+                                                <td>
+                                                    <div class="registration-date">
+                                                        {{ $member->memberProfile->updated_at->format('Y-m-d') }}
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        {{ $member->memberProfile->updated_at->diffForHumans() }}
+                                                    </small>
+                                                </td>
+
+                                                <td>
+                                                    <span class="status-badge status-approved">Approved</span>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted py-4">
+                                                    No approved members found
+                                                </td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-4">
+                                    @include('admin.partials.pagination', ['paginator' => $approvedMembers])
+                                </div>
+                            </div>
