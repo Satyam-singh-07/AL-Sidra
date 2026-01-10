@@ -29,6 +29,11 @@
                 <i class="fas fa-users-cog"></i> Member Categories
             </a>
 
+             <a href="{{route('communities.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('communities.index') ? 'active' : '' }}">
+                <i class="fas fa-sitemap"></i> Communities
+            </a>
+
              <a href="{{route('users.index')}}" 
                class="list-group-item list-group-item-action {{ request()->routeIs('users.index') ? 'active' : '' }}">
                 <i class="fas fa-user"></i> Users
