@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
+use App\Http\Controllers\Admin\HotTopicController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
@@ -54,6 +55,9 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('communities', CommunityController::class);
         Route::patch('communities/{community}/toggle-status', [CommunityController::class, 'toggleStatus'])->name('communities.toggle-status');
+
+        Route::resource('hot-topics',HotTopicController::class);
+        Route::patch('hot-topics/{hotTopic}/toggle-status',[HotTopicController::class, 'toggleStatus'])->name('hot-topics.toggle-status');
 
     });
 });

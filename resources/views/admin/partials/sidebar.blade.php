@@ -48,6 +48,11 @@
                class="list-group-item list-group-item-action {{ request()->routeIs('banners.index') ? 'active' : '' }}">
                 <i class="fas fa-image"></i> Banners
             </a>
+
+            <a href="{{route('hot-topics.index')}}" 
+               class="list-group-item list-group-item-action {{ request()->routeIs('hot-topics.index') ? 'active' : '' }}">
+                <i class="fas fa-fire"></i> Hot Topics
+            </a>
         </div>
     </div>
 </div>
