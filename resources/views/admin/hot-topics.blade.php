@@ -240,7 +240,7 @@
 
                                             {{-- Actions --}}
                                             <td class="action-buttons">
-                                                <a href=""
+                                                <a href="{{ route('hot-topics.topic-updates.index', $topic->id) }}"
                                                 class="btn btn-sm btn-outline-info">
                                                     <i class="fas fa-list me-1"></i> Updates
                                                 </a>

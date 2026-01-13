@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\HotTopicController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
+use App\Http\Controllers\Admin\TopicUpdateController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -41,6 +42,7 @@ Route::prefix('admin')->group(function () {
         })->name('dashboard');
 
         Route::resource('banners', BannerController::class);
+
         Route::get('members',[MemberController::class,'index'])->name('members.index');
         Route::get('/members/{member}/kyc',[MemberController::class, 'kyc'])->name('admin.members.kyc');
         Route::post('/members/{member}/kyc/approve',[MemberController::class, 'approveKyc'])->name('admin.members.kyc.approve');
@@ -58,6 +60,8 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('hot-topics',HotTopicController::class);
         Route::patch('hot-topics/{hotTopic}/toggle-status',[HotTopicController::class, 'toggleStatus'])->name('hot-topics.toggle-status');
+
+        Route::resource('hot-topics.topic-updates',TopicUpdateController::class);
 
     });
 });

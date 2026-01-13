@@ -4,10 +4,12 @@ use App\Http\Controllers\Admin\BannerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\HotTopicController;
 use App\Http\Controllers\Api\MadarsaController;
 use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\TopicUpdateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +54,9 @@ Route::get('madarsa',[MadarsaController::class,'show']);
 Route::post('login/send-otp',[AuthController::class,'userSendLoginOtp']);
 Route::post('login/verify-otp',[AuthController::class,'userVerifyOtp']);
 Route::get('banners',[BannerController::class,'getBanners']);
+Route::get('hot-topics', [HotTopicController::class, 'index']);
+Route::get('hot-topics/{hotTopic}/updates', [TopicUpdateController::class, 'index']);
+
 
 Route::middleware('auth:sanctum')->group(function(){
 
