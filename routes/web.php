@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\HotTopicController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
+use App\Http\Controllers\Admin\OngoingWorkController;
 use App\Http\Controllers\Admin\TopicUpdateController;
 use Illuminate\Support\Facades\Route;
 
@@ -63,6 +64,7 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('hot-topics.topic-updates',TopicUpdateController::class);
 
+        Route::resource('ongoing-work',OngoingWorkController::class);
     });
 });
 

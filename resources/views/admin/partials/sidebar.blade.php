@@ -53,6 +53,11 @@
                class="list-group-item list-group-item-action {{ request()->routeIs('hot-topics.index') ? 'active' : '' }}">
                 <i class="fas fa-fire"></i> Hot Topics
             </a>
+
+            <a href="{{route('ongoing-work.index')}}" 
+                class="list-group-item list-group-item-action {{ request()->routeIs('ongoing-work.index') ? 'active' : '' }}">
+                <i class="fas fa-hard-hat"></i> Ongoing Work
+            </a>
         </div>
     </div>
 </div>

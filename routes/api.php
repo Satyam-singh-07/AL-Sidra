@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\MadarsaController;
 use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\OngoingWorkApiController;
+use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 
 /*
@@ -56,6 +58,12 @@ Route::post('login/verify-otp',[AuthController::class,'userVerifyOtp']);
 Route::get('banners',[BannerController::class,'getBanners']);
 Route::get('hot-topics', [HotTopicController::class, 'index']);
 Route::get('hot-topics/{hotTopic}/updates', [TopicUpdateController::class, 'index']);
+Route::get('quran/by-surah',[StaticDataController::class,'surah']);
+Route::get('quran/by-page',[StaticDataController::class,'pages']);
+Route::get('quran/by-juzs',[StaticDataController::class,'juzs']);
+Route::get('quran/by-hizb',[StaticDataController::class,'hizb']);
+Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
+Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 
 
 Route::middleware('auth:sanctum')->group(function(){
