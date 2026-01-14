@@ -58,6 +58,11 @@
                 class="list-group-item list-group-item-action {{ request()->routeIs('ongoing-work.index') ? 'active' : '' }}">
                 <i class="fas fa-hard-hat"></i> Ongoing Work
             </a>
+
+            <a href="{{route('religion-info.index')}}" 
+                class="list-group-item list-group-item-action {{ request()->routeIs('religion-info.index') ? 'active' : '' }}">
+                <i class="fas fa-info-circle"></i> Religion Info
+            </a>
         </div>
     </div>
 </div>

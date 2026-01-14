@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\OngoingWorkApiController;
+use App\Http\Controllers\Api\ReligiousInfoController;
 use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 
@@ -64,7 +65,7 @@ Route::get('quran/by-juzs',[StaticDataController::class,'juzs']);
 Route::get('quran/by-hizb',[StaticDataController::class,'hizb']);
 Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
-
+Route::get('religious-info',[ReligiousInfoController::class,'index']);
 
 Route::middleware('auth:sanctum')->group(function(){
 
