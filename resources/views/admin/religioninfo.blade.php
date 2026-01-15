@@ -221,6 +221,7 @@
                         </div>
                     @endforelse
                 </div>
+                            @include('admin.partials.pagination', ['paginator' => $infos])
 
 
     <!-- Add Information Modal -->

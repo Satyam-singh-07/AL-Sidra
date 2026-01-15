@@ -31,7 +31,7 @@ class ReligionInfoController extends Controller
             });
         }
 
-        $infos = $query->latest()->get();
+        $infos = $query->latest()->paginate(30);
 
         return view('admin.religioninfo', compact('infos'));
     }
