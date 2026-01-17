@@ -63,6 +63,7 @@ Route::get('quran/by-surah',[StaticDataController::class,'surah']);
 Route::get('quran/by-page',[StaticDataController::class,'pages']);
 Route::get('quran/by-juzs',[StaticDataController::class,'juzs']);
 Route::get('quran/by-hizb',[StaticDataController::class,'hizb']);
+Route::get('stac',[StaticDataController::class,'stac']);
 Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info',[ReligiousInfoController::class,'index']);

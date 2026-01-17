@@ -34,4 +34,9 @@ class StaticDataController extends Controller
             'data' => config('hizbs')
         ]);
     }
+
+    public function stac()
+    {
+        return response()->json(config('stacs'));
+    }
 }
