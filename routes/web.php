@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MemberCategoryController;
 use App\Http\Controllers\Admin\OngoingWorkController;
 use App\Http\Controllers\Admin\ReligionInfoController;
 use App\Http\Controllers\Admin\TopicUpdateController;
+use App\Http\Controllers\Admin\VideoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,6 +69,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('ongoing-work',OngoingWorkController::class);
 
         Route::resource('religion-info',ReligionInfoController::class);
+
+        Route::resource('videos', VideoController::class);
     });
 });
 
