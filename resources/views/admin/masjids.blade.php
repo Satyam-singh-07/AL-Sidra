@@ -48,38 +48,38 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0">
-                            <i class="fas fa-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0"
-                            placeholder="Search by name, location, or community...">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Communities</option>
-                        <option value="sunni">Sunni</option>
-                        <option value="shia">Shia</option>
-                        <option value="ahmadiyya">Ahmadiyya</option>
-                        <option value="sufi">Sufi</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="pending">Pending Verification</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
+    <form method="GET" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" value="{{ request('search') }}"
+                placeholder="Search by name or address">
         </div>
-    </div>
+
+        <div class="col-md-3">
+            <select name="community" class="form-select">
+                <option value="">All Communities</option>
+                @foreach ($communities as $community)
+                    <option value="{{ $community->id }}" {{ request('community') == $community->id ? 'selected' : '' }}>
+                        {{ $community->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-success">Filter</button>
+            <a href="{{ route('masjids.index') }}" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
@@ -89,7 +89,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-2">Total Masjids</h6>
-                            <h3 class="mb-0">24</h3>
+                            <h3 class="mb-0">{{ $stats['total'] }}</h3>
                         </div>
                         <div class="bg-primary bg-opacity-25 p-3 rounded-circle">
                             <i class="fas fa-mosque text-primary fa-lg"></i>
@@ -104,7 +104,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-2">Active</h6>
-                            <h3 class="mb-0">18</h3>
+                            <h3 class="mb-0">{{ $stats['active'] }}</h3>
                         </div>
                         <div class="bg-success bg-opacity-25 p-3 rounded-circle">
                             <i class="fas fa-check-circle text-success fa-lg"></i>
@@ -119,7 +119,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-muted mb-2">Pending</h6>
-                            <h3 class="mb-0">4</h3>
+                            <h3 class="mb-0">{{ $stats['pending'] }}</h3>
                         </div>
                         <div class="bg-warning bg-opacity-25 p-3 rounded-circle">
                             <i class="fas fa-clock text-warning fa-lg"></i>
@@ -133,8 +133,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-2">Total Capacity</h6>
-                            <h3 class="mb-0">5,250</h3>
+                            <h6 class="text-muted mb-2">Inactive</h6>
+                            <h3 class="mb-0">{{ $stats['inactive'] }}</h3>
                         </div>
                         <div class="bg-info bg-opacity-25 p-3 rounded-circle">
                             <i class="fas fa-users text-info fa-lg"></i>
@@ -161,205 +161,83 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sample Data Row 1 -->
-                        <tr>
-                            <td class="fw-bold">#001</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <!-- <img src="https://via.placeholder.com/60" alt="Masjid" class="masjid-img me-3"> -->
-                                    <div>
-                                        <h6 class="mb-1">Jamia Masjid Al-Noor</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Sector 62, Noida
-                                        </small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="location-info">
-                                    <div><i class="fas fa-map-pin me-1"></i>Lat: 28.6274, Long: 77.3760</div>
-                                    <small>Near Golf Course Metro Station</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
-                                    Sunni
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-success status-badge">
-                                    <i class="fas fa-check-circle me-1"></i>Verified
-                                </span>
-                            </td>
-                            <td class="action-buttons">
-                                <a href="masjid-edit.html?id=001" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        @forelse ($masjids as $masjid)
+                            <tr>
+                                <td class="fw-bold">#{{ $loop->iteration }}</td>
 
-                        <!-- Sample Data Row 2 -->
-                        <tr>
-                            <td class="fw-bold">#002</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <!-- <img src="https://via.placeholder.com/60/FF5722/ffffff?text=Madarsa" alt="Madarsa" class="masjid-img me-3"> -->
-                                    <div>
-                                        <h6 class="mb-1">Madarsa Islamia</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Haldwani, Uttarakhand
-                                        </small>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if ($masjid->images->first())
+                                            <img src="{{ asset('storage/' . $masjid->images->first()->image_path) }}"
+                                                class="masjid-img me-3">
+                                        @endif
+                                        <div>
+                                            <h6 class="mb-1">{{ $masjid->name }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ Str::limit($masjid->address, 40) }}
+                                            </small>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="location-info">
-                                    <div><i class="fas fa-map-pin me-1"></i>Lat: 29.2183, Long: 79.5132</div>
-                                    <small>Near Railway Station Road</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">
-                                    Shia
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-warning text-dark status-badge">
-                                    <i class="fas fa-clock me-1"></i>Pending
-                                </span>
-                            </td>
-                            <td class="action-buttons">
-                                <a href="masjid-edit.html?id=002" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning">
-                                    <i class="fas fa-check"></i> Approve
-                                </button>
-                            </td>
-                        </tr>
+                                </td>
 
-                        <!-- Sample Data Row 3 -->
-                        <tr>
-                            <td class="fw-bold">#003</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <!-- <img src="https://via.placeholder.com/60/4CAF50/ffffff?text=Masjid" alt="Masjid" class="masjid-img me-3"> -->
-                                    <div>
-                                        <h6 class="mb-1">Masjid Al-Falah</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Ghaziabad, UP
-                                        </small>
+                                <td>
+                                    <div class="location-info">
+                                        <div>Lat: {{ $masjid->latitude }}, Lng: {{ $masjid->longitude }}</div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="location-info">
-                                    <div><i class="fas fa-map-pin me-1"></i>Lat: 28.6692, Long: 77.4538</div>
-                                    <small>Vasundhara Sector 5</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">
-                                    Sufi
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-success status-badge">
-                                    <i class="fas fa-check-circle me-1"></i>Verified
-                                </span>
-                            </td>
-                            <td class="action-buttons">
-                                <a href="masjid-edit.html?id=003" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                </td>
 
-                        <!-- Sample Data Row 4 -->
-                        <tr>
-                            <td class="fw-bold">#004</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <!-- <img src="https://via.placeholder.com/60/9C27B0/ffffff?text=Center" alt="Center" class="masjid-img me-3"> -->
-                                    <div>
-                                        <h6 class="mb-1">Islamic Center Qadria</h6>
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i>Delhi
-                                        </small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="location-info">
-                                    <div><i class="fas fa-map-pin me-1"></i>Lat: 28.7041, Long: 77.1025</div>
-                                    <small>Jamia Nagar, Okhla</small>
-                                </div>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25">
-                                    Ahmadiyya
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-danger status-badge">
-                                    <i class="fas fa-times-circle me-1"></i>Inactive
-                                </span>
-                            </td>
-                            <td class="action-buttons">
-                                <a href="masjid-edit.html?id=004" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        {{ $masjid->community->name ?? 'N/A' }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span
+                                        class="badge 
+            @if ($masjid->status == 'active') bg-success
+            @elseif($masjid->status == 'pending') bg-warning text-dark
+            @else bg-danger @endif">
+                                        {{ ucfirst($masjid->status) }}
+                                    </span>
+                                </td>
+
+                                <td class="action-buttons">
+                                    <a href="{{ route('masjids.edit', $masjid) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+
+                                    <a href="{{ route('masjids.show', $masjid) }}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    <form action="{{ route('masjids.destroy', $masjid) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Delete this masjid?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No masjids found
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
+
                 </table>
             </div>
 
             <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
+            <div class="mt-4">
+                @include('admin.partials.pagination', ['paginator' => $masjids])
+            </div>
         </div>
     </div>
 
