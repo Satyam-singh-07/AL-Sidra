@@ -15,7 +15,7 @@ class StoreMasjidRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'gender' => 'required|in:male,female',
+            'gender' => 'nullable|in:male,female',
             'address' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',

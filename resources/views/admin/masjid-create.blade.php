@@ -98,7 +98,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6 mb-3">
+                {{-- <div class="col-md-6 mb-3">
                     <label for="gender" class="form-label required-label">Gender</label>
                     <select name="gender" class="form-select @error('gender') is-invalid @enderror">
                         <option value="">Select gender</option>
@@ -109,7 +109,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
 
-                </div>
+                </div> --}}
 
                 <!-- <div class="col-md-6 mb-3">
                                                                                                             <label for="masjidType" class="form-label required-label">Type</label>
