@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Add New Masjid')
+@section('title', 'Edit Masjid')
 
 @section('content')
 
@@ -66,8 +66,8 @@
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="text-success fw-bold mb-1">Add New Masjid</h2>
-            <p class="text-muted mb-0">Register a new mosque or madarsa in the system</p>
+            <h2 class="text-success fw-bold mb-1">Edit Masjid</h2>
+            <p class="text-muted mb-0">Edit a mosque in the system</p>
         </div>
         <div>
             <a href="{{ route('masjids.index') }}" class="btn btn-outline-secondary me-2">
@@ -81,8 +81,10 @@
 
 
     <!-- Main Form -->
-    <form action="{{ route('masjids.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('masjids.update', $masjid) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
+
 
         <!-- Section 1: Basic Information -->
         <div class="form-section">
@@ -91,41 +93,48 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="masjidName" class="form-label required-label">Masjid Name</label>
-                    <input type="text" class="form-control" name="name" required
-                        placeholder="Enter masjid or madarsa name">
+                    <input type="text" value="{{ old('name', $masjid->name) }}" class="form-control" name="name"
+                        required placeholder="Enter masjid or madarsa name">
                     <div class="invalid-feedback">
                         Please enter masjid name.
                     </div>
                 </div>
 
+
                 <div class="col-md-12 mb-3">
                     <label for="address" class="form-label required-label">Complete Address</label>
-                    <textarea class="form-control" name="address" rows="3" required placeholder="Enter full address with landmark"></textarea>
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
+                    <textarea id="address" class="form-control" name="address" rows="3" required
+                        placeholder="Enter full address with landmark">{{ old('address', $masjid->address ?? '') }}</textarea>
+
+
+                    <input type="hidden" name="latitude" value="{{ old('latitude', $masjid->latitude) }}" id="latitude">
+                    <input type="hidden" name="longitude" value="{{ old('longitude', $masjid->longitude) }}"
+                        id="longitude">
                     <div class="invalid-feedback">
                         Please enter complete address.
                     </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="community_id" class="form-label required-label">Community</label>
+                    <label for="community" class="form-label required-label">Community</label>
 
-                    <select class="form-select" name="community_id" id="community_id" required>
-                        <option value="" disabled selected>Select community</option>
+                    <select name="community_id" id="community" class="form-select @error('community') is-invalid @enderror"
+                        required>
+                        <option value="">-- Select community --</option>
 
                         @foreach ($communities as $community)
                             <option value="{{ $community->id }}"
-                                {{ old('community_id') == $community->id ? 'selected' : '' }}>
+                                {{ old('community', $masjid->community_id ?? null) == $community->id ? 'selected' : '' }}>
                                 {{ $community->name }}
                             </option>
                         @endforeach
                     </select>
 
-                    <div class="invalid-feedback">
-                        Please select community.
-                    </div>
+                    @error('community')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
+
 
 
                 <div class="col-md-6 mb-3">
@@ -144,24 +153,6 @@
             <h5><i class="fas fa-map-marker-alt me-2"></i>Location Details</h5>
 
             <div class="row">
-                <!-- <div class="col-md-6 mb-3">
-                                                                                                            <label for="latitude" class="form-label">Latitude</label>
-                                                                                                            <div class="input-group">
-                                                                                                                <input type="number" step="any" class="form-control" id="latitude"
-                                                                                                                       placeholder="e.g., 28.6139">
-                                                                                                                <button class="btn btn-outline-secondary" type="button"
-                                                                                                                        onclick="getCurrentLocation()">
-                                                                                                                    <i class="fas fa-location-crosshairs"></i>
-                                                                                                                </button>
-                                                                                                            </div>
-                                                                                                            <small class="text-muted">Click the location icon to get current coordinates</small>
-                                                                                                        </div>
-                                                                                                        
-                                                                                                        <div class="col-md-6 mb-3">
-                                                                                                            <label for="longitude" class="form-label">Longitude</label>
-                                                                                                            <input type="number" step="any" class="form-control" id="longitude"
-                                                                                                                   placeholder="e.g., 77.2090">
-                                                                                                        </div> -->
 
                 <div class="col-12">
                     <label class="form-label">Map Preview</label>
@@ -190,7 +181,8 @@
                         <p class="text-muted">Click to upload or drag and drop</p>
                         <small class="text-muted">PDF, JPG, PNG files up to 5MB</small>
                     </div>
-                    <input type="file" name="passbook" class="form-control @error('passbook') is-invalid @enderror">
+                    <input type="file" name="passbook" value="{{ old('longitude', $masjid->passbook) }}"
+                        class="form-control @error('passbook') is-invalid @enderror">
                     @error('passbook')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -211,13 +203,16 @@
 
                 <div class="col-md-6 mb-3">
                     <label for="regNumber" class="form-label">Registration Number</label>
-                    <input type="text" class="form-control" id="regNumber" name="registration_number"
-                        placeholder="If registered with government">
+                    <input type="text" class="form-control"
+                        value="{{ old('registration_number', $masjid->registration_number) }}" id="regNumber"
+                        name="registration_number" placeholder="If registered with government">
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="regDate" class="form-label">Registration Date</label>
-                    <input type="date" class="form-control" id="regDate" name="registration_date">
+                    <input type="date" class="form-control"
+                        value="{{ old('registration_date', $masjid->registration_date) }}" id="regDate"
+                        name="registration_date">
                 </div>
             </div>
         </div>
@@ -276,24 +271,29 @@
         let map, marker, autocomplete, geocoder;
 
         function initMap() {
-            const defaultLocation = {
-                lat: 20.5937,
-                lng: 78.9629
+            const lat = parseFloat(document.getElementById('latitude').value);
+            const lng = parseFloat(document.getElementById('longitude').value);
+
+            const location = {
+                lat: lat || 20.5937,
+                lng: lng || 78.9629
             };
 
             map = new google.maps.Map(document.getElementById("map"), {
-                center: defaultLocation,
-                zoom: 5,
+                center: location,
+                zoom: lat && lng ? 16 : 5,
             });
 
             marker = new google.maps.Marker({
                 map: map,
+                position: location,
                 draggable: true,
             });
 
             geocoder = new google.maps.Geocoder();
 
-            const addressInput = document.querySelector('textarea[name="address"]');
+            // ✅ USE ID (NOT textarea/input selector)
+            const addressInput = document.getElementById('address');
 
             autocomplete = new google.maps.places.Autocomplete(addressInput, {
                 componentRestrictions: {
@@ -310,50 +310,35 @@
                     return;
                 }
 
-                const location = place.geometry.location;
-
-                map.setCenter(location);
-                map.setZoom(16);
-                marker.setPosition(location);
-
-                document.getElementById("latitude").value = location.lat();
-                document.getElementById("longitude").value = location.lng();
-            });
-
-            addressInput.addEventListener("keydown", function(e) {
-                if (e.key === "Enter") {
-                    e.preventDefault();
-                    geocodeAddress(addressInput.value);
-                }
+                updateLocation(place.geometry.location);
             });
 
             marker.addListener("dragend", function() {
-                const pos = marker.getPosition();
-                document.getElementById("latitude").value = pos.lat();
-                document.getElementById("longitude").value = pos.lng();
+                updateLocation(marker.getPosition());
             });
+        }
+
+        function updateLocation(location) {
+            map.setCenter(location);
+            map.setZoom(16);
+            marker.setPosition(location);
+
+            document.getElementById("latitude").value = location.lat();
+            document.getElementById("longitude").value = location.lng();
         }
 
         function geocodeAddress(address) {
             if (!address) return;
 
             geocoder.geocode({
-                address: address
+                address
             }, function(results, status) {
                 if (status === "OK") {
-                    const location = results[0].geometry.location;
-
-                    map.setCenter(location);
-                    map.setZoom(16);
-                    marker.setPosition(location);
-
-                    document.getElementById("latitude").value = location.lat();
-                    document.getElementById("longitude").value = location.lng();
+                    updateLocation(results[0].geometry.location);
                 }
             });
         }
     </script>
-
 
 
 @endsection

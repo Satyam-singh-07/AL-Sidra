@@ -63,4 +63,45 @@ class MasjidController extends Controller
             ->route('masjids.index')
             ->with('success', 'Masjid created successfully');
     }
+
+    public function show(Masjid $masjid)
+    {
+        $masjid->load([
+            'community',
+            'images',
+            'user',
+        ]);
+
+        return view('admin.masjids-show', compact('masjid'));
+    }
+
+    public function edit(Masjid $masjid)
+    {
+        $masjid->load(['images', 'community']);
+
+        $communities = Community::all();
+
+        return view('admin.masjids-edit', compact('masjid', 'communities'));
+    }
+
+    public function update(StoreMasjidRequest $request, Masjid $masjid)
+    {
+        $this->masjidService->update(
+            $masjid,
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('masjids.index')
+            ->with('success', 'Masjid updated successfully');
+    }
+
+    public function destroy(Masjid $masjid)
+    {
+        $this->masjidService->delete($masjid);
+
+        return redirect()
+            ->route('masjids.index')
+            ->with('success', 'Masjid deleted successfully');
+    }
 }

@@ -48,8 +48,8 @@
     </div>
 
     <!-- Search and Filters -->
-    <form method="GET" class="row g-3">
-        <div class="col-md-6">
+    <form method="GET" class="row g-3 align-items-center mb-4">
+        <div class="col-md-4">
             <input type="text" name="search" class="form-control" value="{{ request('search') }}"
                 placeholder="Search by name or address">
         </div>
@@ -74,9 +74,9 @@
             </select>
         </div>
 
-        <div class="col-12">
-            <button class="btn btn-success">Filter</button>
-            <a href="{{ route('masjids.index') }}" class="btn btn-outline-secondary">Reset</a>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-success w-100">Filter</button>
+            <a href="{{ route('masjids.index') }}" class="btn btn-outline-secondary w-100">Reset</a>
         </div>
     </form>
 
@@ -215,8 +215,9 @@
                                     <form action="{{ route('masjids.destroy', $masjid) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
+
                                         <button class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Delete this masjid?')">
+                                            onclick="return confirm('Are you sure you want to delete this masjid?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
