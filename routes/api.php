@@ -49,6 +49,7 @@ Route::prefix('member')->group(function(){
         Route::get('profile',[AuthController::class,'memberProfile']);
         Route::post('kyc',[MemberController::class,'store']);
         Route::post('kyc/submit',[MemberController::class,'submit']);
+        Route::post('masjid',[MasjidController::class,'store']);
     });
 });
 
