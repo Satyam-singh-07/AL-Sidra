@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Community extends Model
+class MasjidImage extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'name',
-        'description',
-        'status',
+        'masjid_id',
+        'image_path',
     ];
 
     public function masjid()
     {
-        return $this->hasOne(Masjid::class);
+        return $this->belongsTo(Masjid::class);
     }
 }
-

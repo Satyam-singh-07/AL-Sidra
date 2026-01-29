@@ -20,7 +20,7 @@
                 <i class="fas fa-praying-hands"></i> Namaz Content
             </a>
 
-            <a href="" class="list-group-item list-group-item-action">
+            <a href="{{ route('masjids.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('masjids.index') ? 'active' : '' }}">
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 

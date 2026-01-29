@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name','email','phone','password','status'];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'status'];
 
     public function roles()
     {
@@ -26,14 +26,18 @@ class User extends Authenticatable
 
     public function scopeMembers($query)
     {
-        return $query->whereHas('roles', fn ($q) =>
+        return $query->whereHas(
+            'roles',
+            fn($q) =>
             $q->where('slug', 'member')
         )->whereHas('memberProfile');
     }
 
     public function scopeUsers($query)
     {
-        return $query->whereHas('roles', fn ($q) =>
+        return $query->whereHas(
+            'roles',
+            fn($q) =>
             $q->where('slug', 'user')
         );
     }
@@ -44,4 +48,8 @@ class User extends Authenticatable
         $this->save();
     }
 
+    public function masjids()
+    {
+        return $this->hasMany(Masjid::class);
+    }
 }

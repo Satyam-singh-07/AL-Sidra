@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\HotTopicController;
+use App\Http\Controllers\Admin\MasjidController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
@@ -71,6 +72,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('religion-info',ReligionInfoController::class);
 
         Route::resource('videos', VideoController::class);
+
+        Route::resource('masjids', MasjidController::class);
     });
 });
 
