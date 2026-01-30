@@ -71,10 +71,10 @@ Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('videos', [VideoController::class, 'index']);
-Route::get('masjids-list',[MasjidController::class,'listMasjids']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('address',[AuthController::class,'updateAddress']);
+    Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
+    Route::post('address', [AuthController::class, 'updateAddress']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
