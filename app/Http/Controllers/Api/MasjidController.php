@@ -16,14 +16,55 @@ class MasjidController extends Controller
         return response($majids);
     }
 
-    public function listMasjids()
+    public function listMasjids(Request $request)
     {
-        $masjids = Masjid::select('id', 'name')->get();
+        $user = $request->user();
+
+        if (!$user->latitude || !$user->longitude) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User location not set',
+            ], 422);
+        }
+
+        $lat = $user->latitude;
+        $lng = $user->longitude;
+
+        $masjids = Masjid::selectRaw("
+            masjids.id,
+            masjids.name,
+            (
+                6371 * acos(
+                    cos(radians(?)) *
+                    cos(radians(masjids.latitude)) *
+                    cos(radians(masjids.longitude) - radians(?)) +
+                    sin(radians(?)) *
+                    sin(radians(masjids.latitude))
+                )
+            ) AS distance
+        ", [$lat, $lng, $lat])
+            ->with(['images' => function ($q) {
+                $q->select('id', 'masjid_id', 'image')->orderBy('id')->limit(1);
+            }])
+            ->orderBy('distance')
+            ->get()
+            ->map(function ($masjid) {
+                return [
+                    'id'       => $masjid->id,
+                    'name'     => $masjid->name,
+                    'image' => $masjid->images->first()
+                        ? asset($masjid->images->first()->image)
+                        : null,
+                    'distance' => round($masjid->distance, 2),
+                ];
+            });
+
         return response()->json([
             'success' => true,
             'data' => $masjids,
-        ], 200);
+        ]);
     }
+
 
     public function store(StoreMasjidRequest $request, MasjidService $service)
     {
