@@ -44,7 +44,9 @@ class MasjidController extends Controller
             ) AS distance
         ", [$lat, $lng, $lat])
             ->with(['images' => function ($q) {
-                $q->select('id', 'masjid_id', 'image')->orderBy('id')->limit(1);
+                $q->select('id', 'masjid_id', 'image_path')
+                    ->orderBy('id')
+                    ->limit(1);
             }])
             ->orderBy('distance')
             ->get()
@@ -52,8 +54,8 @@ class MasjidController extends Controller
                 return [
                     'id'       => $masjid->id,
                     'name'     => $masjid->name,
-                    'image' => $masjid->images->first()
-                        ? asset($masjid->images->first()->image)
+                    'image'    => $masjid->images->first()
+                        ? asset('storage/' . $masjid->images->first()->image_path)
                         : null,
                     'distance' => round($masjid->distance, 2),
                 ];
