@@ -33,6 +33,7 @@ class MasjidController extends Controller
         $masjids = Masjid::selectRaw("
             masjids.id,
             masjids.name,
+            masjids.address,
             (
                 6371 * acos(
                     cos(radians(?)) *
