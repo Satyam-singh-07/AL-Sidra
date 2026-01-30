@@ -12,15 +12,24 @@ class MasjidController extends Controller
 {
     public function show()
     {
-        $majids = Masjid::select('id','name')->get();
+        $majids = Masjid::select('id', 'name')->get();
         return response($majids);
+    }
+
+    public function listMasjids()
+    {
+        $masjids = Masjid::select('id', 'name')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $masjids,
+        ], 200);
     }
 
     public function store(StoreMasjidRequest $request, MasjidService $service)
     {
         $masjid = $service->create(
             $request->validated(),
-            $request->user() // sanctum user/member
+            $request->user()
         );
 
         return response()->json([

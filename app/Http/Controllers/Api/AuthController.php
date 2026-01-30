@@ -53,7 +53,7 @@ class AuthController extends Controller
             'user_id' => $user->id,
             'role_id' => DB::table('roles')->where('slug', 'user')->value('id'),
         ]);
-    
+
         $token = $user->createToken('mobile')->plainTextToken;
 
         return response()->json([
@@ -230,7 +230,7 @@ class AuthController extends Controller
     }
 
     public function userProfile(Request $request)
-    {   
+    {
         $user = $request->user();
         return response($user);
     }
@@ -249,4 +249,21 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateAddress(Request $request)
+    {
+        $validated = $request->validate([
+            'address'   => ['nullable', 'string', 'max:1000'],
+            'latitude'  => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        $user = $request->user();
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Location updated successfully',
+            'data' => $validated,
+        ]);
+    }
 }
