@@ -195,10 +195,11 @@
 
                                 <td>
                                     <span
-                                        class="badge 
-            @if ($masjid->status == 'active') bg-success
-            @elseif($masjid->status == 'pending') bg-warning text-dark
-            @else bg-danger @endif">
+                                        class="badge status-badge 
+        @if ($masjid->status == 'active') bg-success
+        @elseif($masjid->status == 'pending') bg-warning text-dark
+        @else bg-danger @endif"
+                                        data-id="{{ $masjid->id }}" style="cursor: pointer;">
                                         {{ ucfirst($masjid->status) }}
                                     </span>
                                 </td>
@@ -330,5 +331,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('status-badge')) return;
+
+            const badge = e.target;
+            const masjidId = badge.dataset.id;
+
+            fetch(`/admin/masjids/${masjidId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+
+                    badge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-dark');
+
+                    if (data.status === 'active') {
+                        badge.classList.add('bg-success');
+                    } else if (data.status === 'pending') {
+                        badge.classList.add('bg-warning', 'text-dark');
+                    } else {
+                        badge.classList.add('bg-danger');
+                    }
+                });
+        });
+    </script>
 
 @endsection

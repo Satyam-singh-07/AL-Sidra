@@ -20,8 +20,14 @@
                 <i class="fas fa-praying-hands"></i> Namaz Content
             </a>
 
-            <a href="{{ route('masjids.index') }}" class="list-group-item list-group-item-action {{ request()->routeIs('masjids.index') ? 'active' : '' }}">
+            <a href="{{ route('masjids.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('masjids.index') ? 'active' : '' }}">
                 <i class="fas fa-mosque"></i> Masjid Listing
+            </a>
+
+            <a href="{{ route('yateems-helps.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('yateems-helps.index') ? 'active' : '' }}">
+                <i class="fas fa-hands-helping"></i> Yateem Listing
             </a>
 
             <a href="{{ route('membercategories.index') }}"

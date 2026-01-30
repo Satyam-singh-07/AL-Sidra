@@ -104,4 +104,20 @@ class MasjidController extends Controller
             ->route('masjids.index')
             ->with('success', 'Masjid deleted successfully');
     }
+
+    public function cycleStatus(Masjid $masjid)
+    {
+        $nextStatus = match ($masjid->status) {
+            'active'   => 'pending',
+            'pending'  => 'inactive',
+            'inactive' => 'active',
+            default    => 'active',
+        };
+
+        $masjid->update(['status' => $nextStatus]);
+
+        return response()->json([
+            'status' => $nextStatus,
+        ]);
+    }
 }

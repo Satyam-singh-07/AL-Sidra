@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Masjid::class);
     }
+
+    public function yateemsHelps()
+    {
+        return $this->hasMany(YateemsHelp::class);
+    }
 }

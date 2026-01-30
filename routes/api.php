@@ -74,7 +74,6 @@ Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('videos', [VideoController::class, 'index']);
 Route::get('communities', [CommunityController::class, 'communityList']);
 
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
     Route::post('address', [AuthController::class, 'updateAddress']);
