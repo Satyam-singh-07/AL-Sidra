@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\CommunityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -71,6 +72,7 @@ Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('videos', [VideoController::class, 'index']);
+Route::get('communities', [CommunityController::class, 'communityList']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

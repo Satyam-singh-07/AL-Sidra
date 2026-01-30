@@ -56,5 +56,13 @@ class CommunityController extends Controller
         return redirect()->back()->with('success','Status updated successfully');
     }
 
+    public function communityList()
+    {
+        $communities = Community::where('status', 'active')->select('id', 'name')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $communities
+        ]);
+    }
 }
 
