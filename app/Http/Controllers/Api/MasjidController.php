@@ -82,4 +82,21 @@ class MasjidController extends Controller
             'data' => $masjid,
         ], 201);
     }
+
+    public function showMasjidDetails($id)
+    {
+        $masjid = Masjid::with('images')->find($id);
+
+        if (!$masjid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masjid not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $masjid,
+        ]);
+    }
 }

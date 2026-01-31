@@ -12,6 +12,13 @@ class YateemsHelpImage extends Model
         'image',
     ];
 
+    protected $appends = ['image_url'];
+    
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
     public function yateemsHelp()
     {
         return $this->belongsTo(YateemsHelp::class);

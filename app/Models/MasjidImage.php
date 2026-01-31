@@ -14,6 +14,13 @@ class MasjidImage extends Model
         'image_path',
     ];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return asset('storage/' . $this->image_path);
+    }
+    
     public function masjid()
     {
         return $this->belongsTo(Masjid::class);

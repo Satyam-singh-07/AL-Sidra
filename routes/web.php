@@ -79,5 +79,6 @@ Route::prefix('admin')->group(function () {
             ->name('masjids.cycle-status');
 
         Route::resource('yateems-helps', YateemController::class);
+        Route::patch('/yateems-helps/{yateemsHelp}/status', [YateemController::class, 'toggleStatus'])->name('yateems-helps.toggle-status');
     });
 });

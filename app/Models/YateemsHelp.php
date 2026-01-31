@@ -20,6 +20,17 @@ class YateemsHelp extends Model
         'video',
     ];
 
+    protected $appends = ['video_url','qr_code_url'];
+
+    public function getVideoUrlAttribute()
+    {
+        return $this->video ? asset('storage/' . $this->video) : null;
+    }
+    
+    public function getQrCodeUrlAttribute()
+    {
+        return $this->qr_code ? asset('storage/' . $this->qr_code) : null;
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

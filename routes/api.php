@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ReligiousInfoController;
 use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 use App\Http\Controllers\Api\VideoController;
+use App\Http\Controllers\Api\YateemsHelpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -76,6 +77,10 @@ Route::get('communities', [CommunityController::class, 'communityList']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
+    Route::get('masjids-details/{id}', [MasjidController::class, 'showMasjidDetails']);
     Route::post('address', [AuthController::class, 'updateAddress']);
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('yateems-helps', [YateemsHelpController::class, 'storeUser']);
+    Route::get('yateems-helps', [YateemsHelpController::class, 'index']);
+    Route::get('yateems-helps/{id}', [YateemsHelpController::class, 'show']);
 });

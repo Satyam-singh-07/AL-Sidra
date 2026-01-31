@@ -13,6 +13,18 @@ class YateemsHelpDocument extends Model
         'aadhaar_back',
     ];
 
+    protected $appends = ['aadhaar_front_url', 'aadhaar_back_url'];
+
+    public function getAadhaarFrontUrlAttribute()
+    {
+        return $this->aadhaar_front ? asset('storage/' . $this->aadhaar_front) : null;
+    }
+    
+    public function getAadhaarBackUrlAttribute()
+    {
+        return $this->aadhaar_back ? asset('storage/' . $this->aadhaar_back) : null;
+    }
+
     public function yateemsHelp()
     {
         return $this->belongsTo(YateemsHelp::class);

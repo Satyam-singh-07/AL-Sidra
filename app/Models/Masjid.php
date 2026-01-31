@@ -24,6 +24,13 @@ class Masjid extends Model
         'longitude',
     ];
 
+    protected $appends = ['video_url'];
+
+    public function getVideoUrlAttribute()
+    {
+        return $this->video ? asset('storage/' . $this->video) : null;
+    }
+
     public function images()
     {
         return $this->hasMany(MasjidImage::class);
