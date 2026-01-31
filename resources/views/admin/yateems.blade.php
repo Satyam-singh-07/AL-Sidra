@@ -106,8 +106,6 @@
                                         {{ ucfirst($help->status) }}
                                     </span>
                                 </td>
-
-
                                 <td class="action-buttons">
                                     <a href="{{ route('yateems-helps.show', $help) }}"
                                         class="btn btn-sm btn-outline-success">
@@ -164,7 +162,10 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                    if (!data.status) return;
+
+                    badge.textContent =
+                        data.status.charAt(0).toUpperCase() + data.status.slice(1);
 
                     badge.classList.remove(
                         'bg-success',
@@ -183,5 +184,6 @@
                 });
         });
     </script>
+
 
 @endsection

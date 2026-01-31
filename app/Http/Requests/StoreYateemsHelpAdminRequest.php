@@ -15,6 +15,7 @@ class StoreYateemsHelpAdminRequest extends FormRequest
     {
         return [
             'title'       => 'required|string|max:255',
+            'status' => 'required|in:active,inactive,pending',
             'description' => 'required|string',
 
             'images'      => 'required|array|min:1',

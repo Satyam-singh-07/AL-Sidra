@@ -103,7 +103,7 @@ class YateemController extends Controller
         $nextStatus = match ($yateemsHelp->status) {
             'pending'  => 'active',
             'active'   => 'inactive',
-            'inactive' => 'active',
+            'inactive' => 'pending',
             default    => 'pending',
         };
 
