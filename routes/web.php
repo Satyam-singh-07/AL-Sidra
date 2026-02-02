@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\HotTopicController;
+use App\Http\Controllers\Admin\MadrasaController;
 use App\Http\Controllers\Admin\MasjidController;
 use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
@@ -85,5 +86,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('restaurants', RestaurantController::class);
         Route::post('restaurants/{restaurant}/approve', [RestaurantController::class, 'approve'])->name('admin.restaurants.approve');
         Route::post('restaurants/{restaurant}/reject', [RestaurantController::class, 'reject'])->name('admin.restaurants.reject');
+
+        Route::resource('madaris',MadrasaController::class);
     });
 });

@@ -44,6 +44,7 @@ class MasjidController extends Controller
                 )
             ) AS distance
         ", [$lat, $lng, $lat])
+            ->where('masjids.status', 'active')
             ->with(['images' => function ($q) {
                 $q->select('id', 'masjid_id', 'image_path')
                     ->orderBy('id')

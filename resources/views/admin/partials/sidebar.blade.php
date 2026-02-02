@@ -12,17 +12,22 @@
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
 
-            <a href="" class="list-group-item list-group-item-action">
+            {{-- <a href="" class="list-group-item list-group-item-action">
                 <i class="fas fa-book-open"></i> Quran PDF
             </a>
 
             <a href="" class="list-group-item list-group-item-action">
                 <i class="fas fa-praying-hands"></i> Namaz Content
-            </a>
+            </a> --}}
 
             <a href="{{ route('masjids.index') }}"
                 class="list-group-item list-group-item-action {{ request()->routeIs('masjids.index') ? 'active' : '' }}">
                 <i class="fas fa-mosque"></i> Masjid Listing
+            </a>
+
+            <a href="{{ route('madaris.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('madaris.index') ? 'active' : '' }}">
+                <i class="fas fa-school"></i> Madrasa Listing
             </a>
 
             <a href="{{ route('restaurants.index') }}"
