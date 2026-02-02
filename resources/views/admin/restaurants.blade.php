@@ -85,10 +85,10 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
+            </div>a
 
             <div class="mt-4">
-                {{ $restaurants->links() }}
+                @include('admin.partials.pagination', ['paginator' => $restaurants])
             </div>
         </div>
     </div>

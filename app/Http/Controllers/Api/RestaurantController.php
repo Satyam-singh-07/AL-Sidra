@@ -21,11 +21,15 @@ class RestaurantController extends Controller
         ], 201);
     }
 
-    public function index(RestaurantService $service)
+    public function index(Request $request, RestaurantService $service)
     {
-        return response()->json([
-            'data' => $service->listForUser(auth()->user())
-        ]);
+        return response()->json(
+            $service->listForUser(
+                auth()->user(),
+                $request->get('search'),
+                (int) $request->get('per_page', 10)
+            )
+        );
     }
 
     public function restaurantDetails(

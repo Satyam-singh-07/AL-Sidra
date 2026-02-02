@@ -52,7 +52,7 @@ class RestaurantService
         });
     }
 
-    public function listForUser(User $user)
+    public function listForUser(User $user, ?string $search, int $perPage = 10)
     {
         if (!$user->latitude || !$user->longitude) {
             throw new \Exception('User location not available');
@@ -60,7 +60,9 @@ class RestaurantService
 
         return $this->restaurantRepo->listWithDistance(
             $user->latitude,
-            $user->longitude
+            $user->longitude,
+            $search,
+            $perPage
         );
     }
 
