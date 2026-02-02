@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MasjidController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\OngoingWorkApiController;
 use App\Http\Controllers\Api\ReligiousInfoController;
+use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 use App\Http\Controllers\Api\VideoController;
@@ -83,4 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('yateems-helps', [YateemsHelpController::class, 'storeUser']);
     Route::get('yateems-helps', [YateemsHelpController::class, 'index']);
     Route::get('yateems-helps/{id}', [YateemsHelpController::class, 'show']);
+    Route::post('restaurants', [RestaurantController::class, 'store']);
+    Route::get('restaurants', [RestaurantController::class, 'index']);
+    Route::get('restaurants/{id}',[RestaurantController::class,'restaurantDetails']);
 });
