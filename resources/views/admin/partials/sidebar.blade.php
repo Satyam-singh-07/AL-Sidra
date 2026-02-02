@@ -25,6 +25,11 @@
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 
+            <a href="{{ route('restaurants.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('restaurants.index') ? 'active' : '' }}">
+                <i class="fas fa-utensils"></i> Restaurants Requests
+            </a>
+
             <a href="{{ route('yateems-helps.index') }}"
                 class="list-group-item list-group-item-action {{ request()->routeIs('yateems-helps.index') ? 'active' : '' }}">
                 <i class="fas fa-hands-helping"></i> Yateem Listing

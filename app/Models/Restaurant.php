@@ -42,4 +42,9 @@ class Restaurant extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function firstImage()
+    {
+        return $this->hasOne(RestaurantImage::class)->oldestOfMany();
+    }
 }

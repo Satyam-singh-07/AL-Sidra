@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
 use App\Http\Controllers\Admin\OngoingWorkController;
 use App\Http\Controllers\Admin\ReligionInfoController;
+use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\TopicUpdateController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
@@ -80,5 +81,9 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('yateems-helps', YateemController::class);
         Route::patch('/yateems-helps/{yateemsHelp}/status', [YateemController::class, 'toggleStatus'])->name('yateems-helps.toggle-status');
+
+        Route::resource('restaurants', RestaurantController::class);
+        Route::post('restaurants/{restaurant}/approve', [RestaurantController::class, 'approve'])->name('admin.restaurants.approve');
+        Route::post('restaurants/{restaurant}/reject', [RestaurantController::class, 'reject'])->name('admin.restaurants.reject');
     });
 });
