@@ -25,8 +25,8 @@
                 <i class="fas fa-mosque"></i> Masjid Listing
             </a>
 
-            <a href="{{ route('madaris.index') }}"
-                class="list-group-item list-group-item-action {{ request()->routeIs('madaris.index') ? 'active' : '' }}">
+            <a href="{{ route('madarsas.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('madarsas.index') ? 'active' : '' }}">
                 <i class="fas fa-school"></i> Madrasa Listing
             </a>
 

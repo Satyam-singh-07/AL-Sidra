@@ -85,7 +85,7 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>a
+            </div>
 
             <div class="mt-4">
                 @include('admin.partials.pagination', ['paginator' => $restaurants])

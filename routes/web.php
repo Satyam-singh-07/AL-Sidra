@@ -87,6 +87,10 @@ Route::prefix('admin')->group(function () {
         Route::post('restaurants/{restaurant}/approve', [RestaurantController::class, 'approve'])->name('admin.restaurants.approve');
         Route::post('restaurants/{restaurant}/reject', [RestaurantController::class, 'reject'])->name('admin.restaurants.reject');
 
-        Route::resource('madaris',MadrasaController::class);
+        Route::resource('madarsas', MadrasaController::class);
+        Route::patch(
+            'madarsas/{madarsa}/status',
+            [MadrasaController::class, 'cycleStatus']
+        )->name('madarsas.status');
     });
 });

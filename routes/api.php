@@ -86,5 +86,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('yateems-helps/{id}', [YateemsHelpController::class, 'show']);
     Route::post('restaurants', [RestaurantController::class, 'store']);
     Route::get('restaurants', [RestaurantController::class, 'index']);
-    Route::get('restaurants/{id}',[RestaurantController::class,'restaurantDetails']);
+    Route::get('restaurants/{id}', [RestaurantController::class, 'restaurantDetails']);
+    Route::post('madarsas', [MadarsaController::class, 'store']);
+    Route::get('madarsas', [MadarsaController::class, 'listMadarsas']);
+    Route::get('madarsas/{id}', [MadarsaController::class, 'showMadarsaDetails']);
 });

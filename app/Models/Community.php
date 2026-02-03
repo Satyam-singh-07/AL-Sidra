@@ -17,5 +17,10 @@ class Community extends Model
     {
         return $this->hasOne(Masjid::class);
     }
+
+    public function madarsa()
+    {
+        return $this->hasOne(Madarsa::class);
+    }
 }
 
