@@ -25,11 +25,14 @@ class TopicUpdateController extends Controller
                 'id'        => $hotTopic->id,
                 'title'     => $hotTopic->title,
                 'image_url' => $hotTopic->image_url,
+                'video_url' => $hotTopic->video_url,
             ],
             'data' => $updates->through(fn ($update) => [
                 'id'         => $update->id,
                 'title'      => $update->title,
                 'content'    => $update->content,
+                'image_url'  => $update->image_url,
+                'video_url'  => $update->video_url,
                 'created_at' => $update->created_at->toDateTimeString(),
             ]),
             'meta' => [
