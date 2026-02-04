@@ -73,6 +73,7 @@ Route::get('stac', [StaticDataController::class, 'stac']);
 Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
+Route::get('religious-info/{id}', [ReligiousInfoController::class, 'show']);
 Route::get('videos', [VideoController::class, 'index']);
 Route::get('communities', [CommunityController::class, 'communityList']);
 

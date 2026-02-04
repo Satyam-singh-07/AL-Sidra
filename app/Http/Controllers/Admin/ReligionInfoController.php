@@ -27,7 +27,7 @@ class ReligionInfoController extends Controller
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', "%{$request->search}%")
-                ->orWhere('content', 'like', "%{$request->search}%");
+                    ->orWhere('content', 'like', "%{$request->search}%");
             });
         }
 
@@ -125,5 +125,4 @@ class ReligionInfoController extends Controller
             ->route('religion-info.index')
             ->with('success', 'Information deleted successfully');
     }
-
 }
