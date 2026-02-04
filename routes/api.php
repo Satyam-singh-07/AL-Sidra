@@ -76,6 +76,20 @@ Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('religious-info/{id}', [ReligiousInfoController::class, 'show']);
 Route::get('videos', [VideoController::class, 'index']);
 Route::get('communities', [CommunityController::class, 'communityList']);
+Route::get('13-line-quran', function () {
+    return response()->json([
+        'type' => '13-line',
+        'language' => 'arabic',
+        'pdf_url' => asset('storage/quran/Quran Majeed (Arabic only - 13 Line).pdf'),
+    ]);
+});
+Route::post('upload-file', function (Request $request) {
+    if ($request->hasFile('file')) {
+        $path = $request->file('file')->store('quran', 'public');
+        return response()->json(['file_url' => asset('storage/' . $path)]);
+    }
+    return response()->json(['error' => 'No file uploaded'], 400);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
