@@ -17,6 +17,9 @@ class Restaurant extends Model
         'menu_image',
         'video',
         'status',
+        'contact_number',
+        'opening_time',
+        'closing_time',
     ];
 
     protected $appends = ['video_url', 'menu_image_url'];

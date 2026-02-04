@@ -17,6 +17,9 @@ class StoreRestaurantRequest extends FormRequest
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
             'address'     => 'required|string',
+            'contact_number' => 'required|string|max:20',
+            'opening_time'  => 'required|date_format:H:i',
+            'closing_time'  => 'required|date_format:H:i',
 
             'latitude'    => 'nullable|numeric',
             'longitude'   => 'nullable|numeric',
