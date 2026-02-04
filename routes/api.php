@@ -90,4 +90,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('madarsas', [MadarsaController::class, 'store']);
     Route::get('madarsas', [MadarsaController::class, 'listMadarsas']);
     Route::get('madarsas/{id}', [MadarsaController::class, 'showMadarsaDetails']);
+    Route::post('language', [AuthController::class, 'updateLanguage']);
 });

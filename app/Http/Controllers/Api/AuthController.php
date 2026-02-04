@@ -266,4 +266,19 @@ class AuthController extends Controller
             'data' => $validated,
         ]);
     }
+
+    public function updateLanguage(Request $request)
+    {
+        $validated = $request->validate([
+            'language' => ['required','string','max:2']
+        ]);
+
+        $user = $request->user();
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Language updated successfully',
+            'data' => $validated,
+        ]);
+    }
 }
