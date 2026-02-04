@@ -84,13 +84,18 @@ Route::get('13-line-quran', function () {
     ]);
 });
 Route::post('upload-file', function (Request $request) {
-    dd($request->all());
-    if ($request->hasFile('file')) {
-        $path = $request->file('file')->store('quran', 'public');
-        return response()->json(['file_url' => asset('storage/' . $path)]);
-    }
-    return response()->json(['error' => 'No file uploaded'], 400);
+
+    $request->validate([
+        'file' => 'required|file|mimes:pdf|max:30720',
+    ]);
+
+    $path = $request->file('file')->store('quran', 'public');
+
+    return response()->json([
+        'file_url' => asset('storage/' . $path),
+    ]);
 });
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
