@@ -84,6 +84,7 @@ Route::get('13-line-quran', function () {
     ]);
 });
 Route::post('upload-file', function (Request $request) {
+    dd($request->all());
     if ($request->hasFile('file')) {
         $path = $request->file('file')->store('quran', 'public');
         return response()->json(['file_url' => asset('storage/' . $path)]);
