@@ -94,15 +94,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('language', [AuthController::class, 'updateLanguage']);
 });
 
-
-Route::get('13-line-quran', function () {
-    return response()->json([
-        'type' => '13-line',
-        'language' => 'arabic',
-        'pdf_url' => asset('storage/quran/Quran Majeed (Arabic only - 13 Line).pdf'),
-    ]);
-});
-
 Route::post('upload-file', function (Request $request) {
 
     $request->validate([
