@@ -487,4 +487,98 @@ class StaticDataController extends Controller
             ]
         ]);
     }
+
+    public function appGuidance(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'App guidance fetched successfully',
+            'data' => [
+                'title' => 'How AL-SIDRA Guides Your Spiritual Journey',
+                'sections' => [
+                    [
+                        'title' => 'Daily Connection with Quran',
+                        'description' => 'We guide you to maintain daily Quran connection through structured reading plans and audio recitation reminders.',
+                        'features' => [
+                            'Daily ayat with translation',
+                            'Personalized reading schedule',
+                            'Audio reminders for listening sessions',
+                            'Progress tracking and insights'
+                        ]
+                    ],
+                    [
+                        'title' => 'Perfecting Your Salah',
+                        'description' => 'Step-by-step guidance for learning and improving your prayers with visual aids and pronunciation help.',
+                        'features' => [
+                            'Animation-guided prayer steps',
+                            'Common mistakes to avoid',
+                            'Dua library for each prayer position',
+                            'Prayer time notifications with preparation reminders'
+                        ]
+                    ],
+                    [
+                        'title' => 'Finding Spiritual Community',
+                        'description' => 'We guide you to connect with local masjids and madrasas, fostering community bonds and collective worship.',
+                        'features' => [
+                            'Personalized masjid recommendations',
+                            'Community event discovery',
+                            'Group study circle connections',
+                            'Volunteer opportunity matching'
+                        ]
+                    ],
+                    [
+                        'title' => 'Authentic Islamic Learning',
+                        'description' => 'Curated guidance through verified Islamic knowledge from authentic sources with progressive learning paths.',
+                        'features' => [
+                            'Verified hadees collections',
+                            'Fiqh rulings with scholarly references',
+                            'Seerah learning journey',
+                            'Islamic history timelines'
+                        ]
+                    ],
+                    [
+                        'title' => 'Meaningful Charity & Support',
+                        'description' => 'Guiding your sadaqah and zakat to create maximum impact with transparency and trust.',
+                        'features' => [
+                            'Verified yateem support programs',
+                            'Real-time project updates',
+                            'Impact measurement reports',
+                            'Recurring donation scheduling'
+                        ]
+                    ],
+                    [
+                        'title' => 'Digital Islamic Lifestyle',
+                        'description' => 'Integrating Islamic principles into your daily digital life with reminders, qibla finder, and halal services.',
+                        'features' => [
+                            'Prayer time smart notifications',
+                            'Qibla direction anywhere',
+                            'Halal dining recommendations',
+                            'Islamic date and event calendar'
+                        ]
+                    ],
+                    [
+                        'title' => 'Family Spiritual Development',
+                        'description' => 'Guidance for involving your family in Islamic learning and community activities together.',
+                        'features' => [
+                            'Children-friendly Quran learning',
+                            'Family prayer tracking',
+                            'Islamic game-based learning',
+                            'Family charity projects'
+                        ]
+                    ],
+                    [
+                        'title' => 'Continuous Self-Improvement',
+                        'description' => 'Personalized spiritual growth plans with milestones and achievement tracking.',
+                        'features' => [
+                            'Personal ibadah tracker',
+                            'Dhikr counter and reminders',
+                            'Fasting and special day alerts',
+                            'Spiritual journal prompts'
+                        ]
+                    ]
+                ],
+                'core_principle' => 'AL-SIDRA guides you not just to use an app, but to live a more connected, meaningful Islamic life through technology.'
+            ]
+        ]);
+    }
 }

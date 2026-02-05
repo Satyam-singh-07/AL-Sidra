@@ -81,6 +81,7 @@ Route::get('terms-conditions', [StaticDataController::class, 'termsConditions'])
 Route::get('community-guidelines', [StaticDataController::class, 'communityGuidelines']);
 Route::get('app-guide', [StaticDataController::class, 'appGuide']);
 Route::get('help', [StaticDataController::class, 'helpSupport']);
+Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
