@@ -56,4 +56,22 @@ class Madarsa extends Model
     {
         return $this->hasMany(MadarsaImage::class);
     }
+
+    public function memberProfiles()
+    {
+        return $this->hasMany(MemberProfile::class, 'place_id')
+            ->where('place_type', 'madarsa');
+    }
+
+    public function members()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            MemberProfile::class,
+            'place_id',   // MemberProfile.place_id
+            'id',         // User.id
+            'id',         // Madarsa.id
+            'user_id'     // MemberProfile.user_id
+        )->where('place_type', 'madarsa');
+    }
 }

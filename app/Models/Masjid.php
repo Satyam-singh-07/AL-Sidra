@@ -45,4 +45,22 @@ class Masjid extends Model
     {
         return $this->belongsTo(Community::class);
     }
+
+    public function memberProfiles()
+    {
+        return $this->hasMany(MemberProfile::class, 'place_id')
+            ->where('place_type', 'masjid');
+    }
+
+    public function members()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            MemberProfile::class,
+            'place_id',   // Foreign key on MemberProfile table
+            'id',         // Foreign key on User table
+            'id',         // Local key on Masjid table
+            'user_id'     // Local key on MemberProfile table
+        )->where('place_type', 'masjid');
+    }
 }

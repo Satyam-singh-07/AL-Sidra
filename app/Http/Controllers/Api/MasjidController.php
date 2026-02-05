@@ -112,7 +112,10 @@ class MasjidController extends Controller
 
     public function showMasjidDetails($id)
     {
-        $masjid = Masjid::with('images')->find($id);
+        $masjid = Masjid::with([
+            'images',
+            'members.memberProfile.category'
+        ])->find($id);
 
         if (!$masjid) {
             return response()->json([
@@ -123,7 +126,18 @@ class MasjidController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $masjid,
+            'data' => [
+                'masjid' => $masjid,
+                'members' => $masjid->members->map(function ($member) {
+                    return [
+                        'id'       => $member->id,
+                        'name'     => $member->name,
+                        'phone'    => $member->phone,
+                        'category' => $member->memberProfile->category->name ?? null,
+                        'kyc_status' => $member->memberProfile->kyc_status,
+                    ];
+                })
+            ]
         ]);
     }
 }

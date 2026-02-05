@@ -101,7 +101,10 @@ class MadarsaController extends Controller
 
     public function showMadarsaDetails($id)
     {
-        $madarsa = Madarsa::with('images')->find($id);
+        $madarsa = Madarsa::with([
+            'images',
+            'members.memberProfile.category'
+        ])->find($id);
 
         if (!$madarsa) {
             return response()->json([
@@ -121,9 +124,21 @@ class MadarsaController extends Controller
                 'longitude' => $madarsa->longitude,
                 'registration_number' => $madarsa->registration_number,
                 'registration_date' => $madarsa->registration_date,
-                'passbook' => $madarsa->passbook_url ?? null,
-                'video' => $madarsa->video_url ?? null,
+                'passbook' => $madarsa->passbook_url,
+                'video' => $madarsa->video_url,
+
                 'images' => $madarsa->images->map(fn($img) => $img->image_url),
+
+                // ✅ Members Connected
+                'members' => $madarsa->members->map(function ($member) {
+                    return [
+                        'id' => $member->id,
+                        'name' => $member->name,
+                        'phone' => $member->phone,
+                        'category' => $member->memberProfile->category->name ?? null,
+                        'kyc_status' => $member->memberProfile->kyc_status ?? null,
+                    ];
+                }),
             ],
         ]);
     }
