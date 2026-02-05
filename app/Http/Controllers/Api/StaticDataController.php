@@ -258,4 +258,233 @@ class StaticDataController extends Controller
             ]
         ]);
     }
+
+    public function appGuide(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'App guide fetched successfully',
+            'data' => [
+                'title' => 'AL-SIDRA App Guide',
+                'last_updated' => '2024-02-15',
+                'sections' => [
+                    [
+                        'icon' => '📖',
+                        'title' => 'Quran Reading & Listening',
+                        'description' => 'Access complete Quran with translation and tafsir',
+                        'steps' => [
+                            'Tap Quran icon from main dashboard',
+                            'Select Surah from list or use search',
+                            'Toggle between reading mode and audio recitation',
+                            'Adjust recitation speed and choose Qari',
+                            'Bookmark verses and save favorites'
+                        ],
+                        'quick_tip' => 'Use night mode for comfortable reading'
+                    ],
+                    [
+                        'icon' => '🕌',
+                        'title' => 'Masjid & Madrasa Discovery',
+                        'description' => 'Find Islamic institutions near you',
+                        'steps' => [
+                            'Go to "Find" section from bottom menu',
+                            'Enable location access for nearby results',
+                            'Filter by type (Masjid/Madrasa) and distance',
+                            'View institution details, prayer times, and services',
+                            'Save favorite institutions for quick access'
+                        ],
+                        'quick_tip' => 'Check prayer times before visiting'
+                    ],
+                    [
+                        'icon' => '🤲',
+                        'title' => 'Learn Salah (Namaz)',
+                        'description' => 'Step-by-step prayer guidance',
+                        'steps' => [
+                            'Select "Learn" from main menu',
+                            'Choose prayer type (Fard, Sunnah, Nafl)',
+                            'Follow visual step-by-step instructions',
+                            'Listen to Arabic pronunciation',
+                            'Practice with virtual guidance'
+                        ],
+                        'quick_tip' => 'Use practice mode without time pressure'
+                    ],
+                    [
+                        'icon' => '📚',
+                        'title' => 'Islamic Knowledge Library',
+                        'description' => 'Access authentic Islamic content',
+                        'steps' => [
+                            'Visit "Library" section',
+                            'Browse categories: Hadith, Fiqh, Seerah, Articles',
+                            'Read Sahih Hadith collections with explanations',
+                            'Bookmark important content for offline reading',
+                            'Adjust text size and theme for comfort'
+                        ],
+                        'quick_tip' => 'Use offline download for travel'
+                    ],
+                    [
+                        'icon' => '❤️',
+                        'title' => 'Yateem Support & Donations',
+                        'description' => 'Support orphans and community projects',
+                        'steps' => [
+                            'Go to "Support" section',
+                            'Browse verified Yateem support requests',
+                            'Select amount and payment method',
+                            'Track your donation status and impact',
+                            'View ongoing projects funded by donations'
+                        ],
+                        'quick_tip' => 'Set up recurring donations for consistent support'
+                    ],
+                    [
+                        'icon' => '🧭',
+                        'title' => 'Qibla Direction Finder',
+                        'description' => 'Always find the right prayer direction',
+                        'steps' => [
+                            'Open "Qibla" from prayer section',
+                            'Allow compass and location access',
+                            'Follow the arrow pointing to Kaaba',
+                            'Calibrate compass if needed by moving phone in figure 8',
+                            'Save multiple locations (home, office, travel)'
+                        ],
+                        'quick_tip' => 'Works offline using saved location data'
+                    ],
+                    [
+                        'icon' => '📢',
+                        'title' => 'Community Updates & Hot Topics',
+                        'description' => 'Stay updated with important announcements',
+                        'steps' => [
+                            'Check "Updates" on main dashboard',
+                            'Read important Islamic date reminders',
+                            'View community announcements from local masjids',
+                            'Enable notifications for urgent updates',
+                            'Share important information with family'
+                        ],
+                        'quick_tip' => 'Pin important updates for quick access'
+                    ],
+                    [
+                        'icon' => '🍽️',
+                        'title' => 'Halal Restaurant Finder',
+                        'description' => 'Find and share halal dining options',
+                        'steps' => [
+                            'Go to "Dining" section',
+                            'Search restaurants by location or cuisine',
+                            'Filter by halal certification status',
+                            'Add your favorite restaurant with details',
+                            'Rate and review dining experiences'
+                        ],
+                        'quick_tip' => 'Check prayer facility availability in restaurant details'
+                    ],
+                    [
+                        'icon' => '🎥',
+                        'title' => 'Islamic Videos & Content',
+                        'description' => 'Watch educational and inspirational videos',
+                        'steps' => [
+                            'Tap "Videos" from explore section',
+                            'Browse categories: Lectures, Nasheeds, Children, Stories',
+                            'Like and save videos to your playlist',
+                            'Adjust playback speed and quality',
+                            'Download for offline viewing'
+                        ],
+                        'quick_tip' => 'Create themed playlists for different moods'
+                    ],
+                    [
+                        'icon' => '📊',
+                        'title' => 'Donation Transparency',
+                        'description' => 'See how your contributions help',
+                        'steps' => [
+                            'Visit "Our Work" in support section',
+                            'View detailed reports of ongoing projects',
+                            'See photos and updates of completed work',
+                            'Track impact metrics and beneficiary stories',
+                            'Download annual transparency reports'
+                        ],
+                        'quick_tip' => 'Set project notifications for updates'
+                    ],
+                    [
+                        'icon' => '⚙️',
+                        'title' => 'Account & Settings',
+                        'description' => 'Customize your app experience',
+                        'steps' => [
+                            'Tap profile icon top right',
+                            'Update personal information and preferences',
+                            'Set prayer time calculation method',
+                            'Choose notification preferences',
+                            'Manage privacy and data settings'
+                        ],
+                        'quick_tip' => 'Enable biometric login for security'
+                    ],
+                    [
+                        'icon' => '🆘',
+                        'title' => 'Need Help?',
+                        'description' => 'Get assistance with app features',
+                        'steps' => [
+                            'Go to "Help & Support" in settings',
+                            'Browse FAQ for common questions',
+                            'Use in-app chat for immediate help',
+                            'Report issues or suggest features',
+                            'Contact community support team'
+                        ],
+                        'quick_tip' => 'Check video tutorials in help section'
+                    ]
+                ],
+                'quick_start' => [
+                    '1. Complete your profile setup',
+                    '2. Enable location for nearby services',
+                    '3. Set your preferred prayer calculation method',
+                    '4. Explore Quran section with audio feature',
+                    '5. Bookmark your local masjid for quick access'
+                ]
+            ]
+        ]);
+    }
+
+    public function helpSupport(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Help and support information fetched successfully',
+            'data' => [
+                'title' => 'Help & Support',
+                'sections' => [
+                    [
+                        'title' => 'Contact Support',
+                        'items' => [
+                            ['type' => 'email', 'value' => 'support@alsidra.com', 'label' => 'Email Support'],
+                            ['type' => 'phone', 'value' => '+1-800-AL-SIDRA', 'label' => 'Phone Support (9AM-6PM)'],
+                            ['type' => 'chat', 'value' => 'In-app Chat', 'label' => '24/7 Live Chat']
+                        ]
+                    ],
+                    [
+                        'title' => 'Quick Help',
+                        'items' => [
+                            ['type' => 'link', 'value' => '/faq', 'label' => 'Frequently Asked Questions'],
+                            ['type' => 'link', 'value' => '/guide', 'label' => 'User Guide & Tutorials'],
+                            ['type' => 'link', 'value' => '/video-tutorials', 'label' => 'Video Tutorials'],
+                            ['type' => 'link', 'value' => '/troubleshooting', 'label' => 'Troubleshooting Guide']
+                        ]
+                    ],
+                    [
+                        'title' => 'Report Issues',
+                        'items' => [
+                            ['type' => 'link', 'value' => '/report-bug', 'label' => 'Report a Bug'],
+                            ['type' => 'link', 'value' => '/suggest-feature', 'label' => 'Suggest a Feature'],
+                            ['type' => 'link', 'value' => '/report-content', 'label' => 'Report Inappropriate Content']
+                        ]
+                    ],
+                    [
+                        'title' => 'Community Help',
+                        'items' => [
+                            ['type' => 'link', 'value' => '/community-forum', 'label' => 'Community Forum'],
+                            ['type' => 'link', 'value' => '/knowledge-base', 'label' => 'Knowledge Base'],
+                            ['type' => 'link', 'value' => '/masjid-support', 'label' => 'Masjid Admin Support']
+                        ]
+                    ]
+                ],
+                'emergency' => [
+                    'title' => 'Urgent Support',
+                    'message' => 'For account security issues or urgent matters',
+                    'contact' => 'security@alsidra.com',
+                    'available' => '24/7'
+                ]
+            ]
+        ]);
+    }
 }
