@@ -24,11 +24,16 @@ class Masjid extends Model
         'longitude',
     ];
 
-    protected $appends = ['video_url'];
+    protected $appends = ['video_url','passbook_url'];
 
     public function getVideoUrlAttribute()
     {
         return $this->video ? asset('storage/' . $this->video) : null;
+    }
+
+    public function getPassbookUrlAttribute()
+    {
+        return $this->passbook ? asset('storage/' . $this->passbook) : null;
     }
 
     public function images()
