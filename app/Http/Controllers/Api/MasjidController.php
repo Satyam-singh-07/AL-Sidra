@@ -53,8 +53,7 @@ class MasjidController extends Controller
             ->where('masjids.status', 'active')
             ->with(['images' => function ($q) {
                 $q->select('id', 'masjid_id', 'image_path')
-                    ->orderBy('id')
-                    ->limit(1);
+                    ->orderBy('id');
             }]);
 
         // ✅ Search filter
@@ -70,17 +69,20 @@ class MasjidController extends Controller
             ->paginate($perPage);
 
         $masjids->getCollection()->transform(function ($masjid) {
+
+            $firstImage = $masjid->images->first();
+
             return [
                 'id'       => $masjid->id,
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
 
-                // ✅ Only first image URL
-                'image_url' => optional($masjid->images->first())->image_url,
+                'image'    => $firstImage ? $firstImage->image_url : null,
 
                 'distance' => round($masjid->distance, 2),
             ];
         });
+
 
         return response()->json([
             'success' => true,
