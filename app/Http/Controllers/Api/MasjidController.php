@@ -20,6 +20,7 @@ class MasjidController extends Controller
     {
         $user = $request->user();
 
+        // ✅ User must have location
         if (!$user->latitude || !$user->longitude) {
             return response()->json([
                 'success' => false,
@@ -30,44 +31,48 @@ class MasjidController extends Controller
         $lat = $user->latitude;
         $lng = $user->longitude;
 
-        // Search input (optional)
+        // Optional search
         $search = $request->query('search');
 
-        // Pagination input (optional)
+        // Pagination
         $perPage = $request->query('per_page', 10);
 
-        $query = Masjid::selectRaw("
-        masjids.id,
-        masjids.name,
-        masjids.address,
-        (
-            6371 * acos(
-                cos(radians(?)) *
-                cos(radians(masjids.latitude)) *
-                cos(radians(masjids.longitude) - radians(?)) +
-                sin(radians(?)) *
-                sin(radians(masjids.latitude))
-            )
-        ) AS distance
-    ", [$lat, $lng, $lat])
+        // ✅ Main Query (Fixed)
+        $query = Masjid::select('masjids.*') // VERY IMPORTANT
+            ->selectRaw("
+            (
+                6371 * acos(
+                    cos(radians(?)) *
+                    cos(radians(masjids.latitude)) *
+                    cos(radians(masjids.longitude) - radians(?)) +
+                    sin(radians(?)) *
+                    sin(radians(masjids.latitude))
+                )
+            ) AS distance
+        ", [$lat, $lng, $lat])
+
             ->where('masjids.status', 'active')
+
+            // ✅ Load images properly
             ->with(['images' => function ($q) {
                 $q->select('id', 'masjid_id', 'image_path')
                     ->orderBy('id');
             }]);
 
         // ✅ Search filter
-        if ($search) {
+        if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('masjids.name', 'LIKE', "%{$search}%")
                     ->orWhere('masjids.address', 'LIKE', "%{$search}%");
             });
         }
 
+        // ✅ Paginate Results
         $masjids = $query
             ->orderBy('distance')
             ->paginate($perPage);
 
+        // ✅ Transform Response
         $masjids->getCollection()->transform(function ($masjid) {
 
             $firstImage = $masjid->images->first();
@@ -77,13 +82,13 @@ class MasjidController extends Controller
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
 
-                'image'    => $firstImage ? $firstImage->image_url : null,
+                'image_url'    => $firstImage ? $firstImage->image_url : null,
 
                 'distance' => round($masjid->distance, 2),
             ];
         });
 
-
+        // ✅ Final API Response
         return response()->json([
             'success' => true,
             'data'    => $masjids->items(),
@@ -95,6 +100,7 @@ class MasjidController extends Controller
             ]
         ]);
     }
+
 
 
 
