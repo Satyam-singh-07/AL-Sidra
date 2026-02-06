@@ -16,5 +16,3 @@ class OngoingWorkImage extends Model
         return asset('storage/' . $this->path);
     }
 }
-
-

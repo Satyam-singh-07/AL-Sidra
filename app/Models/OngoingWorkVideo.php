@@ -16,5 +16,3 @@ class OngoingWorkVideo extends Model
         return asset('storage/' . $this->path);
     }
 }
-
-

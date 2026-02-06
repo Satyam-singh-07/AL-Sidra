@@ -265,9 +265,9 @@
                         </div>
 
                         <!-- <div class="mb-3">
-                                                                            <label class="form-label">Additional Notes</label>
-                                                                            <textarea class="form-control" rows="2" placeholder="Any additional information"></textarea>
-                                                                        </div> -->
+                                                                                <label class="form-label">Additional Notes</label>
+                                                                                <textarea class="form-control" rows="2" placeholder="Any additional information"></textarea>
+                                                                            </div> -->
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
