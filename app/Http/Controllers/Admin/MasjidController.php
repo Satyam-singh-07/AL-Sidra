@@ -70,6 +70,8 @@ class MasjidController extends Controller
             'community',
             'images',
             'user',
+            'memberProfiles.user',
+            'memberProfiles.category',
         ]);
 
         return view('admin.masjids-show', compact('masjid'));
