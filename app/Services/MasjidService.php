@@ -85,13 +85,13 @@ class MasjidService
                 ]);
             }
 
-            if (!empty($data['video'])) {
-                if ($masjid->video_path) {
-                    Storage::disk('public')->delete($masjid->video_path);
+            if (!empty($data['masjid_video'])) {
+                if ($masjid->video) {
+                    Storage::disk('public')->delete($masjid->video);
                 }
 
                 $masjid->update([
-                    'video' => $data['video']->store('masjids/videos', 'public')
+                    'video' => $data['masjid_video']->store('masjids/videos', 'public')
                 ]);
             }
 
