@@ -65,18 +65,19 @@ class MasjidController extends Controller
             });
         }
 
-        // ✅ Paginate instead of get()
         $masjids = $query
             ->orderBy('distance')
             ->paginate($perPage);
 
-        // ✅ Transform paginated results
         $masjids->getCollection()->transform(function ($masjid) {
             return [
                 'id'       => $masjid->id,
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
-                'image_url'    => $masjid->images->first(),
+
+                // ✅ Only first image URL
+                'image_url' => optional($masjid->images->first())->image_url,
+
                 'distance' => round($masjid->distance, 2),
             ];
         });
