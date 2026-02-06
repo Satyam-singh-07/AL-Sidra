@@ -78,6 +78,8 @@ class MadrasaController extends Controller
             'community',
             'images',
             'user',
+            'memberProfiles.user',
+            'memberProfiles.category',
         ]);
 
         return view('admin.madarsas-show', compact('madarsa'));
