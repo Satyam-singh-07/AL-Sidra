@@ -46,7 +46,10 @@ class OngoingWorkController extends Controller
         ]);
 
         $work = OngoingWork::create($request->only(
-            'title', 'status', 'description', 'address'
+            'title',
+            'status',
+            'description',
+            'address'
         ));
 
         foreach ($request->images as $image) {
@@ -68,8 +71,10 @@ class OngoingWorkController extends Controller
     public function show($id)
     {
         $work = OngoingWork::with(['images', 'videos'])->findOrFail($id);
+
         return response()->json($work);
     }
+
 
 
     /**
@@ -87,9 +92,42 @@ class OngoingWorkController extends Controller
     {
         $work = OngoingWork::findOrFail($id);
 
-        $work->update($request->only('title','status','description','address'));
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'status' => 'required',
+            'description' => 'required',
+            'address' => 'required',
 
-        return response()->json(['success' => true]);
+            'images' => 'nullable|array',
+            'images.*' => 'image|max:10240',
+
+            'videos' => 'nullable|array',
+            'videos.*' => 'mimetypes:video/mp4,video/quicktime|max:51200',
+        ]);
+
+        // Update text fields
+        $work->update($request->only('title', 'status', 'description', 'address'));
+
+        // Add New Images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store("ongoing-works/images", "public");
+                $work->images()->create(['path' => $path]);
+            }
+        }
+
+        // Add New Videos
+        if ($request->hasFile('videos')) {
+            foreach ($request->file('videos') as $video) {
+                $path = $video->store("ongoing-works/videos", "public");
+                $work->videos()->create(['path' => $path]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Work updated successfully'
+        ]);
     }
 
     /**
@@ -97,19 +135,23 @@ class OngoingWorkController extends Controller
      */
     public function destroy($id)
     {
-        $work = OngoingWork::with(['images','videos'])->findOrFail($id);
+        $work = OngoingWork::with(['images', 'videos'])->findOrFail($id);
 
         foreach ($work->images as $img) {
             Storage::disk('public')->delete($img->path);
+            $img->delete(); // delete row
         }
 
         foreach ($work->videos as $vid) {
             Storage::disk('public')->delete($vid->path);
+            $vid->delete(); // delete row
         }
 
         $work->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Work deleted successfully'
+        ]);
     }
-
 }

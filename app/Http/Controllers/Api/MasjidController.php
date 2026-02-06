@@ -76,9 +76,7 @@ class MasjidController extends Controller
                 'id'       => $masjid->id,
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
-                'image'    => $masjid->images->first()
-                    ? asset('storage/' . $masjid->images->first()->image_path)
-                    : null,
+                'image_url'    => $masjid->images->first(),
                 'distance' => round($masjid->distance, 2),
             ];
         });
