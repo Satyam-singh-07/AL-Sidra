@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email','language', 'phone', 'password', 'status','address','latitude','longitude'];
+    protected $fillable = ['name', 'email', 'language', 'phone', 'password', 'status', 'address', 'latitude', 'longitude'];
 
     public function roles()
     {
@@ -56,5 +56,12 @@ class User extends Authenticatable
     public function yateemsHelps()
     {
         return $this->hasMany(YateemsHelp::class);
+    }
+
+    public function canAccess(string $module): bool
+    {
+        return $this->roles()
+            ->whereHas('modules', fn($q) => $q->where('module', $module))
+            ->exists();
     }
 }

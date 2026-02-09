@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\MemberCategoryController;
 use App\Http\Controllers\Admin\OngoingWorkController;
 use App\Http\Controllers\Admin\ReligionInfoController;
 use App\Http\Controllers\Admin\RestaurantController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TopicUpdateController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
@@ -100,5 +101,7 @@ Route::prefix('admin')->group(function () {
             'madarsas/{madarsa}/status',
             [MadrasaController::class, 'cycleStatus']
         )->name('madarsas.status');
+
+        Route::resource('roles', RoleController::class);
     });
 });

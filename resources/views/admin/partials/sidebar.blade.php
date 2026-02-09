@@ -84,6 +84,11 @@
                 class="list-group-item list-group-item-action {{ request()->routeIs('videos.index') ? 'active' : '' }}">
                 <i class="fas fa-video"></i> Videos
             </a>
+
+            <a href="{{ route('roles.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('roles.index') ? 'active' : '' }}">
+                <i class="fas fa-user-tag"></i> Roles
+            </a>
         </div>
     </div>
 </div>
