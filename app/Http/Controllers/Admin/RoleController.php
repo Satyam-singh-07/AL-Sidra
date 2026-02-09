@@ -17,7 +17,7 @@ class RoleController extends Controller
         return view('admin.roles', [
             'roles' => Role::with('modules')
                 ->whereNotIn('slug', [
-                    'super-admin',
+                    'super_admin',
                     'admin',
                     'user',
                     'member',
