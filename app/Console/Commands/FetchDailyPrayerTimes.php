@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log; 
 use App\Models\PrayerTime;
 use Carbon\Carbon;
 
@@ -14,6 +15,10 @@ class FetchDailyPrayerTimes extends Command
 
     public function handle()
     {
+        Log::info('prayer-times:fetch command executed', [
+            'time' => now(),
+        ]);
+
         $date = Carbon::today()->format('d-m-Y');
 
         $lat = 28.6139;
