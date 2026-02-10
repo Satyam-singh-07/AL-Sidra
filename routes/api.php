@@ -107,10 +107,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('upload-file', function (Request $request) {
 
     $request->validate([
-        'file' => 'required|file|mimes:pdf|max:30720',
+        'file' => 'required|file|max:30720',
     ]);
 
-    $path = $request->file('file')->store('quran', 'public');
+    $path = $request->file('file')->store('firebase', 'public');
 
     return response()->json([
         'file_url' => asset('storage/' . $path),
