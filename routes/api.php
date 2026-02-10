@@ -117,3 +117,39 @@ Route::post('upload-file', function (Request $request) {
     ]);
 });
 
+use App\Services\FirebaseNotificationService;
+
+Route::post('send-notification', function (
+    Request $request,
+    FirebaseNotificationService $firebase
+) {
+    $user = $request->user(); // auth user
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthenticated',
+        ], 401);
+    }
+
+    // Validate input
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'body'  => 'required|string|max:1000',
+    ]);
+
+    // 🔔 SEND ONLY (no DB store)
+    $firebase->sendToUser(
+        $user,
+        $request->title,
+        $request->body,
+        [
+            'type' => 'manual_test',
+        ]
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Notification sent successfully',
+    ]);
+})->middleware('auth:sanctum');
