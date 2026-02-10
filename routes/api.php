@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CommunityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FcmTokensController;
 use App\Http\Controllers\Api\HotTopicController;
 use App\Http\Controllers\Api\MadarsaController;
 use App\Http\Controllers\Api\MemberCategoryController;
@@ -100,6 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('madarsas', [MadarsaController::class, 'listMadarsas']);
     Route::get('madarsas/{id}', [MadarsaController::class, 'showMadarsaDetails']);
     Route::post('language', [AuthController::class, 'updateLanguage']);
+    Route::post('fcm-token', [FcmTokensController::class, 'saveFcmToken']);
 });
 
 Route::post('upload-file', function (Request $request) {

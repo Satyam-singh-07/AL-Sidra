@@ -64,4 +64,9 @@ class User extends Authenticatable
             ->whereHas('modules', fn($q) => $q->where('module', $module))
             ->exists();
     }
+
+    public function fcmTokens()
+    {
+        return $this->hasMany(UserFcmToken::class);
+    }
 }
