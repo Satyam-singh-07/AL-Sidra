@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\OngoingWorkApiController;
+use App\Http\Controllers\Api\PrayerTimeController;
 use App\Http\Controllers\Api\ReligiousInfoController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\StaticDataController;
@@ -82,6 +83,7 @@ Route::get('community-guidelines', [StaticDataController::class, 'communityGuide
 Route::get('app-guide', [StaticDataController::class, 'appGuide']);
 Route::get('help', [StaticDataController::class, 'helpSupport']);
 Route::get('guidance', [StaticDataController::class, 'appGuidance']);
+Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
