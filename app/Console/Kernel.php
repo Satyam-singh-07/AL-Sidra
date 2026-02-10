@@ -14,9 +14,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule
             ->command('prayer-times:fetch')
-            ->dailyAt('16:59')
-            ->withoutOverlapping()
-            ->runInBackground();
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**
