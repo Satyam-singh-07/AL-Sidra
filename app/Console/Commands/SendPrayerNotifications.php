@@ -24,7 +24,7 @@ class SendPrayerNotifications extends Command
 
     public function handle()
     {
-        $now = '15:44';
+        $now = Carbon::now()->format('H:i');
         $today = Carbon::today()->toDateString();
 
         $prayerTime = PrayerTime::whereDate('gregorian_date', $today)->first();
@@ -51,7 +51,6 @@ class SendPrayerNotifications extends Command
                 ->where('prayer', $prayerKey)
                 ->exists()
             ) {
-                $this->warn("Already sent: {$prayerKey}");
                 continue;
             }
 
@@ -75,7 +74,6 @@ class SendPrayerNotifications extends Command
                 'prayer'         => $prayerKey,
             ]);
 
-            $this->info("Notification sent for {$prayerKey}");
         }
 
         return Command::SUCCESS;
