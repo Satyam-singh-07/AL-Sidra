@@ -123,7 +123,7 @@ Route::post('send-notification', function (
     Request $request,
     FirebaseNotificationService $firebase
 ) {
-    $user = $request->user(); // auth user
+    $user = $request->user(); 
 
     if (!$user) {
         return response()->json([
@@ -132,13 +132,11 @@ Route::post('send-notification', function (
         ], 401);
     }
 
-    // Validate input
     $request->validate([
         'title' => 'required|string|max:255',
         'body'  => 'required|string|max:1000',
     ]);
 
-    // 🔔 SEND ONLY (no DB store)
     $firebase->sendToUser(
         $user,
         $request->title,
