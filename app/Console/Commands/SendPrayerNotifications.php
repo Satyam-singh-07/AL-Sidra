@@ -24,7 +24,7 @@ class SendPrayerNotifications extends Command
 
     public function handle()
     {
-        $now = Carbon::now()->format('H:i');
+        $now = '15:44';
         $today = Carbon::today()->toDateString();
 
         $prayerTime = PrayerTime::whereDate('gregorian_date', $today)->first();
