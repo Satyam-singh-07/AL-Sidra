@@ -66,7 +66,8 @@ class FirebaseNotificationService
         $message = CloudMessage::new()
             ->withNotification(
                 FirebaseNotification::create($title, $body)
-            ); 
+            )
+            ->withData(array_map('strval', $data)); // FCM requires strings
 
         try {
             $report = $this->messaging->sendMulticast($message, $tokens);
