@@ -64,10 +64,9 @@ class FirebaseNotificationService
         array $data = []
     ): void {
         $message = CloudMessage::new()
-            ->withData(array_map('strval', array_merge($data, [
-                'title' => $title,
-                'body'  => $body,
-            ])));
+            ->withNotification(
+                FirebaseNotification::create($title, $body)
+            ); 
 
         try {
             $report = $this->messaging->sendMulticast($message, $tokens);
