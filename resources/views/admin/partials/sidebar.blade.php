@@ -87,7 +87,12 @@
 
             <a href="{{ route('roles.index') }}"
                 class="list-group-item list-group-item-action {{ request()->routeIs('roles.index') ? 'active' : '' }}">
-                <i class="fas fa-user-tag"></i> Roles
+                <i class="fas fa-user-tag"></i> Roles & Permissions
+            </a>
+
+            <a href="{{ route('permissions.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('permissions.index') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Users & Roles
             </a>
         </div>
     </div>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MemberController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\MemberCategoryController;
 use App\Http\Controllers\Admin\OngoingWorkController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ReligionInfoController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\RoleController;
@@ -103,5 +104,12 @@ Route::prefix('admin')->group(function () {
         )->name('madarsas.status');
 
         Route::resource('roles', RoleController::class);
+
+        Route::resource('permissions', PermissionController::class)
+            ->parameters(['permissions' => 'user']);
+        Route::patch(
+            'permissions/{user}/toggle-status',
+            [PermissionController::class, 'toggleStatus']
+        )->name('permissions.toggleStatus');
     });
 });

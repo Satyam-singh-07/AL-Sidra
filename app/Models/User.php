@@ -61,7 +61,9 @@ class User extends Authenticatable
     public function canAccess(string $module): bool
     {
         return $this->roles()
-            ->whereHas('modules', fn($q) => $q->where('module', $module))
+            ->whereHas('modules', function ($q) use ($module) {
+                $q->where('module', $module);
+            })
             ->exists();
     }
 

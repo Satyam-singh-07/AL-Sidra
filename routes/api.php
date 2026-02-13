@@ -123,7 +123,7 @@ Route::post('send-notification', function (
     Request $request,
     FirebaseNotificationService $firebase
 ) {
-    $user = $request->user(); 
+    $user = $request->user();
 
     if (!$user) {
         return response()->json([
@@ -132,15 +132,20 @@ Route::post('send-notification', function (
         ], 401);
     }
 
+    // Validate nested structure
     $request->validate([
-        'title' => 'required|string|max:255',
-        'body'  => 'required|string|max:1000',
+        'data.title' => 'required|string|max:255',
+        'data.body'  => 'required|string|max:1000',
     ]);
+
+    // Extract values properly
+    $title = $request->input('data.title');
+    $body  = $request->input('data.body');
 
     $firebase->sendToUser(
         $user,
-        $request->title,
-        $request->body,
+        $title,
+        $body,
         [
             'type' => 'manual_test',
         ]
