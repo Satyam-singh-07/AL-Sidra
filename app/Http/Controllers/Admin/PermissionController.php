@@ -73,12 +73,20 @@ class PermissionController extends Controller
         // Fetch user by email
         $user = User::where('email', $request->email)->firstOrFail();
 
+        // Check if this user is Super Admin
+        $isSuperAdmin = $user->roles()->where('slug', 'super_admin')->exists();
+
+        // Prevent Super Admin from updating its own role
+        if ($isSuperAdmin && $user->id === auth()->id()) {
+            return back()->with('error', 'Super Admin cannot change its own role');
+        }
+
         // Update basic info
         $user->update([
-            'name'  => $request->name,
+            'name' => $request->name,
         ]);
 
-        // Sync single role
+        // Sync role ONLY if not super admin updating itself
         $user->roles()->sync([$request->role_id]);
 
         return back()->with('success', 'User updated successfully');
