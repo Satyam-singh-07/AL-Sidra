@@ -90,4 +90,31 @@ class FirebaseNotificationService
             ]);
         }
     }
+
+    public function sendToToken(
+        string $token,
+        string $title,
+        string $body,
+        array $data = []
+    ): void {
+        $message = CloudMessage::withTarget('token', $token)
+            ->withNotification(
+                FirebaseNotification::create($title, $body)
+            )
+            ->withData(array_map('strval', $data));
+
+        try {
+            $this->messaging->send($message);
+
+            Log::info("Notification sent to token successfully", [
+                'token' => $token,
+            ]);
+        } catch (\Throwable $e) {
+
+            Log::error("FCM sendToToken failed", [
+                'token' => $token,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }

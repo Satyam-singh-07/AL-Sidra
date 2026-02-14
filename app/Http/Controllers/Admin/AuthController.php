@@ -15,6 +15,8 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
+        // dd($request->all());
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 

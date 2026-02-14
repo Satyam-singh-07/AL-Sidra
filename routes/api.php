@@ -156,3 +156,36 @@ Route::post('send-notification', function (
         'message' => 'Notification sent successfully',
     ]);
 })->middleware('auth:sanctum');
+
+
+Route::post('send-notification-token', function (
+    Request $request,
+    FirebaseNotificationService $firebase
+) {
+
+    // Validate request
+    $request->validate([
+        'data.token' => 'required|string',
+        'data.title' => 'required|string|max:255',
+        'data.body'  => 'required|string|max:1000',
+    ]);
+
+    $token = $request->input('data.token');
+    $title = $request->input('data.title');
+    $body  = $request->input('data.body');
+
+    // Send directly to token
+    $firebase->sendToToken(
+        $token,
+        $title,
+        $body,
+        [
+            'type' => 'manual_token_test',
+        ]
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Notification sent successfully to token',
+    ]);
+});
