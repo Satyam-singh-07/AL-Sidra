@@ -131,6 +131,7 @@ class VideoCategoryController extends Controller
             return [
                 'id'        => $video->id,
                 'title'     => $video->title,
+                'description' => $video->description,
                 'video_url' => asset('storage/' . $video->video_path),
                 'created_at' => $video->created_at->toDateTimeString(),
             ];
