@@ -93,4 +93,13 @@ class VideoCategoryController extends Controller
 
         return redirect()->route('video-categories.index');
     }
+
+    public function getVideoCategories()
+    {
+        $videoCategories = VideoCategory::where('status','active')->get('name');
+        return response([
+            'success' => true,
+            'data' => $videoCategories
+        ]);
+    }
 }

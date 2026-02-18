@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CommunityController;
+use App\Http\Controllers\Admin\VideoCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -76,6 +77,7 @@ Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('religious-info/{id}', [ReligiousInfoController::class, 'show']);
+Route::get('video-categories',[VideoCategoryController::class,'getVideoCategories']);
 Route::get('videos', [VideoController::class, 'index']);
 Route::get('communities', [CommunityController::class, 'communityList']);
 Route::get('privacy-policy', [StaticDataController::class, 'privacyPolicy']);
