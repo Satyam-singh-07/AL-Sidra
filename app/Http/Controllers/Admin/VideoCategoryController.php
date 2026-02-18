@@ -131,7 +131,6 @@ class VideoCategoryController extends Controller
             return [
                 'id'        => $video->id,
                 'title'     => $video->title,
-                'description' => $video->description,
                 'video_url' => asset('storage/' . $video->video_path),
                 'created_at' => $video->created_at->toDateTimeString(),
             ];
@@ -142,6 +141,7 @@ class VideoCategoryController extends Controller
             'category' => [
                 'id'    => $category->id,
                 'name'  => $category->name,
+                'description' => $video->description,
                 'image' => $category->image
                     ? asset('storage/' . $category->image)
                     : null,
