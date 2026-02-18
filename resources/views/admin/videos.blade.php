@@ -160,7 +160,10 @@
                             </tr>
                         @endforelse
                     </tbody>
-
+                    <!-- Pagination -->
+                    <div class="mt-4">
+                        @include('admin.partials.pagination', ['paginator' => $videos])
+                    </div>
 
                 </table>
             </div>
