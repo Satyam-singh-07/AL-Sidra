@@ -14,7 +14,7 @@ class VideoController extends Controller
      */
     public function index()
     {
-        $videos = Video::with('category')->paginate(20);
+        $videos = Video::with('category')->latest()->paginate(20);
         $categories = \App\Models\VideoCategory::where('status', 'active')->get();
 
         return view('admin.videos', compact('videos', 'categories'));
