@@ -14,8 +14,10 @@ class VideoController extends Controller
      */
     public function index()
     {
-        $videos = Video::latest()->get();
-        return view('admin.videos', compact('videos'));
+        $videos = Video::with('category')->latest()->get();
+        $categories = \App\Models\VideoCategory::where('status', 'active')->get();
+
+        return view('admin.videos', compact('videos', 'categories'));
     }
 
     /**
@@ -33,8 +35,9 @@ class VideoController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'video' => 'required|mimes:mp4,webm,mov|max:51200', 
+            'video' => 'required|mimes:mp4,webm,mov|max:51200',
             'status' => 'required|in:active,inactive',
+            'video_category_id' => 'nullable|exists:video_categories,id',
         ]);
 
         $path = $request->file('video')->store('videos', 'public');
@@ -43,6 +46,7 @@ class VideoController extends Controller
             'title' => $request->title,
             'video_path' => $path,
             'status' => $request->status,
+            'video_category_id' => $request->video_category_id,
         ]);
 
         return redirect()->route('videos.index')->with('success', 'Video added');
@@ -76,6 +80,7 @@ class VideoController extends Controller
             'title' => 'required|string|max:255',
             'video' => 'nullable|mimes:mp4,webm,mov',
             'status' => 'required|in:active,inactive',
+            'video_category_id' => 'nullable|exists:video_categories,id',
         ]);
 
         if ($request->hasFile('video')) {
@@ -86,6 +91,7 @@ class VideoController extends Controller
         $video->update([
             'title' => $request->title,
             'status' => $request->status,
+            'video_category_id' => $request->video_category_id,
         ]);
 
         return back()->with('success', 'Video updated');

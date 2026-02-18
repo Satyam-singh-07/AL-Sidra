@@ -60,10 +60,18 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-success fw-bold">Video Management</h2>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVideoModal">
-            <i class="fas fa-plus me-2"></i> Add Video
-        </button>
+
+        <div class="d-flex gap-2">
+            <a href="{{ route('video-categories.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-layer-group me-2"></i> Video Categories
+            </a>
+
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                <i class="fas fa-plus me-2"></i> Add Video
+            </button>
+        </div>
     </div>
+
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
@@ -74,6 +82,7 @@
                             <th>ID</th>
                             <th>Thumbnail</th>
                             <th>Title</th>
+                            <th>Category</th>
                             <th>Video</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -101,6 +110,10 @@
                                 </td>
 
                                 <td>
+                                    {{ $video->category?->name ?? '—' }}
+                                </td>
+
+                                <td>
                                     <div class="d-flex flex-column">
                                         {{-- <span class="small text-muted">{{ $fileName }}</span> --}}
 
@@ -125,7 +138,8 @@
 
                                 <td class="table-actions">
                                     <button class="btn btn-sm btn-outline-primary btn-edit" data-id="{{ $video->id }}"
-                                        data-title="{{ $video->title }}" data-status="{{ $video->status }}"
+                                        data-title="{{ $video->title }}" data-category="{{ $video->video_category_id }}"
+                                        data-status="{{ $video->status }}"
                                         data-video="{{ asset('storage/' . $video->video_path) }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -178,6 +192,18 @@
                             <div class="form-text">
                                 Supported formats: MP4, WebM, MOV (Max 50MB)
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="video_category_id" class="form-select">
+                                <option value="">Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="mb-3">
@@ -238,6 +264,18 @@
                             <label class="form-label">Change Video (Optional)</label>
                             <input type="file" class="form-control" name="video" id="editVideoFile"
                                 accept="video/*">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="video_category_id" class="form-select" id="editVideoCategory">
+                                <option value="">Select Category</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="mb-3">
@@ -317,6 +355,7 @@
                 const title = this.dataset.title;
                 const status = this.dataset.status;
                 const videoUrl = this.dataset.video;
+                const category = this.dataset.category;
 
                 const form = document.getElementById('editVideoForm');
 
@@ -326,6 +365,7 @@
                 document.getElementById('editVideoTitle').value = title;
                 document.getElementById('editVideoStatus').value = status;
                 document.getElementById('currentVideoPreview').src = videoUrl;
+                document.getElementById('editVideoCategory').value = category;
 
                 const modal = new bootstrap.Modal(document.getElementById('editVideoModal'));
                 modal.show();

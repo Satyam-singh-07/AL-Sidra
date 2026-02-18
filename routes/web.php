@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ReligionInfoController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TopicUpdateController;
+use App\Http\Controllers\Admin\VideoCategoryController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +86,13 @@ Route::prefix('admin')->group(function () {
         Route::resource('religion-info', ReligionInfoController::class);
 
         Route::resource('videos', VideoController::class);
+
+        Route::resource('video-categories', VideoCategoryController::class);
+        Route::patch(
+            'video-categories/{id}/toggle-status',
+            [VideoCategoryController::class, 'toggleStatus']
+        )
+            ->name('video-categories.toggle-status');
 
         Route::resource('masjids', MasjidController::class);
         Route::patch('/masjids/{masjid}/status', [MasjidController::class, 'cycleStatus'])
