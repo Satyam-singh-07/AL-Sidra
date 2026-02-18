@@ -115,25 +115,43 @@ class VideoCategoryController extends Controller
         return redirect()->route('video-categories.index');
     }
 
-    public function getVideoCategories()
+    public function show(Request $request, $id)
     {
-        $categories = VideoCategory::where('status', 'active')
-            ->orderBy('name')
-            ->get();
+        $perPage = $request->get('per_page', 10);
 
-        $data = $categories->map(function ($category) {
+        $category = VideoCategory::where('status', 'active')
+            ->findOrFail($id);
+
+        $videos = $category->videos()
+            ->where('status', 'active')
+            ->latest()
+            ->paginate($perPage);
+
+        $videoData = $videos->getCollection()->transform(function ($video) {
             return [
-                'id'    => $category->id,
-                'name'  => $category->name,
-                'image' => $category->image
-                    ? asset('storage/' . $category->image)
-                    : null,
+                'id'        => $video->id,
+                'title'     => $video->title,
+                'video_url' => asset('storage/' . $video->video_path),
+                'created_at' => $video->created_at->toDateTimeString(),
             ];
         });
 
         return response()->json([
             'status' => 'success',
-            'data'   => $data
+            'category' => [
+                'id'    => $category->id,
+                'name'  => $category->name,
+                'image' => $category->image
+                    ? asset('storage/' . $category->image)
+                    : null,
+            ],
+            'videos' => $videoData,
+            'meta'   => [
+                'current_page' => $videos->currentPage(),
+                'last_page'    => $videos->lastPage(),
+                'per_page'     => $videos->perPage(),
+                'total'        => $videos->total(),
+            ]
         ]);
     }
 }

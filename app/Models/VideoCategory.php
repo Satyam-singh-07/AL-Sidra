@@ -12,4 +12,9 @@ class VideoCategory extends Model
         'status',
         'image'
     ];
+
+    public function videos()
+    {
+        return $this->hasMany(Video::class, 'video_category_id');
+    }
 }

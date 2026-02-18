@@ -13,22 +13,22 @@ class VideoController extends Controller
     {
         $perPage = $request->get('per_page', 10);
 
-        $query = Video::with('category')
+        $videos = Video::with('category')
             ->where('status', 'active')
-            ->when($request->category_id, function ($q) use ($request) {
-                $q->where('video_category_id', $request->category_id);
-            });
-
-        $videos = $query->latest()->paginate($perPage);
+            ->latest()
+            ->paginate($perPage);
 
         $videos->getCollection()->transform(function ($video) {
             return [
-                'id'          => $video->id,
-                'title'       => $video->title,
-                'status'      => $video->status,
-                'video_url'   => asset('storage/' . $video->video_path),
-                'category'    => $video->category?->name,
-                'created_at'  => $video->created_at->toDateTimeString(),
+                'id'         => $video->id,
+                'title'      => $video->title,
+                'status'     => $video->status,
+                'video_url'  => asset('storage/' . $video->video_path),
+                'category'   => [
+                    'id'   => $video->video_category_id,
+                    'name' => $video->category?->name,
+                ],
+                'created_at' => $video->created_at->toDateTimeString(),
             ];
         });
 
