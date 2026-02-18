@@ -37,6 +37,7 @@
                         <tr>
                             <th>Sr No</th>
                             <th>Name</th>
+                            <th>Image</th>
                             <th>Description</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -47,6 +48,14 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $category->name }}</td>
+                                <td>
+                                    @if ($category->image)
+                                        <img src="{{ asset('storage/' . $category->image) }}" width="60" height="60"
+                                            style="object-fit: cover; border-radius:6px;">
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                                 <td>{{ $category->description }}</td>
                                 <td>
                                     <form method="POST"
@@ -84,23 +93,49 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
 
-                                        <form method="POST"
-                                            action="{{ route('video-categories.update', $category->id) }}">
+                                        <form method="POST" action="{{ route('video-categories.update', $category->id) }}"
+                                            enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
 
                                             <div class="modal-body">
+
+                                                {{-- Name --}}
                                                 <div class="mb-3">
                                                     <label class="form-label">Category Name *</label>
                                                     <input type="text" name="name" value="{{ $category->name }}"
                                                         class="form-control" required>
                                                 </div>
 
+                                                {{-- Description --}}
                                                 <div class="mb-3">
                                                     <label class="form-label">Description</label>
                                                     <textarea name="description" class="form-control">{{ $category->description }}</textarea>
                                                 </div>
 
+                                                {{-- Current Image --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Current Image</label>
+                                                    <div>
+                                                        @if ($category->image)
+                                                            <img src="{{ asset('storage/' . $category->image) }}"
+                                                                width="100" height="100"
+                                                                style="object-fit: cover; border-radius:8px;">
+                                                        @else
+                                                            <p class="text-muted mb-0">No image uploaded</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                {{-- Change Image --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Change Image</label>
+                                                    <input type="file" name="image" class="form-control"
+                                                        accept="image/*">
+                                                    <small class="text-muted">Leave empty to keep current image</small>
+                                                </div>
+
+                                                {{-- Status --}}
                                                 <div class="mb-3">
                                                     <label class="form-label">Status</label>
                                                     <select name="status" class="form-select">
@@ -114,13 +149,16 @@
                                                         </option>
                                                     </select>
                                                 </div>
+
                                             </div>
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
+
                                                 <button type="submit" class="btn btn-success">Update</button>
                                             </div>
+
                                         </form>
                                     </div>
                                 </div>
@@ -180,7 +218,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('video-categories.store') }}">
+                    <form method="POST" action="{{ route('video-categories.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-3">
@@ -191,6 +229,11 @@
                         <div class="mb-3">
                             <label class="form-label">Description</label>
                             <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Category Image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
                         </div>
 
                         <div class="mb-3">

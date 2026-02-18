@@ -10,5 +10,6 @@ class VideoCategory extends Model
         'name',
         'description',
         'status',
+        'image'
     ];
 }

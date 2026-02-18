@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\VideoCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VideoCategoryController extends Controller
 {
@@ -27,12 +28,21 @@ class VideoCategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('video_categories', 'public');
+        }
 
         VideoCategory::create([
             'name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
+            'image' => $imagePath,
+
         ]);
 
         return redirect()
@@ -51,7 +61,18 @@ class VideoCategoryController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        if ($request->hasFile('image')) {
+
+            if ($category->image) {
+                Storage::disk('public')->delete($category->image);
+            }
+
+            $imagePath = $request->file('image')->store('video_categories', 'public');
+            $category->image = $imagePath;
+        }
 
         $category->update([
             'name' => $request->name,
@@ -96,10 +117,23 @@ class VideoCategoryController extends Controller
 
     public function getVideoCategories()
     {
-        $videoCategories = VideoCategory::where('status','active')->get('name');
-        return response([
-            'success' => true,
-            'data' => $videoCategories
+        $categories = VideoCategory::where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        $data = $categories->map(function ($category) {
+            return [
+                'id'    => $category->id,
+                'name'  => $category->name,
+                'image' => $category->image
+                    ? asset('storage/' . $category->image)
+                    : null,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => $data
         ]);
     }
 }
