@@ -141,7 +141,7 @@ class VideoCategoryController extends Controller
             'category' => [
                 'id'    => $category->id,
                 'name'  => $category->name,
-                'description' => $video->description,
+                'description' => $category->description,
                 'image' => $category->image
                     ? asset('storage/' . $category->image)
                     : null,
