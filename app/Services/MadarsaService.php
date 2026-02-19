@@ -27,28 +27,42 @@ class MadarsaService
                 $data['video'] = $data['video']->store('madarsas/videos', 'public');
             }
 
+            $courses = $data['courses'] ?? [];
+            $collectors = $data['collectors'] ?? [];
+
             // Attach creator
             $data['user_id'] = $user->id;
 
             // Create madarsa
             $madarsa = $this->madarsaRepository->create($data);
 
-            // Images
-            foreach ($data['madarsa_images'] as $image) {
-                $path = $image->store('madarsas/images', 'public');
-
-                $this->madarsaRepository->addImage($madarsa->id, $path);
+            // Sync courses
+            if (!empty($courses)) {
+                $madarsa->courses()->sync($courses);
             }
 
+            // Add collectors
+            foreach ($collectors as $collector) {
+                $madarsa->collectors()->create($collector);
+            }
+
+            // Images
+            if (!empty($data['madarsa_images'])) {
+                foreach ($data['madarsa_images'] as $image) {
+
+                    $path = $image->store('madarsas/images', 'public');
+                    $this->madarsaRepository->addImage($madarsa->id, $path);
+                }
+            }
             return $madarsa;
         });
     }
+
 
     public function update(Madarsa $madarsa, array $data)
     {
         return DB::transaction(function () use ($madarsa, $data) {
 
-            // Replace passbook if uploaded
             if (isset($data['passbook'])) {
                 if ($madarsa->passbook) {
                     Storage::disk('public')->delete($madarsa->passbook);
@@ -58,7 +72,6 @@ class MadarsaService
                 unset($data['passbook']);
             }
 
-            // Replace video if uploaded
             if (isset($data['video'])) {
                 if ($madarsa->video) {
                     Storage::disk('public')->delete($madarsa->video);
@@ -68,8 +81,23 @@ class MadarsaService
                 unset($data['video']);
             }
 
+            $courses = $data['courses'] ?? [];
+            $collectors = $data['collectors'] ?? [];
+
             // Update main record
             $this->madarsaRepository->update($madarsa, $data);
+
+            // Sync courses
+            $madarsa->courses()->sync($courses);
+
+            // Replace collectors
+            if (array_key_exists('collectors', $data)) {
+                $madarsa->collectors()->delete();
+
+                foreach ($collectors as $collector) {
+                    $madarsa->collectors()->create($collector);
+                }
+            }
 
             // Add new images (if any)
             if (!empty($data['madarsa_images'])) {
@@ -82,6 +110,7 @@ class MadarsaService
             return $madarsa->refresh();
         });
     }
+
 
     public function delete(Madarsa $madarsa): void
     {

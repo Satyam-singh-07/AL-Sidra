@@ -9,7 +9,11 @@ class MadarsaRepository
 {
     public function create(array $data): Madarsa
     {
-        unset($data['madarsa_images']); // not a DB column
+        unset(
+            $data['madarsa_images'],
+            $data['courses'],
+            $data['collectors']
+        );
 
         return Madarsa::create($data);
     }
@@ -24,7 +28,11 @@ class MadarsaRepository
 
     public function update(Madarsa $madarsa, array $data): Madarsa
     {
-        unset($data['madarsa_images']);
+        unset(
+            $data['madarsa_images'],
+            $data['courses'],
+            $data['collectors']
+        );
 
         $madarsa->update($data);
 

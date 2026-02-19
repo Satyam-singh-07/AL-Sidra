@@ -48,6 +48,16 @@
                         </div>
 
                         <div class="col-md-6 mb-2">
+                            <strong>Students Count:</strong>
+                            {{ $madarsa->students_count }}
+                        </div>
+
+                        <div class="col-md-6 mb-2">
+                            <strong>Staff Count:</strong>
+                            {{ $madarsa->staff_count }}
+                        </div>
+
+                        <div class="col-md-6 mb-2">
                             <strong>Community:</strong>
                             {{ $madarsa->community->name ?? 'N/A' }}
                         </div>
@@ -65,6 +75,51 @@
                             <strong>Longitude:</strong> {{ $madarsa->longitude }}
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Providing Courses</h5>
+
+                    @forelse($madarsa->courses as $course)
+                        <span class="badge bg-primary me-1 mb-1">
+                            {{ $course->name }}
+                        </span>
+                    @empty
+                        <p class="text-muted mb-0">No courses assigned</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">
+                        Donation Collectors
+                        <span class="badge bg-secondary ms-2">
+                            {{ $madarsa->collectors->count() }}
+                        </span>
+                    </h5>
+
+                    @forelse($madarsa->collectors as $collector)
+                        <div class="border rounded p-3 mb-2">
+                            <div class="fw-semibold">
+                                {{ $collector->name }}
+                            </div>
+
+                            <div class="small text-muted">
+                                Contact: {{ $collector->contact }}
+                            </div>
+
+                            @if ($collector->address)
+                                <div class="small text-muted">
+                                    Address: {{ $collector->address }}
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0">No collectors added</p>
+                    @endforelse
                 </div>
             </div>
 
@@ -113,6 +168,36 @@
                     <iframe width="100%" height="300" style="border:0" loading="lazy" allowfullscreen
                         src="https://www.google.com/maps?q={{ $madarsa->latitude }},{{ $madarsa->longitude }}&hl=en&z=16&output=embed">
                     </iframe>
+
+                    <hr class="my-3">
+
+                    <div class="col-md-12 mb-2">
+                        <strong>Contact Number:</strong>
+                        {{ $madarsa->contact_number }}
+                    </div>
+
+                    @if ($madarsa->alternate_contact)
+                        <div class="col-md-12 mb-2">
+                            <strong>Alternative Contact:</strong>
+                            {{ $madarsa->alternate_contact }}
+                        </div>
+                    @endif
+
+                    @if ($madarsa->email)
+                        <div class="col-md-12 mb-2">
+                            <strong>Email:</strong>
+                            {{ $madarsa->email }}
+                        </div>
+                    @endif
+
+                    @if ($madarsa->website_url)
+                        <div class="col-md-12 mb-2">
+                            <strong>Website:</strong>
+                            <a href="{{ $madarsa->website_url }}" target="_blank">
+                                {{ $madarsa->website_url }}
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
 

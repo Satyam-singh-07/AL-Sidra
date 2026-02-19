@@ -13,6 +13,11 @@ class MadarsaCourse extends Model
 
     public function madarsas()
     {
-        return $this->belongsToMany(Madarsa::class);
+        return $this->belongsToMany(
+            Madarsa::class,
+            'madarsa_course',
+            'madarsa_course_id',
+            'madarsa_id'
+        )->withTimestamps();
     }
 }

@@ -74,7 +74,6 @@
                 </div>
 
                 <div class="col-md-12 mb-3">
-                    <label class="form-label required-label">Address</label>
                     <div class="col-md-12 mb-3">
                         <label class="form-label required-label">Address</label>
                         <input type="text" id="address" name="address" class="form-control"
@@ -111,7 +110,115 @@
                         </option>
                     </select>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-label">Students Count</label>
+                    <input type="number" name="students_count" class="form-control" min="0"
+                        value="{{ old('students_count', $madarsa->students_count) }}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-label">Staff Count</label>
+                    <input type="number" name="staff_count" class="form-control" min="0"
+                        value="{{ old('staff_count', $madarsa->staff_count) }}" required>
+                </div>
+
             </div>
+        </div>
+
+        <div class="form-section">
+            <h5>Providing Courses</h5>
+
+            @php
+                $selectedCourses = old('courses', $madarsa->courses->pluck('id')->toArray());
+            @endphp
+
+            <div class="row">
+                @foreach ($courses as $course)
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="courses[]" value="{{ $course->id }}"
+                                id="course_{{ $course->id }}"
+                                {{ in_array($course->id, $selectedCourses) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="course_{{ $course->id }}">
+                                {{ $course->name }}
+                            </label>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5>Madarsa Contact</h5>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label required-label">Contact Number</label>
+                    <input type="text" name="contact_number" class="form-control"
+                        value="{{ old('contact_number', $madarsa->contact_number) }}" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Alternative Contact</label>
+                    <input type="text" name="alternate_contact" class="form-control"
+                        value="{{ old('alternate_contact', $madarsa->alternate_contact) }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ old('email', $madarsa->email) }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Website URL</label>
+                    <input type="url" name="website_url" class="form-control"
+                        value="{{ old('website_url', $madarsa->website_url) }}">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h5>Donation Collectors</h5>
+
+            <div id="collector-wrapper">
+
+                @php
+                    $oldCollectors = old('collectors', $madarsa->collectors->toArray());
+                @endphp
+
+                @foreach ($oldCollectors as $index => $collector)
+                    <div class="collector-item border rounded p-3 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="text" name="collectors[{{ $index }}][name]" class="form-control"
+                                    value="{{ $collector['name'] }}" placeholder="Collector Name" required>
+                            </div>
+
+                            <div class="col-md-4">
+                                <input type="text" name="collectors[{{ $index }}][contact]"
+                                    class="form-control" value="{{ $collector['contact'] }}" placeholder="Contact"
+                                    required>
+                            </div>
+
+                            <div class="col-md-3">
+                                <input type="text" name="collectors[{{ $index }}][address]"
+                                    class="form-control" value="{{ $collector['address'] ?? '' }}"
+                                    placeholder="Address">
+                            </div>
+
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger remove-collector">X</button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+            </div>
+
+            <button type="button" class="btn btn-outline-primary" id="add-collector">
+                Add Another Collector
+            </button>
         </div>
 
         {{-- Location --}}
@@ -256,6 +363,45 @@
             document.getElementById("latitude").value = location.lat();
             document.getElementById("longitude").value = location.lng();
         }
+    </script>
+    <script>
+        let collectorIndex = {{ count(old('collectors', $madarsa->collectors)) }};
+
+        document.getElementById('add-collector').addEventListener('click', function() {
+
+            const wrapper = document.getElementById('collector-wrapper');
+
+            const html = `
+            <div class="collector-item border rounded p-3 mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="collectors[${collectorIndex}][name]" class="form-control" placeholder="Collector Name" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <input type="text" name="collectors[${collectorIndex}][contact]" class="form-control" placeholder="Contact" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <input type="text" name="collectors[${collectorIndex}][address]" class="form-control" placeholder="Address">
+                    </div>
+
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger remove-collector">X</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+            wrapper.insertAdjacentHTML('beforeend', html);
+            collectorIndex++;
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-collector')) {
+                e.target.closest('.collector-item').remove();
+            }
+        });
     </script>
 
 @endsection

@@ -16,9 +16,20 @@ class Madarsa extends Model
         'address',
         'community_id',
         'status',
+
+        'students_count',
+        'staff_count',
+
+        'contact_number',
+        'alternate_contact',
+        'email',
+        'website_url',
+
         'passbook',
         'registration_number',
         'registration_date',
+        'registration_authority',
+
         'video',
         'latitude',
         'longitude',
@@ -28,6 +39,8 @@ class Madarsa extends Model
         'registration_date' => 'date',
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
+        'students_count' => 'integer',
+        'staff_count' => 'integer',
     ];
 
     protected $appends = ['passbook_url', 'video_url'];
@@ -68,15 +81,25 @@ class Madarsa extends Model
         return $this->hasManyThrough(
             User::class,
             MemberProfile::class,
-            'place_id',   // MemberProfile.place_id
-            'id',         // User.id
-            'id',         // Madarsa.id
-            'user_id'     // MemberProfile.user_id
+            'place_id',
+            'id',
+            'id',
+            'user_id'
         )->where('place_type', 'madarsa');
     }
 
     public function courses()
     {
-        return $this->belongsToMany(MadarsaCourse::class);
+        return $this->belongsToMany(
+            MadarsaCourse::class,
+            'madarsa_course',
+            'madarsa_id',
+            'madarsa_course_id'
+        )->withTimestamps();
+    }
+
+    public function collectors()
+    {
+        return $this->hasMany(DonationCollector::class);
     }
 }
