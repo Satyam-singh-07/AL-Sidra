@@ -35,9 +35,15 @@
             <h2 class="text-success fw-bold mb-1">Madarsa Listings</h2>
             <p class="text-muted mb-0">Manage all registered madarsas</p>
         </div>
-        <a href="{{ route('madarsas.create') }}" class="btn btn-success">
-            <i class="fas fa-plus me-2"></i> Add New Madarsa
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('madarsa-courses.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-book me-2"></i> Courses Management
+            </a>
+
+            <a href="{{ route('madarsas.create') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i> Add New Madarsa
+            </a>
+        </div>
     </div>
 
     {{-- Search & Filters --}}

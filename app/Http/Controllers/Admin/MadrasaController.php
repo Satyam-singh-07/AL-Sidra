@@ -7,6 +7,7 @@ use App\Http\Requests\StoreMadarsaRequest;
 use App\Http\Requests\UpdateMadarsaRequest;
 use App\Models\Community;
 use App\Models\Madarsa;
+use App\Models\MadarsaCourse;
 use App\Services\MadarsaService;
 use Illuminate\Http\Request;
 
@@ -56,8 +57,9 @@ class MadrasaController extends Controller
     public function create()
     {
         $communities = Community::all();
+        $courses = MadarsaCourse::get();
 
-        return view('admin.madarsas-create', compact('communities'));
+        return view('admin.madarsas-create', compact('communities', 'courses'));
     }
 
     public function store(StoreMadarsaRequest $request)
@@ -87,16 +89,14 @@ class MadrasaController extends Controller
 
     public function edit(Madarsa $madarsa)
     {
-        $madarsa->load([
-            'images',
-            'community',
-        ]);
-
+        $madarsa->load(['images', 'community', 'courses']);
         $communities = Community::all();
+        $courses = MadarsaCourse::get();
 
         return view('admin.madarsas-edit', compact(
             'madarsa',
-            'communities'
+            'communities',
+            'courses'
         ));
     }
 

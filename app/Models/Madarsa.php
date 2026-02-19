@@ -74,4 +74,9 @@ class Madarsa extends Model
             'user_id'     // MemberProfile.user_id
         )->where('place_type', 'madarsa');
     }
+
+    public function courses()
+    {
+        return $this->belongsToMany(MadarsaCourse::class);
+    }
 }

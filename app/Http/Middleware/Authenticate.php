@@ -13,17 +13,32 @@ class Authenticate extends Middleware
      */
     public function handle($request, \Closure $next, ...$guards)
     {
-        // First, run Laravel's normal authentication check
         $this->authenticate($request, $guards);
 
-        // Now check user status
-        if (Auth::check() && Auth::user()->status !== 'active') {
+        $user = $request->user();
 
-            // Logout blocked user immediately
-            Auth::logout();
+        if ($user && $user->status !== 'active') {
+
+            // API request (Sanctum)
+            if ($request->expectsJson()) {
+
+                if ($user->currentAccessToken()) {
+                    $user->currentAccessToken()->delete();
+                }
+
+                return response()->json([
+                    'message' => 'Your account is blocked.'
+                ], 403);
+            }
+
+            // Web request (Session)
+            Auth::guard('web')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
             return redirect()->route('login')
-                ->with('error', 'Your account is blocked. Contact admin.');
+                ->with('error', 'Your account is blocked.');
         }
 
         return $next($request);

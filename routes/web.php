@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\HotTopicController;
+use App\Http\Controllers\Admin\MadarsaCourseController;
 use App\Http\Controllers\Admin\MadrasaController;
 use App\Http\Controllers\Admin\MasjidController;
 use App\Http\Controllers\Admin\MemberController;
@@ -110,6 +111,8 @@ Route::prefix('admin')->group(function () {
             'madarsas/{madarsa}/status',
             [MadrasaController::class, 'cycleStatus']
         )->name('madarsas.status');
+
+        Route::resource('madarsa-courses', MadarsaCourseController::class);
 
         Route::resource('roles', RoleController::class);
 
