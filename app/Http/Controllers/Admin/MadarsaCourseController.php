@@ -50,4 +50,14 @@ class MadarsaCourseController extends Controller
         return redirect()->route('madarsa-courses.index')
             ->with('success', 'Course deleted successfully.');
     }
+
+    public function getCourses()
+    {
+        $course = MadarsaCourse::all();
+        
+        return response([
+            'success' => true,
+            'data' => $course
+        ]);
+    }
 }

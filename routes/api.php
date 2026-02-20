@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CommunityController;
+use App\Http\Controllers\Admin\MadarsaCourseController;
 use App\Http\Controllers\Admin\VideoCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -87,6 +88,7 @@ Route::get('app-guide', [StaticDataController::class, 'appGuide']);
 Route::get('help', [StaticDataController::class, 'helpSupport']);
 Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
+Route::get('courses',[MadarsaCourseController::class,'getCourses']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
