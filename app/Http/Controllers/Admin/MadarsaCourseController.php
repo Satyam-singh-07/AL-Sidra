@@ -53,7 +53,7 @@ class MadarsaCourseController extends Controller
 
     public function getCourses()
     {
-        $course = MadarsaCourse::all();
+        $course = MadarsaCourse::select('id','name')->get();
         
         return response([
             'success' => true,
