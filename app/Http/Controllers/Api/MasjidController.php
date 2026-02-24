@@ -101,9 +101,6 @@ class MasjidController extends Controller
         ]);
     }
 
-
-
-
     public function store(StoreMasjidRequest $request, MasjidService $service)
     {
         $masjid = $service->create(
