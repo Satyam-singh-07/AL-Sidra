@@ -65,9 +65,8 @@ class MadarsaController extends Controller
             ->whereNotNull('madarsas.latitude')
             ->whereNotNull('madarsas.longitude')
 
-            ->with(['firstImage:id,madarsa_id,image_path']);
+            ->with('firstImage');
 
-        // 🔍 Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -76,7 +75,6 @@ class MadarsaController extends Controller
             });
         }
 
-        // 👤 Gender filter
         if ($request->filled('gender')) {
             $query->where('madarsas.gender', $request->gender);
         }
@@ -85,7 +83,6 @@ class MadarsaController extends Controller
             ->orderBy('distance')
             ->paginate($perPage);
 
-        // ✅ Transform response
         $madarsas->getCollection()->transform(function ($madarsa) {
             return [
                 'id'        => $madarsa->id,
