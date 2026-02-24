@@ -46,63 +46,61 @@ class MadarsaController extends Controller
 
         $lat = $user->latitude;
         $lng = $user->longitude;
-        $perPage = $request->query('per_page', 10);
 
-        $query = Madarsa::select('madarsas.*')
-            ->selectRaw("
-            (
-                6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(madarsas.latitude)) *
-                    cos(radians(madarsas.longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(madarsas.latitude))
-                )
-            ) AS distance
-        ", [$lat, $lng, $lat])
-
+        $query = Madarsa::selectRaw("
+        madarsas.id,
+        madarsas.name,
+        madarsas.address,
+        madarsas.gender,
+        (
+            6371 * acos(
+                cos(radians(?)) *
+                cos(radians(madarsas.latitude)) *
+                cos(radians(madarsas.longitude) - radians(?)) +
+                sin(radians(?)) *
+                sin(radians(madarsas.latitude))
+            )
+        ) AS distance
+    ", [$lat, $lng, $lat])
             ->where('madarsas.status', 'active')
             ->whereNotNull('madarsas.latitude')
-            ->whereNotNull('madarsas.longitude')
-
-            ->with('firstImage');
+            ->whereNotNull('madarsas.longitude');
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('madarsas.name', 'LIKE', "%{$search}%")
-                    ->orWhere('madarsas.address', 'LIKE', "%{$search}%");
-            });
+            $query->where('madarsas.name', 'like', '%' . $request->search . '%');
         }
 
         if ($request->filled('gender')) {
             $query->where('madarsas.gender', $request->gender);
         }
 
-        $madarsas = $query
-            ->orderBy('distance')
-            ->paginate($perPage);
+        // ✅ FIXED eager loading (no limit here)
+        $query->with(['images' => function ($q) {
+            $q->select(
+                'madarsa_images.id',
+                'madarsa_images.madarsa_id',
+                'madarsa_images.image_path'
+            )->orderBy('madarsa_images.id');
+        }]);
+
+        $query->orderBy('distance');
+
+        $madarsas = $query->paginate(10);
 
         $madarsas->getCollection()->transform(function ($madarsa) {
             return [
-                'id'        => $madarsa->id,
-                'name'      => $madarsa->name,
-                'address'   => $madarsa->address,
-                'gender'    => $madarsa->gender,
-                'image_url' => $madarsa->firstImage?->image_url,
-                'distance'  => round($madarsa->distance, 2),
+                'id'       => $madarsa->id,
+                'name'     => $madarsa->name,
+                'address'  => $madarsa->address,
+                'gender'   => $madarsa->gender,
+                'image'    => $madarsa->images->first()?->image_url,
+                'distance' => round($madarsa->distance, 2),
             ];
         });
 
         return response()->json([
             'success' => true,
-            'data'    => $madarsas->items(),
-            'meta'    => [
-                'current_page' => $madarsas->currentPage(),
-                'last_page'    => $madarsas->lastPage(),
-                'per_page'     => $madarsas->perPage(),
-                'total'        => $madarsas->total(),
-            ]
+            'data' => $madarsas,
         ]);
     }
 
