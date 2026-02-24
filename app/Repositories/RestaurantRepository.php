@@ -18,53 +18,57 @@ class RestaurantRepository
         ?string $search,
         int $perPage = 10
     ) {
-        return Restaurant::query()
-            ->select([
-                'restaurants.id',
-                'restaurants.name',
-                'restaurants.address',
-                DB::raw('
-                ( 6371 * acos(
-                    cos(radians(' . $userLat . ')) *
+        $query = Restaurant::select('restaurants.*') // IMPORTANT
+            ->selectRaw("
+            (
+                6371 * acos(
+                    cos(radians(?)) *
                     cos(radians(restaurants.latitude)) *
-                    cos(radians(restaurants.longitude) - radians(' . $userLng . ')) +
-                    sin(radians(' . $userLat . ')) *
+                    cos(radians(restaurants.longitude) - radians(?)) +
+                    sin(radians(?)) *
                     sin(radians(restaurants.latitude))
-                ))
-                AS distance
-            ')
-            ])
+                )
+            ) AS distance
+        ", [$userLat, $userLng, $userLat])
+
             ->where('restaurants.status', 'approved')
             ->whereNotNull('restaurants.latitude')
             ->whereNotNull('restaurants.longitude')
 
-            // 🔍 SEARCH FILTER
-            ->when($search, function ($q) use ($search) {
-                $q->where(function ($q) use ($search) {
-                    $q->where('restaurants.name', 'LIKE', "%{$search}%")
-                        ->orWhere('restaurants.address', 'LIKE', "%{$search}%");
-                });
-            })
+            // ✅ Load images properly (no limit here)
+            ->with(['images' => function ($q) {
+                $q->select('id', 'restaurant_id', 'image')
+                    ->orderBy('id'); // ensure first image is predictable
+            }]);
 
-            ->with([
-                'images' => function ($q) {
-                    $q->select('id', 'restaurant_id', 'image')->limit(1);
-                }
-            ])
-            ->orderBy('distance')
-            ->paginate($perPage)
-            ->through(function ($restaurant) {
-                $image = $restaurant->images->first();
-
-                return [
-                    'id'         => $restaurant->id,
-                    'name'       => $restaurant->name,
-                    'address'    => $restaurant->address,
-                    'image'      => $image?->image,
-                    'image_url'  => $image?->image_url,
-                    'distance'   => round($restaurant->distance, 2),
-                ];
+        // ✅ Search filter
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('restaurants.name', 'LIKE', "%{$search}%")
+                    ->orWhere('restaurants.address', 'LIKE', "%{$search}%");
             });
+        }
+
+        // ✅ Paginate
+        $restaurants = $query
+            ->orderBy('distance')
+            ->paginate($perPage);
+
+        // ✅ Transform collection properly
+        $restaurants->getCollection()->transform(function ($restaurant) {
+
+            $firstImage = $restaurant->images->first();
+
+            return [
+                'id'          => $restaurant->id,
+                'name'        => $restaurant->name,
+                'address'     => $restaurant->address,
+                'image_url'   => $firstImage ? $firstImage->image_url : null,
+                'distance'    => round($restaurant->distance, 2),
+            ];
+        });
+
+        return $restaurants;
     }
 
     public function findApprovedWithDetails(int $id)
