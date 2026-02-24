@@ -759,17 +759,17 @@
                 <div class="contact-methods">
                     <div class="contact-method">
                         <div class="contact-label">Email</div>
-                        <div>privacy@alsidra.com</div>
+                        <div>alsidrawelfaresociety@gmail.com</div>
                     </div>
 
                     <div class="contact-method">
                         <div class="contact-label">Data Protection Officer</div>
-                        <div>dpo@alsidra.com</div>
+                        <div>alsidrawelfaresociety@gmail.com</div>
                     </div>
 
                     <div class="contact-method">
                         <div class="contact-label">Emergency Contact</div>
-                        <div>security@alsidra.com</div>
+                        <div>alsidrawelfaresociety@gmail.com</div>
                     </div>
                 </div>
 
@@ -790,7 +790,7 @@
                     <a href="{{ route('terms-conditions') }}">Terms & Conditions</a>
                     <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
                     <a href="#">Cookie Policy</a>
-                    <a href="#">Contact Us</a>
+                    <a href="{{ route('contact') }}">Contact Us</a>
                 </div>
             </div>
             <div class="copyright">

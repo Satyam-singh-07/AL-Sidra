@@ -44,6 +44,10 @@ Route::get('/privacy-policy', function () {
     return view('privacy-policy');
 })->name('privacy-policy');
 
+Route::get('/contact-us', function () {
+    return view('contact');
+})->name('contact');
+
 Route::prefix('admin')->group(function () {
 
     Route::get('/login', function () {

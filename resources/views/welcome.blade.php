@@ -751,7 +751,7 @@
                     <h4>Company</h4>
                     <ul>
                         <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="{{ route('contact') }}">Contact</a></li>
                         <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
                         <li><a href="{{ route('terms-conditions') }}">Terms of Conditions</a></li>
                     </ul>
