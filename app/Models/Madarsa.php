@@ -102,4 +102,9 @@ class Madarsa extends Model
     {
         return $this->hasMany(DonationCollector::class);
     }
+
+    public function firstImage()
+    {
+        return $this->hasOne(MadarsaImage::class)->oldestOfMany();
+    }
 }

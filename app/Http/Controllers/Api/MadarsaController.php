@@ -46,12 +46,10 @@ class MadarsaController extends Controller
 
         $lat = $user->latitude;
         $lng = $user->longitude;
+        $perPage = $request->query('per_page', 10);
 
-        $query = Madarsa::selectRaw("
-            madarsas.id,
-            madarsas.name,
-            madarsas.address,
-            madarsas.gender,
+        $query = Madarsa::select('madarsas.*')
+            ->selectRaw("
             (
                 6371 * acos(
                     cos(radians(?)) *
@@ -62,40 +60,52 @@ class MadarsaController extends Controller
                 )
             ) AS distance
         ", [$lat, $lng, $lat])
-            ->where('madarsas.status', 'active');
 
+            ->where('madarsas.status', 'active')
+            ->whereNotNull('madarsas.latitude')
+            ->whereNotNull('madarsas.longitude')
+
+            ->with(['firstImage:id,madarsa_id,image_path']);
+
+        // 🔍 Search filter
         if ($request->filled('search')) {
-            $query->where('madarsas.name', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('madarsas.name', 'LIKE', "%{$search}%")
+                    ->orWhere('madarsas.address', 'LIKE', "%{$search}%");
+            });
         }
 
+        // 👤 Gender filter
         if ($request->filled('gender')) {
             $query->where('madarsas.gender', $request->gender);
         }
 
-        $query->with(['images' => function ($q) {
-            $q->select('id', 'madarsa_id', 'image_path')
-                ->orderBy('id')
-                ->limit(1);
-        }]);
+        $madarsas = $query
+            ->orderBy('distance')
+            ->paginate($perPage);
 
-        $query->orderBy('distance');
-
-        $madarsas = $query->paginate(10);
-
+        // ✅ Transform response
         $madarsas->getCollection()->transform(function ($madarsa) {
             return [
-                'id'       => $madarsa->id,
-                'name'     => $madarsa->name,
-                'address'  => $madarsa->address,
-                'gender'   => $madarsa->gender,
-                'image'    => $madarsa->images->first()?->image_url,
-                'distance' => round($madarsa->distance, 2),
+                'id'        => $madarsa->id,
+                'name'      => $madarsa->name,
+                'address'   => $madarsa->address,
+                'gender'    => $madarsa->gender,
+                'image_url' => $madarsa->firstImage?->image_url,
+                'distance'  => round($madarsa->distance, 2),
             ];
         });
 
         return response()->json([
             'success' => true,
-            'data' => $madarsas,
+            'data'    => $madarsas->items(),
+            'meta'    => [
+                'current_page' => $madarsas->currentPage(),
+                'last_page'    => $madarsas->lastPage(),
+                'per_page'     => $madarsas->perPage(),
+                'total'        => $madarsas->total(),
+            ]
         ]);
     }
 
