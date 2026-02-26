@@ -103,6 +103,7 @@ class MadarsaController extends Controller
             'data' => $madarsas,
         ]);
     }
+    
 
     public function showMadarsaDetails($id)
     {

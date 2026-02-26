@@ -13,6 +13,15 @@ class VideoCategory extends Model
         'image'
     ];
 
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image
+            ? asset('storage/' . $this->image)
+            : null;
+    }
+
     public function videos()
     {
         return $this->hasMany(Video::class, 'video_category_id');
