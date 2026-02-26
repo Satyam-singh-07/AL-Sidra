@@ -27,7 +27,7 @@ class VideoController extends Controller
                 'category'   => [
                     'id'   => $video->video_category_id,
                     'name' => $video->category?->name,
-                    'image_url' => $video->image_url
+                    'image_url' => $video->category?->image_url
                 ],
                 'created_at' => $video->created_at->toDateTimeString(),
             ];
