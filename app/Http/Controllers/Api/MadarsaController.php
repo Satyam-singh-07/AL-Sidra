@@ -135,7 +135,6 @@ class MadarsaController extends Controller
 
                 'images' => $madarsa->images->map(fn($img) => $img->image_url),
 
-                // ✅ Members Connected
                 'members' => $madarsa->members->map(function ($member) {
                     return [
                         'id' => $member->id,
