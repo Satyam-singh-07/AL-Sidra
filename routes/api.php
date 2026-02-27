@@ -79,7 +79,6 @@ Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('religious-info/{id}', [ReligiousInfoController::class, 'show']);
 Route::get('video-categories/{id}',[VideoCategoryController::class,'show']);
-Route::get('videos', [VideoController::class, 'index']);
 Route::get('communities', [CommunityController::class, 'communityList']);
 Route::get('privacy-policy', [StaticDataController::class, 'privacyPolicy']);
 Route::get('terms-conditions', [StaticDataController::class, 'termsConditions']);
@@ -91,6 +90,7 @@ Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 Route::get('courses',[MadarsaCourseController::class,'getCourses']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('videos', [VideoController::class, 'index']);
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
     Route::get('masjids-details/{id}', [MasjidController::class, 'showMasjidDetails']);
     Route::post('address', [AuthController::class, 'updateAddress']);
