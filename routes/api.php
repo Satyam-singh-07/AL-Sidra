@@ -106,6 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('madarsas/{id}', [MadarsaController::class, 'showMadarsaDetails']);
     Route::post('language', [AuthController::class, 'updateLanguage']);
     Route::post('fcm-token', [FcmTokensController::class, 'saveFcmToken']);
+    Route::post('videos/{id}/seen', [VideoController::class, 'markAsSeen']);
 });
 
 Route::post('upload-file', function (Request $request) {

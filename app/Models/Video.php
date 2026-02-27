@@ -18,4 +18,9 @@ class Video extends Model
     {
         return $this->belongsTo(VideoCategory::class, 'video_category_id');
     }
+
+    public function views()
+    {
+        return $this->hasMany(VideoView::class);
+    }
 }
