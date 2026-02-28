@@ -86,11 +86,11 @@
                 </a>
             @endif
 
-            {{-- Hot Topics --}}
+            {{-- Muslim Updates --}}
             @if ($user->canAccess('manage_hot_topics'))
                 <a href="{{ route('hot-topics.index') }}"
                     class="list-group-item list-group-item-action {{ request()->routeIs('hot-topics.index') ? 'active' : '' }}">
-                    <i class="fas fa-fire"></i> Hot Topics
+                    <i class="fas fa-fire"></i> Muslim Updates
                 </a>
             @endif
 
