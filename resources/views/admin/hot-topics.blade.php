@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Hot Topics')
+@section('title', 'Muslim Updates')
 
 @section('content')
 
@@ -41,7 +41,7 @@
                 <!-- Page Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2 class="text-success fw-bold mb-1">Hot Topics</h2>
+                        <h2 class="text-success fw-bold mb-1">Muslim Updates</h2>
                         {{-- <p class="text-muted mb-0">Manage trending topics and their updates</p> --}}
                     </div>
                     <a href="{{route('hot-topics.create')}}" class="btn btn-success">
@@ -152,7 +152,7 @@
                     </div>
                 </div>
 
-                <!-- Hot Topics Table -->
+                <!-- Muslim Updates Table -->
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <div class="table-responsive">
@@ -266,7 +266,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="6" class="text-center text-muted py-4">
-                                                No hot topics found.
+                                                No Muslim Updates found.
                                             </td>
                                         </tr>
                                     @endforelse

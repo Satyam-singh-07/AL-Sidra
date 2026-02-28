@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Add Hot Topics')
+@section('title', 'Add Muslim Updates')
 
 @section('content')
 
@@ -133,7 +133,7 @@
             loadLayout();
             highlightCurrentPage();
             
-            // Add active class to Hot Topics in sidebar
+            // Add active class to Muslim Updates in sidebar
             const hotTopicsLink = document.querySelector('a[href="hot-topics.html"]');
             if (hotTopicsLink) {
                 hotTopicsLink.classList.add('active');
