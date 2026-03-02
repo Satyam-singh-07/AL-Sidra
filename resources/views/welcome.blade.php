@@ -546,7 +546,8 @@
                 masjids, madrasas, and local initiatives with people—all in one place.</p>
             <p>No chaos. No scattered systems. Just clarity.</p>
             <div class="hero-btns">
-                <a href="#" class="btn btn-accent">Get App</a>
+                <a href="https://play.google.com/store/apps/details?id=com.visionxdigital.alsidra&pcampaignid=web_share"
+                    class="btn btn-accent">Get App</a>
                 <a href="#features" class="btn btn-secondary">Discover Nearby Services</a>
             </div>
         </div>
@@ -723,7 +724,8 @@
             <h2>Build a Stronger, Connected Community</h2>
             <p>Join masjid committees, madrasa administrators, community organizations, and NGOs already using AL-SIDRA
                 to bring structure and transparency to their services.</p>
-            <a href="#" class="btn btn-accent">Get Application Now</a>
+            <a href="https://play.google.com/store/apps/details?id=com.visionxdigital.alsidra&pcampaignid=web_share"
+                class="btn btn-accent">Get Application Now</a>
         </div>
     </section>
 
