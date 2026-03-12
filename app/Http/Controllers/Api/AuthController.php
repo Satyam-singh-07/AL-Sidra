@@ -22,7 +22,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP sent successfully',
-            'otp'     => $otp
         ]);
     }
 
@@ -73,7 +72,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP sent successfully',
-            'otp'     => $otp,
         ]);
     }
 
@@ -188,7 +186,6 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP send successfully',
-            'otp' => $otp
         ]);
     }
 
