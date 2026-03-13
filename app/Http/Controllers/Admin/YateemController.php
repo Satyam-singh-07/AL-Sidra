@@ -39,7 +39,8 @@ class YateemController extends Controller
 
     public function create()
     {
-        return view('admin.yateems-create');
+        $categories = \App\Models\YateemsHelpCategory::where('status', 'active')->get();
+        return view('admin.yateems-create', compact('categories'));
     }
 
     public function store(StoreYateemsHelpAdminRequest $request)
@@ -84,7 +85,8 @@ class YateemController extends Controller
     public function edit($id)
     {
         $yateemsHelp = YateemsHelp::findOrFail($id);
-        return view('admin.yateems-edit', compact('yateemsHelp'));
+        $categories = \App\Models\YateemsHelpCategory::where('status', 'active')->get();
+        return view('admin.yateems-edit', compact('yateemsHelp', 'categories'));
     }
 
     public function update(

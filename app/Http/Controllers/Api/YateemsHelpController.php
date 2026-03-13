@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreYateemsHelpUserRequest;
 use App\Models\YateemsHelp;
+use App\Models\YateemsHelpCategory;
 use App\Services\YateemsHelpService;
 use Illuminate\Http\Request;
 
@@ -65,5 +66,17 @@ class YateemsHelpController extends Controller
         return response()->json([
             'message' => 'Yateems Help created successfully.'
         ], 201);
+    }
+
+    public function getCategories()
+    {
+        $categories = YateemsHelpCategory::where('status', 'active')
+            ->select('id', 'name', 'description')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
     }
 }

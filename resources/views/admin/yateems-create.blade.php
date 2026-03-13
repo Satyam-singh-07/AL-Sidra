@@ -20,6 +20,20 @@
                 @csrf
 
                 <div class="row">
+                    <!-- Category -->
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label required-label">Category</label>
+                        <select name="category_id" class="form-select" required>
+                            <option value="">-- Select Category --</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- Title -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label required-label">Title</label>

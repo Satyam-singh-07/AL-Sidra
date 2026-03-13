@@ -100,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('yateems-helps', [YateemsHelpController::class, 'storeUser']);
     Route::get('yateems-helps', [YateemsHelpController::class, 'index']);
+    Route::get('yateems-help-categories', [YateemsHelpController::class, 'getCategories']);
     Route::get('yateems-helps/{id}', [YateemsHelpController::class, 'show']);
     Route::post('restaurants', [RestaurantController::class, 'store']);
     Route::get('restaurants', [RestaurantController::class, 'index']);
