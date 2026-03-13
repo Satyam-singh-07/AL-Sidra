@@ -54,6 +54,19 @@
             </span>
         </div>
 
+        <!-- Category -->
+        <div class="mb-4">
+            <label class="info-label">Category</label>
+            <div class="info-value text-success">
+                {{ $yateemsHelp->category->name ?? 'N/A' }}
+            </div>
+            @if(isset($yateemsHelp->category->description))
+                <small class="text-muted d-block mt-1">
+                    {{ $yateemsHelp->category->description }}
+                </small>
+            @endif
+        </div>
+
         <!-- Description -->
         <div class="mb-4">
             <label class="info-label">Description</label>

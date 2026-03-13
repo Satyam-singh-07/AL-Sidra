@@ -58,6 +58,7 @@
                         <tr>
                             <th width="60">#</th>
                             <th>Details</th>
+                            <th>Category</th>
                             <th>Bank Info</th>
                             <th>UPI</th>
                             <th>Status</th>
@@ -82,6 +83,12 @@
                                             </small>
                                         </div>
                                     </div>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $help->category->name ?? '—' }}
+                                    </span>
                                 </td>
 
                                 <td>

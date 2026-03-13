@@ -18,7 +18,7 @@ class YateemController extends Controller
 
     public function index(Request $request)
     {
-        $query = YateemsHelp::with(['images']);
+        $query = YateemsHelp::with(['images', 'category']);
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
