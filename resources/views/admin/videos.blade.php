@@ -56,12 +56,47 @@
         .video-controls button {
             margin-right: 5px;
         }
+
+        /* Grid View Styles */
+        .video-card {
+            transition: transform 0.2s;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .video-card-thumbnail {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background-color: #000;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+
+        .view-toggle .btn.active {
+            background-color: #198754;
+            color: white;
+        }
     </style>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-success fw-bold">Video Management</h2>
 
         <div class="d-flex gap-2">
+            <div class="view-toggle btn-group me-2" role="group">
+                <button type="button" class="btn btn-outline-success active" id="listViewBtn" title="List View">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button type="button" class="btn btn-outline-success" id="gridViewBtn" title="Grid View">
+                    <i class="fas fa-th-large"></i>
+                </button>
+            </div>
+
             <a href="{{ route('video-categories.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-layer-group me-2"></i> Video Categories
             </a>
@@ -73,7 +108,8 @@
     </div>
 
 
-    <div class="card shadow-sm border-0">
+    <!-- List View -->
+    <div id="listView" class="card shadow-sm border-0">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle" id="videosTable">
@@ -161,19 +197,78 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted">
+                                <td colspan="8" class="text-center text-muted">
                                     No videos found
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
-                <!-- Pagination -->
-                <div class="mt-4">
-                    @include('admin.partials.pagination', ['paginator' => $videos])
-                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Grid View -->
+    <div id="gridView" class="d-none">
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            @forelse($videos as $video)
+                @php
+                    $videoUrl = asset('storage/' . $video->video_path);
+                @endphp
+                <div class="col">
+                    <div class="card h-100 video-card">
+                        <div class="position-relative">
+                            <video class="video-card-thumbnail" muted>
+                                <source src="{{ $videoUrl }}" type="video/mp4">
+                            </video>
+                            <span
+                                class="position-absolute top-0 end-0 m-2 badge {{ $video->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                {{ ucfirst($video->status) }}
+                            </span>
+                            <span class="position-absolute bottom-0 start-0 m-2 badge bg-dark bg-opacity-75">
+                                <i class="fas fa-eye me-1"></i> {{ $video->views_count }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate mb-1" title="{{ $video->title }}">{{ $video->title }}
+                            </h6>
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-folder me-1"></i> {{ $video->category?->name ?? 'Uncategorized' }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{ $videoUrl }}" target="_blank"
+                                        class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-primary btn-edit" data-id="{{ $video->id }}"
+                                        data-title="{{ $video->title }}" data-category="{{ $video->video_category_id }}"
+                                        data-status="{{ $video->status }}" data-video="{{ $videoUrl }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $video->id }}"
+                                        data-title="{{ $video->title }}" data-status="{{ $video->status }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <a href="{{ $videoUrl }}" class="btn btn-sm btn-outline-info" download>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-center text-muted py-5">
+                    No videos found
+                </div>
+            @endforelse
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        @include('admin.partials.pagination', ['paginator' => $videos])
     </div>
 
     <!-- Add Video Modal -->
@@ -357,6 +452,37 @@
 
 
     <script>
+        // View Toggle Logic
+        const listViewBtn = document.getElementById('listViewBtn');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const listView = document.getElementById('listView');
+        const gridView = document.getElementById('gridView');
+
+        // Check local storage for view preference
+        const currentView = localStorage.getItem('videoViewPreference') || 'list';
+        if (currentView === 'grid') {
+            enableGridView();
+        }
+
+        listViewBtn.addEventListener('click', enableListView);
+        gridViewBtn.addEventListener('click', enableGridView);
+
+        function enableListView() {
+            listView.classList.remove('d-none');
+            gridView.classList.add('d-none');
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            localStorage.setItem('videoViewPreference', 'list');
+        }
+
+        function enableGridView() {
+            listView.classList.add('d-none');
+            gridView.classList.remove('d-none');
+            listViewBtn.classList.remove('active');
+            gridViewBtn.classList.add('active');
+            localStorage.setItem('videoViewPreference', 'grid');
+        }
+
         document.querySelectorAll('.btn-edit').forEach(button => {
             button.addEventListener('click', function() {
 
