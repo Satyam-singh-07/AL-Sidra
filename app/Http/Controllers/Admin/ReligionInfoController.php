@@ -31,9 +31,10 @@ class ReligionInfoController extends Controller
             });
         }
 
-        // Sorting by serial_number. Since it's hierarchical string (1, 1.1, 2), 
-        // a simple asc sort might put 10 before 2, but for 1, 1.1, 2 it works fine.
-        $infos = $query->orderByRaw('LENGTH(serial_number) ASC')->orderBy('serial_number', 'asc')->paginate(30);
+        // Sorting by serial_number. 
+        // We use (serial_number + 0) to sort numerically first, then string sort for ties (like 1.1.1)
+        // NULLs are pushed to the end using 'serial_number IS NULL'.
+        $infos = $query->orderByRaw('serial_number IS NULL, (serial_number + 0) ASC, serial_number ASC')->paginate(30);
 
         return view('admin.religioninfo', compact('infos'));
     }

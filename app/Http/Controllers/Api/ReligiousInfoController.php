@@ -14,8 +14,7 @@ class ReligiousInfoController extends Controller
     {
         $religiousInfo = ReligionInfo::where('status', 'active')
             ->select('id', 'title', 'serial_number')
-            ->orderByRaw('LENGTH(serial_number) ASC')
-            ->orderBy('serial_number', 'asc')
+            ->orderByRaw('serial_number IS NULL, (serial_number + 0) ASC, serial_number ASC')
             ->get();
 
         return response()->json([
