@@ -30,6 +30,11 @@ class HotTopic extends Model
         return $this->hasMany(TopicUpdate::class);
     }
 
+    public function userViews()
+    {
+        return $this->hasMany(HotTopicView::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Accessors

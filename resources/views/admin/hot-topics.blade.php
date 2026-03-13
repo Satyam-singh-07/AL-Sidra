@@ -12,7 +12,7 @@
             border-radius: 8px;
             border: 2px solid #e9ecef;
         }
-        .updates-count {
+        .updates-count, .views-count {
             font-size: 0.75rem;
             padding: 0.2rem 0.5rem;
         }
@@ -96,7 +96,7 @@
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="col-md-3">
+                    <div class="col-md-3">
                         <div class="card border-0 shadow-sm bg-warning bg-opacity-10">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -110,7 +110,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
 
                 <!-- Search and Filters -->
@@ -162,7 +162,7 @@
                                         <th width="60">Sr no</th>
                                         <th>Topic Details</th>
                                         <th>Description</th>
-                                        <th>Updates</th>
+                                        <th>Stats</th>
                                         <th>Created</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -208,12 +208,18 @@
                                                 </p>
                                             </td>
 
-                                            {{-- Updates Count --}}
+                                            {{-- Stats (Updates + Views) --}}
                                             <td>
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 updates-count">
-                                                    <i class="fas fa-sync-alt me-1"></i>
-                                                    {{ $topic->updates_count }} Updates
-                                                </span>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 updates-count">
+                                                        <i class="fas fa-sync-alt me-1"></i>
+                                                        {{ $topic->updates_count }} Updates
+                                                    </span>
+                                                    <span class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 views-count">
+                                                        <i class="fas fa-eye me-1"></i>
+                                                        {{ number_format($topic->views) }} Views
+                                                    </span>
+                                                </div>
                                             </td>
 
                                             {{-- Created --}}
@@ -265,7 +271,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">
+                                            <td colspan="7" class="text-center text-muted py-4">
                                                 No Muslim Updates found.
                                             </td>
                                         </tr>

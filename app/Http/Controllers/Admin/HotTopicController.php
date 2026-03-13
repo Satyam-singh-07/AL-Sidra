@@ -52,7 +52,7 @@ class HotTopicController extends Controller
     $totalTopics  = HotTopic::count();
     $activeTopics = HotTopic::where('status', 'published')->count();
     $totalUpdates = TopicUpdate::count();
-    $todayViews   = HotTopic::whereDate('updated_at', today())->sum('views');
+    $todayViews   = \App\Models\HotTopicView::whereDate('created_at', today())->count();
 
     return view('admin.hot-topics', compact(
         'topics',

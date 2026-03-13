@@ -69,6 +69,7 @@ Route::post('login/verify-otp', [AuthController::class, 'userVerifyOtp']);
 Route::get('banners', [BannerController::class, 'getBanners']);
 Route::get('hot-topics', [HotTopicController::class, 'index']);
 Route::get('hot-topics/{hotTopic}/updates', [TopicUpdateController::class, 'index']);
+
 Route::get('quran/by-surah', [StaticDataController::class, 'surah']);
 Route::get('quran/by-page', [StaticDataController::class, 'pages']);
 Route::get('quran/by-juzs', [StaticDataController::class, 'juzs']);
@@ -78,7 +79,7 @@ Route::get('ongoing-works', [OngoingWorkApiController::class, 'index']);
 Route::get('ongoing-works/{id}', [OngoingWorkApiController::class, 'show']);
 Route::get('religious-info', [ReligiousInfoController::class, 'index']);
 Route::get('religious-info/{id}', [ReligiousInfoController::class, 'show']);
-Route::get('video-categories/{id}',[VideoCategoryController::class,'show']);
+Route::get('video-categories/{id}', [VideoCategoryController::class, 'show']);
 Route::get('communities', [CommunityController::class, 'communityList']);
 Route::get('privacy-policy', [StaticDataController::class, 'privacyPolicy']);
 Route::get('terms-conditions', [StaticDataController::class, 'termsConditions']);
@@ -90,7 +91,7 @@ Route::get('Khidmat-e-Deen', [StaticDataController::class, 'khidmatDeen']);
 Route::get('help', [StaticDataController::class, 'helpSupport']);
 Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
-Route::get('courses',[MadarsaCourseController::class,'getCourses']);
+Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);
@@ -111,6 +112,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('language', [AuthController::class, 'updateLanguage']);
     Route::post('fcm-token', [FcmTokensController::class, 'saveFcmToken']);
     Route::post('videos/{id}/seen', [VideoController::class, 'markAsSeen']);
+    Route::post('hot-topics/{id}/read', [HotTopicController::class, 'markAsRead']);
 });
 
 Route::post('upload-file', function (Request $request) {
