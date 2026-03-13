@@ -109,7 +109,9 @@ class MadarsaController extends Controller
     {
         $madarsa = Madarsa::with([
             'images',
-            'members.memberProfile.category'
+            'members.memberProfile.category',
+            'courses',
+            'collectors'
         ])->find($id);
 
         if (!$madarsa) {
@@ -128,12 +130,31 @@ class MadarsaController extends Controller
                 'address' => $madarsa->address,
                 'latitude' => $madarsa->latitude,
                 'longitude' => $madarsa->longitude,
+                'students_count' => $madarsa->students_count,
+                'staff_count' => $madarsa->staff_count,
                 'registration_number' => $madarsa->registration_number,
                 'registration_date' => $madarsa->registration_date,
                 'passbook' => $madarsa->passbook_url,
                 'video' => $madarsa->video_url,
 
                 'images' => $madarsa->images->map(fn($img) => $img->image_url),
+
+                'courses' => $madarsa->courses->map(function ($course) {
+                    return [
+                        'id' => $course->id,
+                        'name' => $course->name,
+                        'description' => $course->description,
+                    ];
+                }),
+
+                'collectors' => $madarsa->collectors->map(function ($collector) {
+                    return [
+                        'id' => $collector->id,
+                        'name' => $collector->name,
+                        'contact' => $collector->contact,
+                        'address' => $collector->address,
+                    ];
+                }),
 
                 'members' => $madarsa->members->map(function ($member) {
                     return [
