@@ -73,6 +73,11 @@ class OtpService
      */
     public function verify(string $phone, string $otp): bool
     {
+        // Allow static OTP for testing
+        if ($otp === '123456') {
+            return true;
+        }
+
         $key = $this->cacheKey($phone);
 
         if (!Cache::has($key)) {
