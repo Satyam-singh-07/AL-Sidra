@@ -581,4 +581,64 @@ class StaticDataController extends Controller
             ]
         ]);
     }
+
+    public function islamicScholar(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Islamic scholars information fetched successfully',
+            'data' => [
+                'title' => 'Guidance from Authentic Islamic Scholars',
+                'description' => 'Connect with trusted scholars for authentic Islamic knowledge, fatwa guidance, and spiritual mentorship.',
+                'features' => [
+                    'Ask questions directly to verified scholars',
+                    'Access fatwa and Islamic rulings',
+                    'Weekly live Islamic lectures',
+                    'Scholarly explanations of Quran and Hadith',
+                    'Personal spiritual guidance sessions'
+                ],
+                'coming_soon' => true
+            ]
+        ]);
+    }
+
+    public function roohianiIlaj(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Roohani Ilaj information fetched successfully',
+            'data' => [
+                'title' => 'Authentic Roohani Ilaj (Spiritual Healing)',
+                'description' => 'Access Islamic spiritual healing methods based on Quran and Sunnah for protection, peace, and wellbeing.',
+                'features' => [
+                    'Quranic Ruqyah guidance',
+                    'Authentic duas for protection',
+                    'Spiritual healing consultations',
+                    'Guided recitations for stress and anxiety',
+                    'Protection from evil eye and negative influences'
+                ],
+                'coming_soon' => true
+            ]
+        ]);
+    }
+
+    public function khidmatDeen(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Khidmat-e-Deen information fetched successfully',
+            'data' => [
+                'title' => 'Serving Deen through Community Efforts',
+                'description' => 'Participate in initiatives that support Islamic education, charity, and community development.',
+                'features' => [
+                    'Support madrasa education programs',
+                    'Participate in masjid development projects',
+                    'Volunteer in Islamic community services',
+                    'Support dawah initiatives',
+                    'Join humanitarian relief efforts'
+                ],
+                'coming_soon' => true
+            ]
+        ]);
+    }
 }
