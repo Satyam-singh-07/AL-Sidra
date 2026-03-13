@@ -590,13 +590,6 @@ class StaticDataController extends Controller
             'data' => [
                 'title' => 'Guidance from Authentic Islamic Scholars',
                 'description' => 'Connect with trusted scholars for authentic Islamic knowledge, fatwa guidance, and spiritual mentorship.',
-                'features' => [
-                    'Ask questions directly to verified scholars',
-                    'Access fatwa and Islamic rulings',
-                    'Weekly live Islamic lectures',
-                    'Scholarly explanations of Quran and Hadith',
-                    'Personal spiritual guidance sessions'
-                ],
                 'coming_soon' => true
             ]
         ]);
@@ -609,14 +602,28 @@ class StaticDataController extends Controller
             'message' => 'Roohani Ilaj information fetched successfully',
             'data' => [
                 'title' => 'Authentic Roohani Ilaj (Spiritual Healing)',
-                'description' => 'Access Islamic spiritual healing methods based on Quran and Sunnah for protection, peace, and wellbeing.',
-                'features' => [
-                    'Quranic Ruqyah guidance',
-                    'Authentic duas for protection',
-                    'Spiritual healing consultations',
-                    'Guided recitations for stress and anxiety',
-                    'Protection from evil eye and negative influences'
-                ],
+                'description' => `खुशखबरी! "रूहानी इलाज" फ़ीचर जल्द ही आ रहा है।                                                                                                                                                                                                                                                                                                                                              अस्सलामु अलैकुम व रहमतुल्लाहि व बरकातुह,                                                                                                                                                                   अल सिदरा' टीम रात-दिन आपकी खिदमत में लगी हुई है। हमें आपको यह बताते हुए बेहद खुशी हो रही है कि हम ऐप में एक बहुत ही ख़ास और अहम फ़ीचर "रूहानी इलाज" जोड़ने जा रहे हैं।
+
+ हम आपको बताना चाहते हैं कि इस फ़ीचर में आपको क्या-क्या सहूलतें (Facilities) मिलेंगी:
+
+ आप किसी रूहानी मर्ज़ से परेशान चल रहे हैं, तो आपकी परेशानी का हल 'अल सिदरा' लेकर आया है। कोई भी, किसी भी तरह की परेशानी हो, बस हमारे 'अल सिदरा' ऐप में "रूहानी इलाज" ऑप्शन पर टैप कीजिए और अपनी परेशानी (मसला) सेलेक्ट कीजिए इस फ़ीचर में क्या होगा?
+
+परेशानी का इंतख़ाब (Selection): आप अपनी रूहानी परेशानी को ऐप में सर्च (Search) कर सकेंगे या नीचे दी गई लिस्ट (List) में से चुन सकेंगे।
+
+माहिर आमिलों की तलाश: जैसे ही आप अपनी परेशानी चुनकर 'सर्च फ़ॉर आमिल' (Search for Aamil) पर टैप करेंगे, आपके सामने उन माहिर (Expert) आमिलों की फेहरिस्त (लिस्ट) आ जाएगी जो आपकी उस ख़ास परेशानी के हल में महारत रखते हैं।
+
+सीधा राब्ता (Contact): आप अपनी पसंद के आमिल साहब को चुनकर उनसे सीधा राब्ता कर सकेंगे, अपनी परेशानी शेयर कर सकेंगे और वो आपको उसका शरई हल और इलाज बताएंगे।
+
+सबसे अहम बात:
+
+यह पूरी प्रोसेस (Process) बिल्कुल मुफ़्त (FREE) होगी। यूज़र को आमिल साहब से बात करने या मशवरा लेने के लिए कोई पैसा नहीं देना होगा। यह एक दीनी खिदमत है।
+
+हाँ, अगर आप अपनी मर्जी और खुशी से ऐप की तरक्की के लिए कोई तोहफ़ा रकम (Hadiya/Gift Amount) देना चाहें, तो उसका ऑप्शन मौजूद रहेगा, लेकिन यह पूरी तरह आपकी पसंद पर निर्भर है।
+
+हम इस फ़ीचर को जल्द से जल्द लाइव (Live) करने की कोशिश कर रहे हैं। तब तक के लिए सब्र रखें और हमें अपनी दुआओं में ख़ास तौर पर याद रखें।
+
+टीम अल सिदरा`,
+
                 'coming_soon' => true
             ]
         ]);
@@ -630,13 +637,6 @@ class StaticDataController extends Controller
             'data' => [
                 'title' => 'Serving Deen through Community Efforts',
                 'description' => 'Participate in initiatives that support Islamic education, charity, and community development.',
-                'features' => [
-                    'Support madrasa education programs',
-                    'Participate in masjid development projects',
-                    'Volunteer in Islamic community services',
-                    'Support dawah initiatives',
-                    'Join humanitarian relief efforts'
-                ],
                 'coming_soon' => true
             ]
         ]);
