@@ -83,6 +83,7 @@
                             <th>Thumbnail</th>
                             <th>Title</th>
                             <th>Category</th>
+                            <th>Views</th>
                             <th>Video</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -111,6 +112,12 @@
 
                                 <td>
                                     {{ $video->category?->name ?? '—' }}
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        <i class="fas fa-eye me-1"></i> {{ $video->views_count }}
+                                    </span>
                                 </td>
 
                                 <td>
