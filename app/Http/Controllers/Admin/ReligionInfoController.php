@@ -31,7 +31,9 @@ class ReligionInfoController extends Controller
             });
         }
 
-        $infos = $query->latest()->paginate(30);
+        // Sorting by serial_number. Since it's hierarchical string (1, 1.1, 2), 
+        // a simple asc sort might put 10 before 2, but for 1, 1.1, 2 it works fine.
+        $infos = $query->orderByRaw('LENGTH(serial_number) ASC')->orderBy('serial_number', 'asc')->paginate(30);
 
         return view('admin.religioninfo', compact('infos'));
     }
@@ -51,6 +53,7 @@ class ReligionInfoController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'serial_number' => 'nullable|string',
             'title' => 'required|string',
             'category' => 'required|string',
             'content' => 'required',
@@ -98,6 +101,7 @@ class ReligionInfoController extends Controller
         $info = ReligionInfo::findOrFail($id);
 
         $data = $request->validate([
+            'serial_number' => 'nullable|string',
             'title' => 'required|string',
             'category' => 'required|string',
             'content' => 'required',

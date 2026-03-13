@@ -12,8 +12,10 @@ class ReligiousInfoController extends Controller
 {
     public function index()
     {
-        $religiousInfo = ReligionInfo::where('status','active')
-            ->select( 'id', 'title' )
+        $religiousInfo = ReligionInfo::where('status', 'active')
+            ->select('id', 'title', 'serial_number')
+            ->orderByRaw('LENGTH(serial_number) ASC')
+            ->orderBy('serial_number', 'asc')
             ->get();
 
         return response()->json([

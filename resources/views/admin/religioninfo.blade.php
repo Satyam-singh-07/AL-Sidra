@@ -36,6 +36,18 @@
             right: 10px;
         }
 
+        .info-serial {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #495057;
+        }
+
         .info-actions {
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -167,12 +179,16 @@
         @forelse($infos as $info)
             <div class="col-lg-4 col-md-6" data-category="{{ $info->category }}" data-status="{{ $info->status }}">
                 <div class="card info-card shadow-sm h-100">
-                    <div class="card-body position-relative">
+                    <div class="card-body position-relative pt-4">
+                        @if($info->serial_number)
+                            <span class="info-serial">#{{ $info->serial_number }}</span>
+                        @endif
+                        
                         <span class="badge bg-success info-category">
                             {{ ucfirst(str_replace('-', ' ', $info->category)) }}
                         </span>
 
-                        <h5 class="card-title info-title mb-3">
+                        <h5 class="card-title info-title mb-3 mt-2">
                             {{ $info->title }}
                         </h5>
 
@@ -234,12 +250,17 @@
                     <form method="POST" action="{{ route('religion-info.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Serial Number (e.g., 1.1)</label>
+                                <input type="text" name="serial_number" class="form-control"
+                                    placeholder="Enter serial no.">
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Title *</label>
                                 <input type="text" name="title" class="form-control"
                                     placeholder="Enter information title" required>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Category *</label>
                                 <select name="category" class="form-select" required>
                                     <option value="">Select Category</option>
@@ -323,7 +344,8 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <span class="badge bg-success" id="viewCategory"></span>
+                        <span class="badge bg-dark" id="viewSerial"></span>
+                        <span class="badge bg-success ms-2" id="viewCategory"></span>
                         <span class="badge bg-secondary ms-2" id="viewStatus"></span>
                     </div>
 
@@ -366,12 +388,16 @@
                         <input type="hidden" name="id" id="editId">
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Serial Number</label>
+                                <input type="text" name="serial_number" id="editSerial" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Title *</label>
                                 <input type="text" name="title" id="editTitle" class="form-control" required>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Category *</label>
                                 <select name="category" id="editCategory" class="form-select" required>
                                     <option value="basic-beliefs">Basic Beliefs</option>
@@ -466,6 +492,7 @@
                             document.getElementById('viewContent').innerHTML = data.content;
                             document.getElementById('viewCategory').innerText = data.category;
                             document.getElementById('viewStatus').innerText = data.status;
+                            document.getElementById('viewSerial').innerText = data.serial_number ? `#${data.serial_number}` : 'No Serial';
                             document.getElementById('viewUpdated').innerText =
                                 `Last updated: ${data.updated_at}`;
 
@@ -489,31 +516,7 @@
                             document.getElementById('editCategory').value = data.category;
                             document.getElementById('editEditor').innerHTML = data.content;
                             document.getElementById('editStatus').value = data.status;
-
-                            new bootstrap.Modal(
-                                document.getElementById('editInfoModal')
-                            ).show();
-                        });
-                });
-            });
-
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.dataset.id;
-
-                    fetch(`/admin/religion-info/${id}/edit`)
-                        .then(res => res.json())
-                        .then(data => {
-                            document.getElementById('editId').value = data.id;
-                            document.getElementById('editTitle').value = data.title;
-                            document.getElementById('editCategory').value = data.category;
-                            document.getElementById('editEditor').innerHTML = data.content;
-                            document.getElementById('editStatus').value = data.status;
+                            document.getElementById('editSerial').value = data.serial_number;
 
                             const form = document.getElementById('editForm');
                             form.action = `/admin/religion-info/${data.id}`;

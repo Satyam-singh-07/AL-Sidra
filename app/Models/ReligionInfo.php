@@ -10,6 +10,7 @@ class ReligionInfo extends Model
     use HasFactory;
 
     protected $fillable = [
+        'serial_number',
         'title',
         'category',
         'content',
