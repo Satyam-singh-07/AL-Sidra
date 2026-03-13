@@ -14,6 +14,7 @@ class StoreYateemsHelpUserRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'category_id' => 'required|exists:yateems_help_categories,id',
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
 

@@ -9,6 +9,7 @@ class YateemsHelp extends Model
 {
     protected $fillable = [
         'user_id',
+        'category_id',
         'title',
         'description',
         'bank_name',
@@ -34,6 +35,11 @@ class YateemsHelp extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(YateemsHelpCategory::class, 'category_id');
     }
     
     public function images()

@@ -17,14 +17,16 @@ class YateemsHelpController extends Controller
     public function index(Request $request)
     {
         $yateemsHelps = YateemsHelp::where('status', 'active')
-            ->with(['images:id,yateems_help_id,image']) 
+            ->with(['images:id,yateems_help_id,image', 'category']) 
             ->latest()
-            ->get(['id', 'title', 'description'])
+            ->get()
             ->map(function ($help) {
                 return [
                     'id'          => $help->id,
                     'title'       => $help->title,
                     'description' => $help->description,
+                    'category_name' => $help->category->name ?? null,
+                    'category_description' => $help->category->description ?? null,
                     'image'       => optional($help->images->first())->image_url,
                 ];
             });
@@ -40,7 +42,7 @@ class YateemsHelpController extends Controller
     {
         $yateemsHelp = YateemsHelp::where('id', $id)
             ->where('status', 'active')
-            ->with(['images'])
+            ->with(['images', 'category'])
             ->first();
 
         if (!$yateemsHelp) {
