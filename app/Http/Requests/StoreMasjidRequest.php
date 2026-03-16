@@ -13,6 +13,8 @@ class StoreMasjidRequest extends FormRequest
 
     public function rules(): array
     {
+        $imageRule = $this->isMethod('POST') ? 'required|array|min:1|max:5' : 'nullable|array|max:5';
+
         return [
             'name' => 'required|string|max:255',
             'gender' => 'nullable|in:male,female',
@@ -25,7 +27,7 @@ class StoreMasjidRequest extends FormRequest
             'passbook' => 'nullable|file|max:5120',
             'registration_number' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
-            'masjid_images' => 'required|array|min:1|max:5',
+            'masjid_images' => $imageRule,
             'masjid_images.*' => 'image|max:5120',
             'masjid_video' => 'nullable|mimes:mp4,webm,ogg|max:20480',
         ];

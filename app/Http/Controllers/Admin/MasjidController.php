@@ -122,4 +122,18 @@ class MasjidController extends Controller
             'status' => $nextStatus,
         ]);
     }
+
+    public function deleteImage(int $imageId)
+    {
+        $this->masjidService->deleteImage($imageId);
+
+        return back()->with('success', 'Image deleted successfully');
+    }
+
+    public function deleteVideo(Masjid $masjid)
+    {
+        $this->masjidService->deleteVideo($masjid);
+
+        return back()->with('success', 'Video deleted successfully');
+    }
 }

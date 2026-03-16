@@ -140,4 +140,18 @@ class MadrasaController extends Controller
             'status' => $nextStatus,
         ]);
     }
+
+    public function deleteImage(int $imageId)
+    {
+        $this->madarsaService->deleteImage($imageId);
+
+        return back()->with('success', 'Image deleted successfully');
+    }
+
+    public function deleteVideo(Madarsa $madarsa)
+    {
+        $this->madarsaService->deleteVideo($madarsa);
+
+        return back()->with('success', 'Video deleted successfully');
+    }
 }

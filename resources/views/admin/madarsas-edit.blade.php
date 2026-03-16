@@ -238,7 +238,13 @@
             <div class="row">
                 @forelse($madarsa->images as $image)
                     <div class="col-md-3 mb-3">
-                        <img src="{{ asset('storage/' . $image->image_path) }}" class="madarsa-img">
+                        <div class="position-relative">
+                            <img src="{{ asset('storage/' . $image->image_path) }}" class="madarsa-img">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                onclick="if(confirm('Delete this image?')) document.getElementById('delete-image-{{ $image->id }}').submit();">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 @empty
                     <p class="text-muted">No images uploaded</p>
@@ -285,7 +291,23 @@
         <div class="form-section">
             <h5>Madarsa Video</h5>
 
+            @if($madarsa->video)
+                <div class="mb-3">
+                    <video width="320" height="240" controls>
+                        <source src="{{ asset('storage/' . $madarsa->video) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-danger btn-sm"
+                            onclick="if(confirm('Delete this video?')) document.getElementById('delete-video-form').submit();">
+                            <i class="fas fa-trash me-1"></i> Remove Video
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             <input type="file" name="video" class="form-control" accept="video/mp4,video/webm,video/ogg">
+            <small class="text-muted">Upload a new video to replace the existing one, or leave empty.</small>
         </div>
 
         {{-- Actions --}}
@@ -302,6 +324,23 @@
         </div>
 
     </form>
+
+    {{-- Hidden Delete Forms --}}
+    @foreach ($madarsa->images as $image)
+        <form id="delete-image-{{ $image->id }}" action="{{ route('madarsas.delete-image', $image->id) }}"
+            method="POST" class="d-none">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
+
+    @if($madarsa->video)
+        <form id="delete-video-form" action="{{ route('madarsas.delete-video', $madarsa) }}"
+            method="POST" class="d-none">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
 
     <script
         src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&libraries=places&callback=initMap"

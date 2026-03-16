@@ -154,4 +154,19 @@ class MadarsaService
             $madarsa->delete();
         });
     }
+
+    public function deleteImage(int $imageId): void
+    {
+        $image = \App\Models\MadarsaImage::findOrFail($imageId);
+        Storage::disk('public')->delete($image->image_path);
+        $image->delete();
+    }
+
+    public function deleteVideo(Madarsa $madarsa): void
+    {
+        if ($madarsa->video) {
+            Storage::disk('public')->delete($madarsa->video);
+            $madarsa->update(['video' => null]);
+        }
+    }
 }

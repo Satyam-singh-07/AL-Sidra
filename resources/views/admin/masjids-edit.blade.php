@@ -61,6 +61,14 @@
             content: " *";
             color: #dc3545;
         }
+
+        .masjid-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
     </style>
 
     <!-- Page Header -->
@@ -73,9 +81,6 @@
             <a href="{{ route('masjids.index') }}" class="btn btn-outline-secondary me-2">
                 <i class="fas fa-arrow-left me-2"></i>Back to List
             </a>
-            {{-- <button type="submit" form="masjidForm" class="btn btn-success">
-                <i class="fas fa-save me-2"></i>Save Masjid
-            </button> --}}
         </div>
     </div>
 
@@ -140,9 +145,9 @@
                 <div class="col-md-6 mb-3">
                     <label for="status" class="form-label required-label">Status</label>
                     <select name="status" class="form-select">
-                        <option value="active" {{ old('status', 'active') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="pending" {{ old('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="active" {{ old('status', $masjid->status) === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="pending" {{ old('status', $masjid->status) === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="inactive" {{ old('status', $masjid->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
             </div>
@@ -157,13 +162,6 @@
                 <div class="col-12">
                     <label class="form-label">Map Preview</label>
                     <div id="map" class="location-map" style="height:300px;"></div>
-                    @php
-                        $address = old('address');
-                    @endphp
-
-                    <script
-                        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&libraries=places&callback=initMap"
-                        async defer></script>
                 </div>
             </div>
         </div>
@@ -174,31 +172,24 @@
 
             <div class="row">
                 <div class="col-md-12 mb-4">
-                    <label class="form-label required-label">Donation Passbook</label>
+                    <label class="form-label">Donation Passbook</label>
+                    @if($masjid->passbook)
+                        <div class="mb-2">
+                            <a href="{{ asset('storage/' . $masjid->passbook) }}" target="_blank" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye me-1"></i> View Current Passbook
+                            </a>
+                        </div>
+                    @endif
                     <div class="file-upload" onclick="document.getElementById('passbookFile').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <h5>Upload Passbook Copy</h5>
+                        <h5>Upload New Passbook Copy</h5>
                         <p class="text-muted">Click to upload or drag and drop</p>
                         <small class="text-muted">PDF, JPG, PNG files up to 5MB</small>
                     </div>
-                    <input type="file" name="passbook" value="{{ old('longitude', $masjid->passbook) }}"
-                        class="form-control @error('passbook') is-invalid @enderror">
+                    <input type="file" id="passbookFile" name="passbook" class="form-control d-none @error('passbook') is-invalid @enderror">
                     @error('passbook')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-
-
-                    <!-- File Preview -->
-                    <div id="filePreview" class="file-preview d-none">
-                        <div class="alert alert-success d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-file-pdf text-danger me-2"></i>
-                                <span id="fileName">donation_passbook.pdf</span>
-                                <small class="text-muted ms-2" id="fileSize">(2.4 MB)</small>
-                            </div>
-                            <button type="button" class="btn-close" onclick="removeFile()"></button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
@@ -217,31 +208,62 @@
             </div>
         </div>
 
+        <!-- Section: Existing Images -->
+        <div class="form-section">
+            <h5><i class="fas fa-images me-2"></i>Existing Images</h5>
+            <div class="row">
+                @forelse($masjid->images as $image)
+                    <div class="col-md-3 mb-3">
+                        <div class="position-relative">
+                            <img src="{{ asset('storage/' . $image->image_path) }}" class="masjid-img">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+                                onclick="if(confirm('Delete this image?')) document.getElementById('delete-image-{{ $image->id }}').submit();">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-muted ms-3">No images uploaded</p>
+                @endforelse
+            </div>
+        </div>
+
         <!-- Section 4: Masjid Images -->
         <div class="form-section">
-            <h5><i class="fas fa-images me-2"></i>Masjid Images</h5>
+            <h5><i class="fas fa-images me-2"></i>Add New Images</h5>
 
-            <label class="form-label required-label">
-                Upload Images (1 required, max 5)
+            <label class="form-label">
+                Upload New Images
             </label>
 
             <input type="file" name="masjid_images[]"
                 class="form-control @error('masjid_images') is-invalid @enderror" multiple>
-
-            <div class="invalid-feedback">
-                Please upload at least one image (maximum 5 allowed).
-            </div>
-
-            <!-- Preview -->
-            <div class="row mt-3" id="imagePreview"></div>
 
             <small class="text-muted">
                 JPG, PNG only. Max 5 images. Each image should be under 5MB.
             </small>
         </div>
 
-        <div class="col-md-12 mb-3">
-            <label for="masjidVideo" class="form-label">Masjid Video (Optional)</label>
+        <!-- Section 5: Video -->
+        <div class="form-section">
+            <h5><i class="fas fa-video me-2"></i>Masjid Video</h5>
+
+            @if($masjid->video)
+                <div class="mb-3">
+                    <video width="320" height="240" controls>
+                        <source src="{{ asset('storage/' . $masjid->video) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-danger btn-sm"
+                            onclick="if(confirm('Delete this video?')) document.getElementById('delete-video-form').submit();">
+                            <i class="fas fa-trash me-1"></i> Remove Video
+                        </button>
+                    </div>
+                </div>
+            @endif
+
+            <label for="masjidVideo" class="form-label">Upload New Video (Optional)</label>
             <input type="file" class="form-control" id="masjidVideo" name="masjid_video"
                 accept="video/mp4,video/webm,video/ogg">
             <small class="text-muted">
@@ -260,12 +282,33 @@
                         <i class="fas fa-redo me-2"></i>Reset Form
                     </button>
                     <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save me-2"></i>Save Masjid
+                        <i class="fas fa-save me-2"></i>Update Masjid
                     </button>
                 </div>
             </div>
         </div>
     </form>
+
+    {{-- Hidden Delete Forms --}}
+    @foreach ($masjid->images as $image)
+        <form id="delete-image-{{ $image->id }}" action="{{ route('masjids.delete-image', $image->id) }}"
+            method="POST" class="d-none">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
+
+    @if($masjid->video)
+        <form id="delete-video-form" action="{{ route('masjids.delete-video', $masjid) }}"
+            method="POST" class="d-none">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
+
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_key') }}&libraries=places&callback=initMap"
+        async defer></script>
 
     <script>
         let map, marker, autocomplete, geocoder;
@@ -292,7 +335,6 @@
 
             geocoder = new google.maps.Geocoder();
 
-            // ✅ USE ID (NOT textarea/input selector)
             const addressInput = document.getElementById('address');
 
             autocomplete = new google.maps.places.Autocomplete(addressInput, {

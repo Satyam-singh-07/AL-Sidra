@@ -102,6 +102,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('masjids', MasjidController::class);
         Route::patch('/masjids/{masjid}/status', [MasjidController::class, 'cycleStatus'])
             ->name('masjids.cycle-status');
+        Route::delete('masjids/{masjid}/video', [MasjidController::class, 'deleteVideo'])->name('masjids.delete-video');
+        Route::delete('masjids/images/{image}', [MasjidController::class, 'deleteImage'])->name('masjids.delete-image');
 
         Route::resource('yateems-helps', YateemController::class);
         Route::patch('/yateems-helps/{yateemsHelp}/status', [YateemController::class, 'toggleStatus'])->name('yateems-helps.toggle-status');
@@ -115,6 +117,8 @@ Route::prefix('admin')->group(function () {
             'madarsas/{madarsa}/status',
             [MadrasaController::class, 'cycleStatus']
         )->name('madarsas.status');
+        Route::delete('madarsas/{madarsa}/video', [MadrasaController::class, 'deleteVideo'])->name('madarsas.delete-video');
+        Route::delete('madarsas/images/{image}', [MadrasaController::class, 'deleteImage'])->name('madarsas.delete-image');
 
         Route::resource('madarsa-courses', MadarsaCourseController::class);
 

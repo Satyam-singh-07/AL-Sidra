@@ -127,4 +127,21 @@ class MasjidService
             $masjid->delete();
         });
     }
+
+    public function deleteImage(int $imageId): void
+    {
+        $image = \App\Models\MasjidImage::findOrFail($imageId);
+        if ($image->image_path) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+        $image->delete();
+    }
+
+    public function deleteVideo(Masjid $masjid): void
+    {
+        if ($masjid->video) {
+            Storage::disk('public')->delete($masjid->video);
+            $masjid->update(['video' => null]);
+        }
+    }
 }
