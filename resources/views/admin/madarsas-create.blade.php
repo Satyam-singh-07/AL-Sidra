@@ -91,15 +91,15 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label required-label">Students Count</label>
+                    <label class="form-label">Students Count</label>
                     <input type="number" name="students_count" class="form-control" min="0"
-                        placeholder="Enter student count" required>
+                        placeholder="Enter student count">
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label required-label">Staff Count</label>
+                    <label class="form-label">Staff Count</label>
                     <input type="number" name="staff_count" class="form-control" min="0"
-                        placeholder="Enter staff count" required>
+                        placeholder="Enter staff count">
                 </div>
             </div>
         </div>
@@ -154,35 +154,11 @@
             <h5><i class="fas fa-hand-holding-usd me-2"></i>Donation Collectors</h5>
 
             <div id="collector-wrapper">
-                <div class="collector-item border rounded p-3 mb-3">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label class="form-label required-label">Collector Name</label>
-                            <input type="text" name="collectors[0][name]" class="form-control"
-                                placeholder="Collector Name" required>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label required-label">Contact</label>
-                            <input type="text" name="collectors[0][contact]" class="form-control"
-                                placeholder="Contact" required>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Address</label>
-                            <input type="text" name="collectors[0][address]" placeholder="Address"
-                                class="form-control">
-                        </div>
-
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger remove-collector">X</button>
-                        </div>
-                    </div>
-                </div>
+                {{-- No default collectors, let admin add if needed --}}
             </div>
 
             <button type="button" class="btn btn-outline-primary" id="add-collector">
-                Add Another Collector
+                Add Collector
             </button>
         </div>
 
@@ -221,11 +197,11 @@
         <div class="form-section">
             <h5><i class="fas fa-images me-2"></i>Madarsa Images</h5>
 
-            <label class="form-label required-label">
-                Upload Images (min 1, max 5)
+            <label class="form-label">
+                Upload Images (max 5)
             </label>
 
-            <input type="file" name="madarsa_images[]" class="form-control" multiple required>
+            <input type="file" name="madarsa_images[]" class="form-control" multiple>
 
             <small class="text-muted">
                 JPG / PNG only. Max 5 images.
@@ -313,7 +289,7 @@
     </script>
 
     <script>
-        let collectorIndex = 1;
+        let collectorIndex = 0;
 
         document.getElementById('add-collector').addEventListener('click', function() {
 

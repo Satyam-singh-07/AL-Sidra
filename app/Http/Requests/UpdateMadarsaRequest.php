@@ -23,8 +23,8 @@ class UpdateMadarsaRequest extends FormRequest
             'community_id' => ['required', 'exists:communities,id'],
             'status' => ['required', 'in:active,pending,inactive'],
 
-            'students_count' => ['required', 'integer', 'min:0'],
-            'staff_count' => ['required', 'integer', 'min:0'],
+            'students_count' => ['nullable', 'integer', 'min:0'],
+            'staff_count' => ['nullable', 'integer', 'min:0'],
 
             'contact_number' => ['required', 'string', 'max:20'],
             'alternate_contact' => ['nullable', 'string', 'max:20'],
@@ -34,9 +34,9 @@ class UpdateMadarsaRequest extends FormRequest
             'courses' => ['nullable', 'array'],
             'courses.*' => ['exists:madarsa_courses,id'],
 
-            'collectors' => ['required', 'array', 'min:1'],
-            'collectors.*.name' => ['required', 'string', 'max:255'],
-            'collectors.*.contact' => ['required', 'string', 'max:20'],
+            'collectors' => ['nullable', 'array'],
+            'collectors.*.name' => ['required_with:collectors', 'string', 'max:255'],
+            'collectors.*.contact' => ['required_with:collectors', 'string', 'max:20'],
             'collectors.*.address' => ['nullable', 'string'],
 
             'passbook' => ['nullable', 'file', 'mimes:pdf,jpg,png', 'max:5120'],

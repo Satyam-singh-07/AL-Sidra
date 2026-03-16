@@ -112,15 +112,15 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label required-label">Students Count</label>
+                    <label class="form-label">Students Count</label>
                     <input type="number" name="students_count" class="form-control" min="0"
-                        value="{{ old('students_count', $madarsa->students_count) }}" required>
+                        value="{{ old('students_count', $madarsa->students_count) }}">
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label required-label">Staff Count</label>
+                    <label class="form-label">Staff Count</label>
                     <input type="number" name="staff_count" class="form-control" min="0"
-                        value="{{ old('staff_count', $madarsa->staff_count) }}" required>
+                        value="{{ old('staff_count', $madarsa->staff_count) }}">
                 </div>
 
             </div>
@@ -191,17 +191,20 @@
                     <div class="collector-item border rounded p-3 mb-3">
                         <div class="row">
                             <div class="col-md-4">
+                                <label class="form-label required-label">Collector Name</label>
                                 <input type="text" name="collectors[{{ $index }}][name]" class="form-control"
                                     value="{{ $collector['name'] }}" placeholder="Collector Name" required>
                             </div>
 
                             <div class="col-md-4">
+                                <label class="form-label required-label">Contact</label>
                                 <input type="text" name="collectors[{{ $index }}][contact]"
                                     class="form-control" value="{{ $collector['contact'] }}" placeholder="Contact"
                                     required>
                             </div>
 
                             <div class="col-md-3">
+                                <label class="form-label">Address</label>
                                 <input type="text" name="collectors[{{ $index }}][address]"
                                     class="form-control" value="{{ $collector['address'] ?? '' }}"
                                     placeholder="Address">
@@ -217,7 +220,7 @@
             </div>
 
             <button type="button" class="btn btn-outline-primary" id="add-collector">
-                Add Another Collector
+                Add Collector
             </button>
         </div>
 
@@ -375,14 +378,17 @@
             <div class="collector-item border rounded p-3 mb-3">
                 <div class="row">
                     <div class="col-md-4">
+                        <label class="form-label required-label">Collector Name</label>
                         <input type="text" name="collectors[${collectorIndex}][name]" class="form-control" placeholder="Collector Name" required>
                     </div>
 
                     <div class="col-md-4">
+                        <label class="form-label required-label">Contact</label>
                         <input type="text" name="collectors[${collectorIndex}][contact]" class="form-control" placeholder="Contact" required>
                     </div>
 
                     <div class="col-md-3">
+                        <label class="form-label">Address</label>
                         <input type="text" name="collectors[${collectorIndex}][address]" class="form-control" placeholder="Address">
                     </div>
 

@@ -42,8 +42,10 @@ class MadarsaService
             }
 
             // Add collectors
-            foreach ($collectors as $collector) {
-                $madarsa->collectors()->create($collector);
+            if (!empty($collectors)) {
+                foreach ($collectors as $collector) {
+                    $madarsa->collectors()->create($collector);
+                }
             }
 
             // Images
@@ -88,14 +90,18 @@ class MadarsaService
             $this->madarsaRepository->update($madarsa, $data);
 
             // Sync courses
-            $madarsa->courses()->sync($courses);
+            if (array_key_exists('courses', $data)) {
+                $madarsa->courses()->sync($courses);
+            }
 
             // Replace collectors
             if (array_key_exists('collectors', $data)) {
                 $madarsa->collectors()->delete();
 
-                foreach ($collectors as $collector) {
-                    $madarsa->collectors()->create($collector);
+                if (!empty($collectors)) {
+                    foreach ($collectors as $collector) {
+                        $madarsa->collectors()->create($collector);
+                    }
                 }
             }
 
