@@ -32,6 +32,10 @@ class MadarsaService
 
             // Attach creator
             $data['user_id'] = $user->id;
+            
+            // Handle null counts
+            $data['students_count'] = $data['students_count'] ?? 0;
+            $data['staff_count'] = $data['staff_count'] ?? 0;
 
             // Create madarsa
             $madarsa = $this->madarsaRepository->create($data);
@@ -85,6 +89,14 @@ class MadarsaService
 
             $courses = $data['courses'] ?? [];
             $collectors = $data['collectors'] ?? [];
+
+            // Handle null counts
+            if (array_key_exists('students_count', $data)) {
+                $data['students_count'] = $data['students_count'] ?? 0;
+            }
+            if (array_key_exists('staff_count', $data)) {
+                $data['staff_count'] = $data['staff_count'] ?? 0;
+            }
 
             // Update main record
             $this->madarsaRepository->update($madarsa, $data);
