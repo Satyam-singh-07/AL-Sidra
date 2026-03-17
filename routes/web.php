@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TopicUpdateController;
 use App\Http\Controllers\Admin\RuhaniIjalController;
 use App\Http\Controllers\Admin\RuhaniIjalCategoryController;
+use App\Http\Controllers\Admin\RuhaniIjalAamilController;
 use App\Http\Controllers\Admin\VideoCategoryController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
@@ -126,6 +127,9 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('ruhani-ijal', RuhaniIjalController::class);
         Route::resource('ruhani-ijal-categories', RuhaniIjalCategoryController::class);
+        Route::resource('ruhani-ijal-aamils', RuhaniIjalAamilController::class);
+        Route::post('ruhani-ijal-aamils/{aamil}/approve', [RuhaniIjalAamilController::class, 'approve'])->name('admin.ruhani-ijal-aamils.approve');
+        Route::post('ruhani-ijal-aamils/{aamil}/reject', [RuhaniIjalAamilController::class, 'reject'])->name('admin.ruhani-ijal-aamils.reject');
 
         Route::resource('roles', RoleController::class);
 

@@ -12,11 +12,16 @@
                 <i class="fas fa-layer-group me-2"></i> Ruhani Ijal Categories
             </a>
 
+            <a href="{{ route('ruhani-ijal-aamils.index') }}" class="btn btn-outline-success">
+                <i class="fas fa-users-cog me-2"></i> Aamil Registrations
+            </a>
+
             <button class="btn btn-success">
                 <i class="fas fa-plus me-2"></i> Add Ruhani Ijal
             </button>
         </div>
     </div>
+...
 
 
     <div class="card shadow-sm border-0">
