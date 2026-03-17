@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\OngoingWorkApiController;
 use App\Http\Controllers\Api\PrayerTimeController;
 use App\Http\Controllers\Api\ReligiousInfoController;
 use App\Http\Controllers\Api\RestaurantController;
+use App\Http\Controllers\Api\RuhaniIjalController;
 use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 use App\Http\Controllers\Api\VideoController;
@@ -92,7 +93,7 @@ Route::get('help', [StaticDataController::class, 'helpSupport']);
 Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
-Route::get('ruhani-ijal-categories', [App\Http\Controllers\Api\RuhaniIjalController::class, 'getCategories']);
+Route::get('ruhani-ijal-categories', [RuhaniIjalController::class, 'getCategories']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);
@@ -114,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fcm-token', [FcmTokensController::class, 'saveFcmToken']);
     Route::post('videos/{id}/seen', [VideoController::class, 'markAsSeen']);
     Route::post('hot-topics/{id}/read', [HotTopicController::class, 'markAsRead']);
+    Route::post('ruhani-ijal/register', [App\Http\Controllers\Api\RuhaniIjalController::class, 'registerAamil']);
 });
 
 Route::post('upload-file', function (Request $request) {
