@@ -25,6 +25,47 @@ class RuhaniIjalController extends Controller
     }
 
     /**
+     * Get all approved Aamils with pagination
+     * Optional filter by category_id
+     */
+    public function getApprovedAamils(Request $request): JsonResponse
+    {
+        $query = RuhaniIjalAamil::with(['user:id,name,phone,email,address', 'categories:id,name'])
+            ->where('status', 'approved');
+
+        // Optional filter by category
+        if ($request->filled('category_id')) {
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('ruhani_ijal_categories.id', $request->category_id);
+            });
+        }
+
+        // Search by name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $aamils = $query->latest()->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Approved Aamils fetched successfully',
+            'data' => $aamils->items(),
+            'pagination' => [
+                'total' => $aamils->total(),
+                'per_page' => $aamils->perPage(),
+                'current_page' => $aamils->currentPage(),
+                'last_page' => $aamils->lastPage(),
+                'from' => $aamils->firstItem(),
+                'to' => $aamils->lastItem(),
+            ]
+        ]);
+    }
+
+    /**
      * Register as an Aamil with multiple categories
      */
     public function registerAamil(Request $request): JsonResponse
@@ -42,8 +83,6 @@ class RuhaniIjalController extends Controller
         $existingRegistration = RuhaniIjalAamil::where('user_id', $userId)->first();
 
         if ($existingRegistration) {
-            // Update categories and info if they want to re-apply/update? 
-            // Or just block if pending/approved.
             if ($existingRegistration->status !== 'rejected') {
                 return response()->json([
                     'success' => false,
@@ -51,7 +90,6 @@ class RuhaniIjalController extends Controller
                 ], 400);
             }
             
-            // If rejected, allow update
             $existingRegistration->update([
                 'experience' => $request->experience,
                 'description' => $request->description,
@@ -60,7 +98,6 @@ class RuhaniIjalController extends Controller
             $existingRegistration->categories()->sync($request->category_ids);
             $aamil = $existingRegistration;
         } else {
-            // Create new registration
             $aamil = RuhaniIjalAamil::create([
                 'user_id' => $userId,
                 'experience' => $request->experience,

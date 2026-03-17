@@ -115,7 +115,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fcm-token', [FcmTokensController::class, 'saveFcmToken']);
     Route::post('videos/{id}/seen', [VideoController::class, 'markAsSeen']);
     Route::post('hot-topics/{id}/read', [HotTopicController::class, 'markAsRead']);
-    Route::post('ruhani-ijal/register', [App\Http\Controllers\Api\RuhaniIjalController::class, 'registerAamil']);
+    Route::post('ruhani-ijal/register', [RuhaniIjalController::class, 'registerAamil']);
+    Route::get('ruhani-ijal/aamils', [RuhaniIjalController::class, 'getApprovedAamils']);
 });
 
 Route::post('upload-file', function (Request $request) {
