@@ -24,6 +24,17 @@
         </div>
 
         <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                @foreach ($categories as $cat)
+                    <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-md-3">
             <select name="status" class="form-select">
                 <option value="">All Status</option>
                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -53,7 +64,7 @@
                         <tr>
                             <th width="80">Sr No</th>
                             <th>User Details</th>
-                            <th>Category</th>
+                            <th>Categories</th>
                             <th>Applied On</th>
                             <th>Status</th>
                             <th width="100">Actions</th>
@@ -68,9 +79,11 @@
                                     <small class="text-muted">{{ $aamil->user->phone }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-info bg-opacity-10 text-info">
-                                        {{ $aamil->category->name }}
-                                    </span>
+                                    @foreach($aamil->categories as $category)
+                                        <span class="badge bg-info bg-opacity-10 text-info mb-1">
+                                            {{ $category->name }}
+                                        </span>
+                                    @endforeach
                                 </td>
                                 <td>{{ $aamil->created_at->format('d M Y') }}</td>
                                 <td>

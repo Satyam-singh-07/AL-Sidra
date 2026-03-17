@@ -13,7 +13,7 @@ class RuhaniIjalAamilController extends Controller
      */
     public function index()
     {
-        $aamils = RuhaniIjalAamil::with(['user', 'category'])->latest()->get();
+        $aamils = RuhaniIjalAamil::with(['user', 'categories'])->latest()->get();
         return view('admin.ruhani-ijal-aamils', compact('aamils'));
     }
 
@@ -22,7 +22,7 @@ class RuhaniIjalAamilController extends Controller
      */
     public function show($id)
     {
-        $aamil = RuhaniIjalAamil::with(['user', 'category'])->findOrFail($id);
+        $aamil = RuhaniIjalAamil::with(['user', 'categories'])->findOrFail($id);
         return view('admin.ruhani-ijal-aamil-show', compact('aamil'));
     }
 
@@ -56,6 +56,6 @@ class RuhaniIjalAamilController extends Controller
         $aamil = RuhaniIjalAamil::findOrFail($id);
         $aamil->delete();
 
-        return redirect()->route('ruhani-ijal-aamils.index')->with('success', 'Aamil registration deleted.');
+        return redirect()->route('ruhani-ijal.index')->with('success', 'Aamil registration deleted.');
     }
 }

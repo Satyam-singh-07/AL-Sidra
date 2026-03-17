@@ -25,43 +25,55 @@ class RuhaniIjalController extends Controller
     }
 
     /**
-     * Register as an Aamil
+     * Register as an Aamil with multiple categories
      */
     public function registerAamil(Request $request): JsonResponse
     {
         $request->validate([
-            'category_id' => 'required|exists:ruhani_ijal_categories,id',
+            'category_ids' => 'required|array',
+            'category_ids.*' => 'exists:ruhani_ijal_categories,id',
             'experience' => 'required|string',
             'description' => 'nullable|string',
         ]);
 
-        // Take user_id from auth as requested
         $userId = auth()->id();
 
-        // Check if already registered for this category
-        $exists = RuhaniIjalAamil::where('user_id', $userId)
-            ->where('ruhani_ijal_category_id', $request->category_id)
-            ->first();
+        // Check if user already has a pending or approved registration
+        $existingRegistration = RuhaniIjalAamil::where('user_id', $userId)->first();
 
-        if ($exists) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already registered for this category. Status: ' . $exists->status,
-            ], 400);
+        if ($existingRegistration) {
+            // Update categories and info if they want to re-apply/update? 
+            // Or just block if pending/approved.
+            if ($existingRegistration->status !== 'rejected') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have an active registration. Status: ' . $existingRegistration->status,
+                ], 400);
+            }
+            
+            // If rejected, allow update
+            $existingRegistration->update([
+                'experience' => $request->experience,
+                'description' => $request->description,
+                'status' => 'pending'
+            ]);
+            $existingRegistration->categories()->sync($request->category_ids);
+            $aamil = $existingRegistration;
+        } else {
+            // Create new registration
+            $aamil = RuhaniIjalAamil::create([
+                'user_id' => $userId,
+                'experience' => $request->experience,
+                'description' => $request->description,
+                'status' => 'pending'
+            ]);
+            $aamil->categories()->attach($request->category_ids);
         }
-
-        $aamil = RuhaniIjalAamil::create([
-            'user_id' => $userId,
-            'ruhani_ijal_category_id' => $request->category_id,
-            'experience' => $request->experience,
-            'description' => $request->description,
-            'status' => 'pending'
-        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Aamil registration submitted successfully',
-            'data' => $aamil
+            'data' => $aamil->load('categories')
         ]);
     }
 }

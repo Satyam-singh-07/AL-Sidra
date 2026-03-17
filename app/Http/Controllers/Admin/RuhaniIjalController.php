@@ -14,7 +14,7 @@ class RuhaniIjalController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RuhaniIjalAamil::with(['user', 'category']);
+        $query = RuhaniIjalAamil::with(['user', 'categories']);
 
         // Filters
         if ($request->filled('search')) {
@@ -26,7 +26,9 @@ class RuhaniIjalController extends Controller
         }
 
         if ($request->filled('category')) {
-            $query->where('ruhani_ijal_category_id', $request->category);
+            $query->whereHas('categories', function($q) use ($request) {
+                $q->where('ruhani_ijal_categories.id', $request->category);
+            });
         }
 
         if ($request->filled('status')) {

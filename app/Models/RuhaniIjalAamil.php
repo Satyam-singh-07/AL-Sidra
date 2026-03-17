@@ -11,7 +11,6 @@ class RuhaniIjalAamil extends Model
 
     protected $fillable = [
         'user_id',
-        'ruhani_ijal_category_id',
         'experience',
         'description',
         'status'
@@ -22,8 +21,11 @@ class RuhaniIjalAamil extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function category()
+    /**
+     * The categories that belong to the Aamil.
+     */
+    public function categories()
     {
-        return $this->belongsTo(RuhaniIjalCategory::class, 'ruhani_ijal_category_id');
+        return $this->belongsToMany(RuhaniIjalCategory::class, 'ruhani_ijal_aamil_category', 'ruhani_ijal_aamil_id', 'ruhani_ijal_category_id');
     }
 }

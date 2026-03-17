@@ -98,9 +98,13 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <h6 class="text-muted fw-bold mb-2">Selected Category</h6>
-                        <div class="p-3 bg-info bg-opacity-10 text-info rounded border border-info border-opacity-25">
-                            <i class="fas fa-layer-group me-2"></i> {{ $aamil->category->name }}
+                        <h6 class="text-muted fw-bold mb-2">Selected Categories</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($aamil->categories as $category)
+                                <div class="p-2 px-3 bg-info bg-opacity-10 text-info rounded border border-info border-opacity-25">
+                                    <i class="fas fa-layer-group me-2"></i> {{ $category->name }}
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
