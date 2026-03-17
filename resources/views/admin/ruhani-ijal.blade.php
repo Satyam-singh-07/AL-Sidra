@@ -24,17 +24,6 @@
         </div>
 
         <div class="col-md-3">
-            <select name="category" class="form-select">
-                <option value="">All Categories</option>
-                @foreach ($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
-                        {{ $cat->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="col-md-3">
             <select name="status" class="form-select">
                 <option value="">All Status</option>
                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -87,10 +76,12 @@
                                 </td>
                                 <td>{{ $aamil->created_at->format('d M Y') }}</td>
                                 <td>
-                                    <span class="badge 
+                                    <span class="badge status-badge style-pointer
                                         @if($aamil->status == 'approved') bg-success 
                                         @elseif($aamil->status == 'pending') bg-warning text-dark 
-                                        @else bg-danger @endif">
+                                        @else bg-danger @endif"
+                                        data-id="{{ $aamil->id }}"
+                                        style="cursor: pointer;">
                                         {{ ucfirst($aamil->status) }}
                                     </span>
                                 </td>
@@ -112,5 +103,38 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('status-badge')) return;
+
+            const badge = e.target;
+            const aamilId = badge.dataset.id;
+
+            fetch(`/admin/ruhani-ijal-aamils/${aamilId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+
+                        badge.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-dark');
+
+                        if (data.status === 'approved') {
+                            badge.classList.add('bg-success');
+                        } else if (data.status === 'pending') {
+                            badge.classList.add('bg-warning', 'text-dark');
+                        } else {
+                            badge.classList.add('bg-danger');
+                        }
+                    }
+                });
+        });
+    </script>
 
 @endsection

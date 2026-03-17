@@ -49,6 +49,26 @@ class RuhaniIjalAamilController extends Controller
     }
 
     /**
+     * Cycle through statuses: pending -> approved -> rejected -> pending
+     */
+    public function cycleStatus($id)
+    {
+        $aamil = RuhaniIjalAamil::findOrFail($id);
+        
+        $statuses = ['pending', 'approved', 'rejected'];
+        $currentIndex = array_search($aamil->status, $statuses);
+        $nextIndex = ($currentIndex + 1) % count($statuses);
+        $nextStatus = $statuses[$nextIndex];
+
+        $aamil->update(['status' => $nextStatus]);
+
+        return response()->json([
+            'success' => true,
+            'status' => $nextStatus
+        ]);
+    }
+
+    /**
      * Delete the Aamil registration.
      */
     public function destroy($id)
