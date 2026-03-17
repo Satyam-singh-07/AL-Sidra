@@ -117,6 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('hot-topics/{id}/read', [HotTopicController::class, 'markAsRead']);
     Route::post('ruhani-ijal/register', [RuhaniIjalController::class, 'registerAamil']);
     Route::get('ruhani-ijal/aamils', [RuhaniIjalController::class, 'getApprovedAamils']);
+    Route::get('ruhani-ijal/aamils/{id}', [RuhaniIjalController::class, 'showAamilDetails']);
 });
 
 Route::post('upload-file', function (Request $request) {

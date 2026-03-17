@@ -66,6 +66,57 @@ class RuhaniIjalController extends Controller
     }
 
     /**
+     * Get a single approved Aamil with all linked details.
+     */
+    public function showAamilDetails(int $id): JsonResponse
+    {
+        $aamil = RuhaniIjalAamil::with([
+            'categories:id,name,description',
+            'user:id,name,phone,email,address,latitude,longitude',
+            'user.memberProfile.category:id,name,description,status',
+            'user.memberProfile.kyc',
+        ])
+            ->where('status', 'approved')
+            ->findOrFail($id);
+
+        $memberProfile = optional($aamil->user)->memberProfile;
+        $place = null;
+
+        if ($memberProfile && $memberProfile->place_type && $memberProfile->place_id) {
+            $placeRelation = $memberProfile->place_type === 'masjid' ? 'masjid' : 'madarsa';
+
+            $memberProfile->load([
+                'place' => function ($query) use ($placeRelation) {
+                    $query->with([
+                        'community',
+                        'members' => function ($memberQuery) {
+                            $memberQuery->select('users.id', 'users.name', 'users.phone', 'users.email', 'users.address')
+                                ->with([
+                                    'memberProfile.category:id,name,description,status',
+                                    'memberProfile.kyc',
+                                ]);
+                        },
+                    ]);
+                },
+            ]);
+
+            $place = $memberProfile->place;
+
+            if ($place) {
+                $place->setAttribute('place_type', $placeRelation);
+            }
+        }
+
+        $aamil->setRelation('place', $place);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Aamil details fetched successfully',
+            'data' => $aamil,
+        ]);
+    }
+
+    /**
      * Register as an Aamil with multiple categories
      */
     public function registerAamil(Request $request): JsonResponse
