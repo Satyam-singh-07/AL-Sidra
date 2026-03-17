@@ -118,6 +118,14 @@
                 </a>
             @endif
 
+            {{-- Ruhani Ijal --}}
+            @if ($user->canAccess('manage_ruhani_ijal'))
+                <a href="{{ route('ruhani-ijal.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('ruhani-ijal.*') ? 'active' : '' }}">
+                    <i class="fas fa-heart"></i> Ruhani Ijal
+                </a>
+            @endif
+
             {{-- Roles --}}
             @if ($user->canAccess('manage_roles'))
                 <a href="{{ route('roles.index') }}"

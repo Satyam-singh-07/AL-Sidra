@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\ReligionInfoController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\TopicUpdateController;
+use App\Http\Controllers\Admin\RuhaniIjalController;
+use App\Http\Controllers\Admin\RuhaniIjalCategoryController;
 use App\Http\Controllers\Admin\VideoCategoryController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
@@ -122,7 +124,11 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('madarsa-courses', MadarsaCourseController::class);
 
+        Route::resource('ruhani-ijal', RuhaniIjalController::class);
+        Route::resource('ruhani-ijal-categories', RuhaniIjalCategoryController::class);
+
         Route::resource('roles', RoleController::class);
+
 
         Route::resource('permissions', PermissionController::class)
             ->parameters(['permissions' => 'user']);

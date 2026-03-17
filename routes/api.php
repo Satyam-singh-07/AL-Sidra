@@ -92,6 +92,7 @@ Route::get('help', [StaticDataController::class, 'helpSupport']);
 Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
+Route::get('ruhani-ijal-categories', [App\Http\Controllers\Api\RuhaniIjalController::class, 'getCategories']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);
