@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FcmTokensController;
 use App\Http\Controllers\Api\HotTopicController;
+use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\MadarsaController;
 use App\Http\Controllers\Api\MemberCategoryController;
 use App\Http\Controllers\Api\MasjidController;
@@ -94,6 +95,8 @@ Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
 Route::get('ruhani-ijal-categories', [RuhaniIjalController::class, 'getCategories']);
+Route::get('job-categories/masjid', [JobController::class, 'getMasjidCategories']);
+Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategories']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);

@@ -86,6 +86,14 @@
                 </a>
             @endif
 
+            {{-- Jobs --}}
+            @if ($user->canAccess('manage_jobs'))
+                <a href="{{ route('jobs.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('jobs.index') ? 'active' : '' }}">
+                    <i class="fas fa-briefcase"></i> Jobs
+                </a>
+            @endif
+
             {{-- Muslim Updates --}}
             @if ($user->canAccess('manage_hot_topics'))
                 <a href="{{ route('hot-topics.index') }}"

@@ -4,6 +4,8 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
 use App\Http\Controllers\Admin\HotTopicController;
+use App\Http\Controllers\Admin\JobController;
+use App\Http\Controllers\Admin\JobCategoryController;
 use App\Http\Controllers\Admin\MadarsaCourseController;
 use App\Http\Controllers\Admin\MadrasaController;
 use App\Http\Controllers\Admin\MasjidController;
@@ -68,6 +70,9 @@ Route::prefix('admin')->group(function () {
         })->name('dashboard');
 
         Route::resource('banners', BannerController::class);
+
+        Route::resource('jobs', JobController::class);
+        Route::resource('job-categories', JobCategoryController::class);
 
         Route::get('members', [MemberController::class, 'index'])->name('members.index');
         Route::get('/members/{member}/kyc', [MemberController::class, 'kyc'])->name('admin.members.kyc');
@@ -134,7 +139,6 @@ Route::prefix('admin')->group(function () {
         Route::post('ruhani-ijal-aamils/{aamil}/reject', [RuhaniIjalAamilController::class, 'reject'])->name('admin.ruhani-ijal-aamils.reject');
 
         Route::resource('roles', RoleController::class);
-
 
         Route::resource('permissions', PermissionController::class)
             ->parameters(['permissions' => 'user']);
