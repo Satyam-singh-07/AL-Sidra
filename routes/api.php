@@ -60,6 +60,7 @@ Route::prefix('member')->group(function () {
         Route::post('kyc', [MemberController::class, 'store']);
         Route::post('kyc/submit', [MemberController::class, 'submit']);
         Route::post('masjid', [MasjidController::class, 'store']);
+        Route::post('job', [JobController::class, 'store']);
     });
 });
 
