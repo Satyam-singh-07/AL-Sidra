@@ -98,6 +98,8 @@ Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
 Route::get('ruhani-ijal-categories', [RuhaniIjalController::class, 'getCategories']);
 Route::get('job-categories/masjid', [JobController::class, 'getMasjidCategories']);
 Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategories']);
+Route::get('jobs', [JobController::class, 'index']);
+Route::get('jobs/{id}', [JobController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('videos', [VideoController::class, 'index']);

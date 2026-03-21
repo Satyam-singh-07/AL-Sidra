@@ -38,6 +38,57 @@ class JobController extends Controller
     }
 
     /**
+     * Get list of all approved jobs
+     */
+    public function index(Request $request)
+    {
+        $query = Job::with(['category', 'user'])
+            ->where('status', 'approved');
+
+        // Filters
+        if ($request->filled('type')) {
+            $query->where('place_type', $request->type);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('job_category_id', $request->category_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $jobs = $query->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jobs retrieved successfully',
+            'data' => $jobs
+        ]);
+    }
+
+    /**
+     * Get detailed job information
+     */
+    public function show($id)
+    {
+        $job = Job::with(['category', 'user'])->findOrFail($id);
+        
+        // Manually load the place details due to dynamic relationship
+        $job->place_details = $job->place;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Job details retrieved successfully',
+            'data' => $job
+        ]);
+    }
+
+    /**
      * Store a new job opening (Mutvalli only)
      */
     public function store(Request $request)

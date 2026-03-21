@@ -72,6 +72,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('banners', BannerController::class);
 
         Route::resource('jobs', JobController::class);
+        Route::post('jobs/{job}/approve', [JobController::class, 'approve'])->name('admin.jobs.approve');
+        Route::post('jobs/{job}/reject', [JobController::class, 'reject'])->name('admin.jobs.reject');
         Route::resource('job-categories', JobCategoryController::class);
 
         Route::get('members', [MemberController::class, 'index'])->name('members.index');
