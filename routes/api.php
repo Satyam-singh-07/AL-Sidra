@@ -128,15 +128,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('ruhani-ijal/register', [RuhaniIjalController::class, 'registerAamil']);
     Route::get('ruhani-ijal/aamils', [RuhaniIjalController::class, 'getApprovedAamils']);
     Route::get('ruhani-ijal/aamils/{id}', [RuhaniIjalController::class, 'showAamilDetails']);
+});
 
-    Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
-        $user = $request->user();
-        $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.');
-        return response()->json([
-            'success' => true,
-            'message' => 'Notification sent to ' . $user->name,
-        ]);
-    });
+Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
+    $userId = $request->query('user_id');
+    $user = \App\Models\User::find($userId);
+
+    if (!$user) {
+        return response()->json(['success' => false, 'message' => 'User not found'], 404);
+    }
+
+    $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.');
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Notification sent to ' . $user->name,
+    ]);
 });
 
 Route::post('upload-file', function (Request $request) {
