@@ -74,6 +74,7 @@ class PaymentController extends Controller
      */
     public function verifyPayment(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'razorpay_order_id' => 'required|string',
         ]);
