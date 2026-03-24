@@ -101,7 +101,11 @@ Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategorie
 Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{id}', [JobController::class, 'show']);
 
+use App\Http\Controllers\Api\PaymentController;
+
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('payments/create-order', [PaymentController::class, 'createOrder']);
+    Route::post('payments/verify', [PaymentController::class, 'verifyPayment']);
     Route::get('videos', [VideoController::class, 'index']);
     Route::get('masjids-list', [MasjidController::class, 'listMasjids']);
     Route::get('masjids-details/{id}', [MasjidController::class, 'showMasjidDetails']);
