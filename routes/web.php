@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\RuhaniIjalAamilController;
 use App\Http\Controllers\Admin\VideoCategoryController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
+use App\Http\Controllers\Admin\DailyQuoteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -141,6 +142,9 @@ Route::prefix('admin')->group(function () {
         Route::post('ruhani-ijal-aamils/{aamil}/reject', [RuhaniIjalAamilController::class, 'reject'])->name('admin.ruhani-ijal-aamils.reject');
 
         Route::resource('roles', RoleController::class);
+
+        Route::resource('daily-quotes', DailyQuoteController::class);
+        Route::get('daily-quote-logs', [DailyQuoteController::class, 'logs'])->name('daily-quotes.logs');
 
         Route::resource('permissions', PermissionController::class)
             ->parameters(['permissions' => 'user']);

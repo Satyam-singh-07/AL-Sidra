@@ -150,6 +150,18 @@
                 </a>
             @endif
 
+            {{-- Daily Quotes --}}
+            @if ($user->canAccess('manage_daily_quotes'))
+                <a href="{{ route('daily-quotes.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('daily-quotes.index') ? 'active' : '' }}">
+                    <i class="fas fa-quote-left"></i> Daily Quotes
+                </a>
+                <a href="{{ route('daily-quotes.logs') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('daily-quotes.logs') ? 'active' : '' }}">
+                    <i class="fas fa-history"></i> Quote Logs
+                </a>
+            @endif
+
         </div>
     </div>
 </div>

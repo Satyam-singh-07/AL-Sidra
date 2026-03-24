@@ -22,6 +22,11 @@ class Kernel extends ConsoleKernel
             ->command('prayer-times:notify')
             ->everyMinute()
             ->withoutOverlapping();
+
+        $schedule
+            ->command('quotes:send')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**

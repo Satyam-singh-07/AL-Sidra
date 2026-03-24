@@ -55,6 +55,32 @@ class FirebaseNotificationService
     }
 
     /**
+     * Send push notification to ALL users (chunked)
+     */
+    public function sendToAll(
+        string $title,
+        string $body,
+        array $data = []
+    ): int {
+        $tokens = UserFcmToken::pluck('token')->unique()->toArray();
+        $totalSent = 0;
+
+        if (empty($tokens)) {
+            return 0;
+        }
+
+        // FCM multicast limit is 500 tokens per request
+        $chunks = array_chunk($tokens, 500);
+
+        foreach ($chunks as $chunk) {
+            $this->sendMulticast($chunk, $title, $body, $data);
+            $totalSent += count($chunk);
+        }
+
+        return $totalSent;
+    }
+
+    /**
      * Core FCM multicast sender
      */
     protected function sendMulticast(
