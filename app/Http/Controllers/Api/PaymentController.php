@@ -70,45 +70,73 @@ class PaymentController extends Controller
     }
 
     /**
-     * Verify Razorpay Payment using Order ID only
+     * Verify Razorpay Payment using Polling Loop
      */
     public function verifyPayment(Request $request)
     {
-        $request->validate([
-            'razorpay_order_id' => 'required|string',
-        ]);
+        // Increase execution time for the loop (1 minute)
+        set_time_limit(60);
+
+        $orderId = $request->razorpay_order_id ?: json_decode($request->getContent(), true)['razorpay_order_id'] ?? null;
+
+        if (!$orderId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'razorpay_order_id is required',
+            ], 400);
+        }
+
+        $maxAttempts = 10; // Total 50 seconds (10 * 5s)
+        $attempt = 0;
 
         try {
-            // Fetch all payments for this order from Razorpay
-            $payments = $this->razorpayApi->order->fetch($request->razorpay_order_id)->payments();
+            while ($attempt < $maxAttempts) {
+                $attempt++;
 
-            if (count($payments['items']) > 0) {
-                // Get the first successful payment
-                $razorpayPayment = collect($payments['items'])->firstWhere('status', 'captured');
+                // Fetch the order and its payments
+                $order = $this->razorpayApi->order->fetch($orderId);
+                $payments = $order->payments();
 
-                if ($razorpayPayment) {
-                    $payment = Payment::where('razorpay_order_id', $request->razorpay_order_id)->first();
+                if (count($payments['items']) > 0) {
+                    // Find a successful (captured) or authorized payment
+                    $razorpayPayment = collect($payments['items'])->first(function ($p) {
+                        return in_array($p['status'], ['captured', 'authorized']);
+                    });
 
-                    if ($payment) {
-                        $payment->update([
-                            'razorpay_payment_id' => $razorpayPayment['id'],
-                            'status'              => 'success',
-                            // Generate and save signature internally for record-keeping
-                            'razorpay_signature'  => hash_hmac('sha256', $request->razorpay_order_id . '|' . $razorpayPayment['id'], config('razorpay.secret')),
-                        ]);
+                    if ($razorpayPayment) {
+                        // If authorized but not captured, capture it now
+                        if ($razorpayPayment['status'] === 'authorized') {
+                            $razorpayPayment->capture(['amount' => $razorpayPayment['amount'], 'currency' => 'INR']);
+                        }
 
-                        return response()->json([
-                            'success' => true,
-                            'message' => 'Payment verified and recorded successfully',
-                            'razorpay_payment_id' => $razorpayPayment['id']
-                        ]);
+                        $payment = Payment::where('razorpay_order_id', $orderId)->first();
+
+                        if ($payment) {
+                            $payment->update([
+                                'razorpay_payment_id' => $razorpayPayment['id'],
+                                'status'              => 'success',
+                                'razorpay_signature'  => hash_hmac('sha256', $orderId . '|' . $razorpayPayment['id'], config('razorpay.secret')),
+                            ]);
+
+                            return response()->json([
+                                'success' => true,
+                                'message' => 'Payment verified and recorded successfully',
+                                'razorpay_payment_id' => $razorpayPayment['id'],
+                                'attempts' => $attempt
+                            ]);
+                        }
                     }
+                }
+
+                // Wait for 5 seconds before the next attempt
+                if ($attempt < $maxAttempts) {
+                    sleep(5);
                 }
             }
 
             return response()->json([
                 'success' => false,
-                'message' => 'No successful payment found for this order ID',
+                'message' => 'Payment verification timed out. No successful payment found after ' . ($maxAttempts * 5) . ' seconds.',
             ], 404);
 
         } catch (Exception $e) {
