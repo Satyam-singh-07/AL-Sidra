@@ -52,7 +52,7 @@ class SendDailyQuotes extends Command
                 $totalSent = $notificationService->sendToAll(
                     "Daily Quote",
                     $quote->quote,
-                    ['type' => 'daily_quote', 'quote_id' => $quote->id]
+                    ['type' => 'quotes', 'quote_id' => $quote->id]
                 );
 
                 // Update last_sent_at

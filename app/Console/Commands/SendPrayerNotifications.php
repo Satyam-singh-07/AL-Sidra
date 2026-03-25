@@ -61,7 +61,7 @@ class SendPrayerNotifications extends Command
                         'Prayer Time',
                         "{$prayer} time has started ({$time})",
                         [
-                            'type'   => 'prayer',
+                            'type'   => 'namaz',
                             'prayer' => $prayer,
                             'time'   => $time,
                         ]

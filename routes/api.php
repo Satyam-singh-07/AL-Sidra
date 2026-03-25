@@ -138,7 +138,7 @@ Route::get('send-test-notification', function (Request $request, \App\Services\F
         return response()->json(['success' => false, 'message' => 'User not found'], 404);
     }
 
-    $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.');
+    $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.', ['type' => 'test']);
 
     return response()->json([
         'success' => true,
@@ -189,7 +189,7 @@ Route::post('send-notification', function (
         $title,
         $body,
         [
-            'type' => 'manual_test',
+            'type' => 'manual',
         ]
     );
 
@@ -222,7 +222,7 @@ Route::post('send-notification-token', function (
         $title,
         $body,
         [
-            'type' => 'manual_token_test',
+            'type' => 'manual_token',
         ]
     );
 
