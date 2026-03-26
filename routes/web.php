@@ -122,6 +122,10 @@ Route::prefix('admin')->group(function () {
         Route::resource('restaurants', RestaurantController::class);
         Route::post('restaurants/{restaurant}/approve', [RestaurantController::class, 'approve'])->name('admin.restaurants.approve');
         Route::post('restaurants/{restaurant}/reject', [RestaurantController::class, 'reject'])->name('admin.restaurants.reject');
+        Route::patch('/restaurants/{restaurant}/status', [RestaurantController::class, 'cycleStatus'])
+            ->name('restaurants.cycle-status');
+        Route::delete('restaurants/{restaurant}/video', [RestaurantController::class, 'deleteVideo'])->name('restaurants.delete-video');
+        Route::delete('restaurants/images/{image}', [RestaurantController::class, 'deleteImage'])->name('restaurants.delete-image');
 
         Route::resource('madarsas', MadrasaController::class);
         Route::patch(
