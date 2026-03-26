@@ -89,11 +89,13 @@ class FirebaseNotificationService
         string $body,
         array $data = []
     ): void {
+        $payload = array_merge($data, [
+            'title' => $title,
+            'body'  => $body,
+        ]);
+
         $message = CloudMessage::new()
-            ->withNotification(
-                FirebaseNotification::create($title, $body)
-            )
-            ->withData(array_map('strval', $data)); // FCM requires strings
+            ->withData(array_map('strval', $payload)); // FCM requires strings
 
         try {
             $report = $this->messaging->sendMulticast($message, $tokens);
@@ -123,11 +125,13 @@ class FirebaseNotificationService
         string $body,
         array $data = []
     ): void {
+        $payload = array_merge($data, [
+            'title' => $title,
+            'body'  => $body,
+        ]);
+
         $message = CloudMessage::withTarget('token', $token)
-            ->withNotification(
-                FirebaseNotification::create($title, $body)
-            )
-            ->withData(array_map('strval', $data));
+            ->withData(array_map('strval', $payload));
 
         try {
             $this->messaging->send($message);
