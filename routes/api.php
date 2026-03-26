@@ -132,17 +132,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
     $userId = $request->query('user_id');
+    $type = $request->query('type', 'namaz');
     $user = \App\Models\User::find($userId);
 
     if (!$user) {
         return response()->json(['success' => false, 'message' => 'User not found'], 404);
     }
 
-    $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.', ['type' => 'test']);
+    $firebase->sendToUser($user, 'Hello!', 'This is a test notification from Al Sidra.', ['type' => $type]);
 
     return response()->json([
         'success' => true,
-        'message' => 'Notification sent to ' . $user->name,
+        'message' => 'Notification sent to ' . $user->name . ' with type ' . $type,
     ]);
 });
 
