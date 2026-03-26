@@ -12,6 +12,29 @@
         .action-btns .btn:last-child {
             margin-right: 0;
         }
+
+        .editor-toolbar {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            padding: 8px;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .editor-area {
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .cat-content {
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
     </style>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -37,7 +60,7 @@
                         <tr>
                             <th>Sr No</th>
                             <th>Name</th>
-                            <th>Description</th>
+                            <th>Content</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -46,7 +69,11 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $category->name }}</td>
-                                <td>{{ $category->description }}</td>
+                                <td>
+                                    <div class="cat-content">
+                                        {!! $category->description !!}
+                                    </div>
+                                </td>
 
                                 <td class="action-btns">
                                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
@@ -63,14 +90,14 @@
 
                             {{-- Edit Modal --}}
                             <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Edit Category</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
 
-                                        <form method="POST" action="{{ route('ruhani-ijal-categories.update', $category->id) }}">
+                                        <form method="POST" action="{{ route('ruhani-ijal-categories.update', $category->id) }}" class="edit-category-form">
                                             @csrf
                                             @method('PUT')
 
@@ -83,10 +110,25 @@
                                                         class="form-control" required>
                                                 </div>
 
-                                                {{-- Description --}}
+                                                {{-- Content --}}
                                                 <div class="mb-3">
-                                                    <label class="form-label">Description</label>
-                                                    <textarea name="description" class="form-control">{{ $category->description }}</textarea>
+                                                    <label class="form-label">Content</label>
+                                                    <div class="editor-toolbar">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="bold">
+                                                            <i class="fas fa-bold"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="italic">
+                                                            <i class="fas fa-italic"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertUnorderedList">
+                                                            <i class="fas fa-list-ul"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertOrderedList">
+                                                            <i class="fas fa-list-ol"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="form-control editor-area" contenteditable="true">{!! $category->description !!}</div>
+                                                    <input type="hidden" name="description" class="content-input">
                                                 </div>
 
                                             </div>
@@ -149,7 +191,7 @@
 
     {{-- Add Modal --}}
     <div class="modal fade" id="addModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-success">Add New Category</h5>
@@ -157,7 +199,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('ruhani-ijal-categories.store') }}">
+                    <form method="POST" action="{{ route('ruhani-ijal-categories.store') }}" id="addCategoryForm">
                         @csrf
 
                         <div class="mb-3">
@@ -166,8 +208,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
+                            <label class="form-label">Content</label>
+                            <div class="editor-toolbar">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertUnorderedList">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertOrderedList">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                            </div>
+                            <div class="form-control editor-area" contenteditable="true" placeholder="Enter content here..."></div>
+                            <input type="hidden" name="description" id="addContentInput">
                         </div>
 
                         <div class="modal-footer">
@@ -181,5 +238,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle Toolbar Commands
+            document.querySelectorAll('[data-command]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const command = this.dataset.command;
+                    document.execCommand(command, false, null);
+                });
+            });
+
+            // Handle Add Form Submission
+            const addForm = document.getElementById('addCategoryForm');
+            if (addForm) {
+                addForm.addEventListener('submit', function() {
+                    const editor = this.querySelector('.editor-area');
+                    const contentInput = document.getElementById('addContentInput');
+                    contentInput.value = editor.innerHTML.trim();
+                });
+            }
+
+            // Handle Edit Forms Submission
+            document.querySelectorAll('.edit-category-form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    const editor = this.querySelector('.editor-area');
+                    const contentInput = this.querySelector('.content-input');
+                    contentInput.value = editor.innerHTML.trim();
+                });
+            });
+        });
+    </script>
 
 @endsection
