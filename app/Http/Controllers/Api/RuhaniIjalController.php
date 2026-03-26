@@ -25,6 +25,25 @@ class RuhaniIjalController extends Controller
     }
 
     /**
+     * Get specific category details
+     */
+    public function getCategoryDetails(int $id): JsonResponse
+    {
+        $category = RuhaniIjalCategory::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category details fetched successfully',
+            'data' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'content' => $category->description,
+            ]
+        ]);
+    }
+
+
+    /**
      * Get all approved Aamils with pagination
      * Optional filter by category_id
      */

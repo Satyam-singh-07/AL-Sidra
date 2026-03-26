@@ -96,6 +96,7 @@ Route::get('guidance', [StaticDataController::class, 'appGuidance']);
 Route::get('prayer-times', [PrayerTimeController::class, 'index']);
 Route::get('courses', [MadarsaCourseController::class, 'getCourses']);
 Route::get('ruhani-ijal-categories', [RuhaniIjalController::class, 'getCategories']);
+Route::get('ruhani-ijal-categories/{id}', [RuhaniIjalController::class, 'getCategoryDetails']);
 Route::get('job-categories/masjid', [JobController::class, 'getMasjidCategories']);
 Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategories']);
 Route::get('jobs', [JobController::class, 'index']);
