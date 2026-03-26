@@ -52,10 +52,14 @@ class RuhaniIjalController extends Controller
         $query = RuhaniIjalAamil::with(['user:id,name,phone,email,address', 'categories:id,name'])
             ->where('status', 'approved');
 
-        // Optional filter by category
+        // Optional filter by category (supports single ID, array, or comma-separated string)
         if ($request->filled('category_id')) {
-            $query->whereHas('categories', function($q) use ($request) {
-                $q->where('ruhani_ijal_categories.id', $request->category_id);
+            $categoryIds = is_array($request->category_id) 
+                ? $request->category_id 
+                : explode(',', $request->category_id);
+
+            $query->whereHas('categories', function($q) use ($categoryIds) {
+                $q->whereIn('ruhani_ijal_categories.id', $categoryIds);
             });
         }
 
@@ -97,6 +101,13 @@ class RuhaniIjalController extends Controller
         ])
             ->where('status', 'approved')
             ->findOrFail($id);
+
+        // Transform categories to use 'content' instead of 'description'
+        $aamil->categories->transform(function($category) {
+            $category->content = $category->description;
+            unset($category->description);
+            return $category;
+        });
 
         $memberProfile = optional($aamil->user)->memberProfile;
         $place = null;
