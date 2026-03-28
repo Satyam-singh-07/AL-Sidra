@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="{{ asset('assets/logo.PNG') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-green: #1a4d2e;
@@ -434,6 +435,30 @@
             font-size: 0.9rem;
         }
 
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            background-color: var(--accent-gold);
+            transform: translateY(-3px);
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             h1 {
@@ -532,6 +557,7 @@
                     <li><a href="#why">Why AL-SIDRA</a></li>
                     <li><a href="{{ route('terms-conditions') }}">Terms & Conditions</a></li>
                     <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ route('contact') }}">Contact</a></li>
                     <li><a href="#cta" class="btn btn-secondary" style="padding: 8px 20px;">Get Started</a></li>
                 </ul>
             </nav>
@@ -729,6 +755,20 @@
         </div>
     </section>
 
+    <!-- Social Media Section -->
+    <section id="social" class="section-light" style="text-align: center; background-color: white;">
+        <div class="container">
+            <h2 class="section-title">Stay Connected</h2>
+            <p style="max-width: 600px; margin: 0 auto 2.5rem;">Follow us on social media for the latest updates, community news, and inspirations. Join our growing digital community.</p>
+            <div class="social-links" style="justify-content: center; gap: 30px; margin-top: 2rem;">
+                <a href="https://whatsapp.com/channel/0029VbCVmeX1dAvu726rCs1k" class="social-icon" title="WhatsApp" style="width: 60px; height: 60px; font-size: 1.8rem;" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.instagram.com/team_al_sidra?igsh=MW9oYzJudm1tcGJwcQ%3D%3D&utm_source=qr" class="social-icon" title="Instagram" style="width: 60px; height: 60px; font-size: 1.8rem;" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://youtube.com/@team_al_sidra?si=3wKEYCXJ0NAnlyOX" class="social-icon" title="YouTube" style="width: 60px; height: 60px; font-size: 1.8rem;" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://www.facebook.com/share/1BVXffR48W/?mibextid=wwXIfr" class="social-icon" title="Facebook" style="width: 60px; height: 60px; font-size: 1.8rem;" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -757,6 +797,16 @@
                         <li><a href="{{ route('privacy-policy') }}">Privacy Policy</a></li>
                         <li><a href="{{ route('terms-conditions') }}">Terms of Conditions</a></li>
                     </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://whatsapp.com/channel/0029VbCVmeX1dAvu726rCs1k" class="social-icon" title="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.instagram.com/team_al_sidra?igsh=MW9oYzJudm1tcGJwcQ%3D%3D&utm_source=qr" class="social-icon" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://youtube.com/@team_al_sidra?si=3wKEYCXJ0NAnlyOX" class="social-icon" title="YouTube" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.facebook.com/share/1BVXffR48W/?mibextid=wwXIfr" class="social-icon" title="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    </div>
                 </div>
             </div>
 

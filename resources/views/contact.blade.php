@@ -7,6 +7,7 @@
     <title>Contact Us | AL-SIDRA</title>
     <link rel="icon" href="{{ asset('assets/logo.PNG') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
@@ -188,6 +189,31 @@
             font-size: 0.9rem;
         }
 
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            background-color: var(--accent-gold);
+            transform: translateY(-3px);
+        }
+
         @media(max-width:768px) {
             .logo {
                 font-size: 2rem;
@@ -274,6 +300,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
+            <div class="social-links">
+                <a href="#" class="social-icon" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" class="social-icon" title="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+            </div>
             {{-- <div class="footer-content">
                 <a href="{{ route('home') }}" class="footer-logo">AL-SIDRA</a>
                 <div class="footer-links">
