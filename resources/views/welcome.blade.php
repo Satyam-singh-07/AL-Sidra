@@ -449,7 +449,7 @@
             height: 40px;
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.1);
-            color: white !important;
+            color: rgb(52, 114, 23) !important;
             font-size: 1.2rem;
             transition: var(--transition);
         }
