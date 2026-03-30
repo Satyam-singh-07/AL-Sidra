@@ -107,12 +107,12 @@ class MuqquirController extends Controller
             });
         }
 
-        // Filter by date availability
+        // Filter by date availability (Muqquir is NOT unavailable or booked on this date)
         if ($request->filled('date')) {
             $date = $request->date;
-            $query->whereHas('availabilities', function($q) use ($date) {
+            $query->whereDoesntHave('availabilities', function($q) use ($date) {
                 $q->where('available_date', $date)
-                  ->where('status', 'available');
+                  ->whereIn('status', ['unavailable', 'booked']);
             });
         }
 
@@ -132,7 +132,7 @@ class MuqquirController extends Controller
     }
 
     /**
-     * Get specific Muqquir details with availability
+     * Get specific Muqquir details with booked/unavailable dates
      */
     public function showMuqquir(int $id): JsonResponse
     {
@@ -141,6 +141,7 @@ class MuqquirController extends Controller
             'videos',
             'availabilities' => function($q) {
                 $q->where('available_date', '>=', now()->toDateString())
+                  ->whereIn('status', ['booked', 'unavailable'])
                   ->orderBy('available_date');
             }
         ])
@@ -155,57 +156,63 @@ class MuqquirController extends Controller
     }
 
     /**
-     * Update available dates for the Muqquir
+     * Update unavailable dates for the Muqquir
      */
     public function updateAvailability(UpdateMuqquirAvailabilityRequest $request): JsonResponse
     {
         $profile = auth()->user()->muqquirProfile;
-        $requestedDates = array_unique($request->dates);
+        $unavailableDates = array_unique($request->unavailable_dates ?? []);
 
         try {
             DB::beginTransaction();
 
-            // 1. Delete dates that are NOT in the requested list AND NOT booked
+            // 1. Delete existing future unavailable dates (Preserve booked ones)
             MuqquirAvailability::where('muqquir_profile_id', $profile->id)
-                ->whereNotIn('available_date', $requestedDates)
-                ->where('status', 'available')
+                ->where('available_date', '>=', now()->toDateString())
+                ->where('status', 'unavailable')
                 ->delete();
 
-            // 2. Identify dates to add (those that don't exist yet)
-            $existingDates = MuqquirAvailability::where('muqquir_profile_id', $profile->id)
-                ->pluck('available_date')
-                ->map(fn($date) => $date->format('Y-m-d'))
-                ->toArray();
+            // 2. Add new unavailable dates (only if not already booked)
+            foreach ($unavailableDates as $date) {
+                $existingBooked = MuqquirAvailability::where('muqquir_profile_id', $profile->id)
+                    ->where('available_date', $date)
+                    ->where('status', 'booked')
+                    ->exists();
 
-            $newDates = array_diff($requestedDates, $existingDates);
-
-            foreach ($newDates as $date) {
-                MuqquirAvailability::create([
-                    'muqquir_profile_id' => $profile->id,
-                    'available_date' => $date,
-                    'status' => 'available'
-                ]);
+                if (!$existingBooked) {
+                    MuqquirAvailability::updateOrCreate(
+                        [
+                            'muqquir_profile_id' => $profile->id,
+                            'available_date' => $date
+                        ],
+                        [
+                            'status' => 'unavailable'
+                        ]
+                    );
+                }
             }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Availability updated successfully',
-                'data' => $profile->load('availabilities')
+                'message' => 'Unavailability updated successfully',
+                'data' => $profile->load(['availabilities' => function($q) {
+                    $q->where('available_date', '>=', now()->toDateString())->orderBy('available_date');
+                }])
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update availability: ' . $e->getMessage()
+                'message' => 'Failed to update unavailability: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Get Muqquir's current availability
+     * Get Muqquir's current unavailable/booked dates
      */
     public function getAvailability(): JsonResponse
     {
@@ -220,6 +227,7 @@ class MuqquirController extends Controller
 
         $availabilities = $profile->availabilities()
             ->where('available_date', '>=', now()->toDateString())
+            ->whereIn('status', ['booked', 'unavailable'])
             ->orderBy('available_date')
             ->get();
 

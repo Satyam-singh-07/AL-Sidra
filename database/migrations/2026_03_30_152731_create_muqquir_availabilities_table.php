@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('muqquir_profile_id')->constrained('muqquir_profiles')->onDelete('cascade');
             $table->date('available_date');
-            $table->enum('status', ['available', 'booked'])->default('available');
+            $table->enum('status', ['available', 'booked', 'unavailable'])->default('available');
             $table->timestamps();
 
             $table->unique(['muqquir_profile_id', 'available_date']);

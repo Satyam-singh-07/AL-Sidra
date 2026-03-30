@@ -25,8 +25,8 @@ class UpdateMuqquirAvailabilityRequest extends FormRequest
         $sixMonthsFromNow = now()->addMonths(6)->format('Y-m-d');
         
         return [
-            'dates' => 'required|array|min:1',
-            'dates.*' => [
+            'unavailable_dates' => 'required|array',
+            'unavailable_dates.*' => [
                 'required',
                 'date_format:Y-m-d',
                 'after_or_equal:today',
