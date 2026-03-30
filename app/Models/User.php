@@ -24,6 +24,11 @@ class User extends Authenticatable
         return $this->hasOne(MemberProfile::class);
     }
 
+    public function muqquirProfile()
+    {
+        return $this->hasOne(MuqquirProfile::class);
+    }
+
     public function scopeMembers($query)
     {
         return $query->whereHas(

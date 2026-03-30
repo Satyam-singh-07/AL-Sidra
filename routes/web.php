@@ -145,6 +145,15 @@ Route::prefix('admin')->group(function () {
         Route::post('ruhani-ijal-aamils/{aamil}/approve', [RuhaniIjalAamilController::class, 'approve'])->name('admin.ruhani-ijal-aamils.approve');
         Route::post('ruhani-ijal-aamils/{aamil}/reject', [RuhaniIjalAamilController::class, 'reject'])->name('admin.ruhani-ijal-aamils.reject');
 
+        // Muqquir routes
+        Route::resource('muqquirs', \App\Http\Controllers\Admin\MuqquirController::class)->names([
+            'index' => 'admin.muqquirs.index',
+            'show' => 'admin.muqquirs.show',
+            'destroy' => 'admin.muqquirs.destroy',
+        ]);
+        Route::post('muqquirs/{muqquir}/approve', [\App\Http\Controllers\Admin\MuqquirController::class, 'approve'])->name('admin.muqquirs.approve');
+        Route::post('muqquirs/{muqquir}/reject', [\App\Http\Controllers\Admin\MuqquirController::class, 'reject'])->name('admin.muqquirs.reject');
+
         Route::resource('roles', RoleController::class);
 
         Route::resource('daily-quotes', DailyQuoteController::class);

@@ -129,6 +129,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('ruhani-ijal/register', [RuhaniIjalController::class, 'registerAamil']);
     Route::get('ruhani-ijal/aamils', [RuhaniIjalController::class, 'getApprovedAamils']);
     Route::get('ruhani-ijal/aamils/{id}', [RuhaniIjalController::class, 'showAamilDetails']);
+
+    // Muqquir routes
+    Route::post('muqquir/apply', [\App\Http\Controllers\Api\MuqquirController::class, 'apply']);
 });
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
