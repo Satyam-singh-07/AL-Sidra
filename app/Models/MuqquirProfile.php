@@ -27,4 +27,9 @@ class MuqquirProfile extends Model
     {
         return $this->hasMany(MuqquirVideo::class);
     }
+
+    public function availabilities()
+    {
+        return $this->hasMany(MuqquirAvailability::class);
+    }
 }

@@ -23,6 +23,8 @@ use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\YateemsHelpController;
+use App\Http\Controllers\Api\PaymentController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -102,7 +104,6 @@ Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategorie
 Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{id}', [JobController::class, 'show']);
 
-use App\Http\Controllers\Api\PaymentController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('payments/create-order', [PaymentController::class, 'createOrder']);
@@ -129,9 +130,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('ruhani-ijal/register', [RuhaniIjalController::class, 'registerAamil']);
     Route::get('ruhani-ijal/aamils', [RuhaniIjalController::class, 'getApprovedAamils']);
     Route::get('ruhani-ijal/aamils/{id}', [RuhaniIjalController::class, 'showAamilDetails']);
-
-    // Muqquir routes
     Route::post('muqquir/apply', [\App\Http\Controllers\Api\MuqquirController::class, 'apply']);
+    Route::post('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'updateAvailability']);
+    Route::get('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'getAvailability']);
 });
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
@@ -237,21 +238,21 @@ Route::post('send-notification-token', function (
     ]);
 });
 
-use App\Models\User;
+// use App\Models\User;
 
-Route::delete('/users/{id}', function ($id) {
+// Route::delete('/users/{id}', function ($id) {
 
-    $user = User::find($id);
+//     $user = User::find($id);
 
-    if (!$user) {
-        return response()->json([
-            'message' => 'User not found'
-        ], 404);
-    }
+//     if (!$user) {
+//         return response()->json([
+//             'message' => 'User not found'
+//         ], 404);
+//     }
 
-    $user->delete();
+//     $user->delete();
 
-    return response()->json([
-        'message' => 'User deleted successfully'
-    ], 200);
-});
+//     return response()->json([
+//         'message' => 'User deleted successfully'
+//     ], 200);
+// });
