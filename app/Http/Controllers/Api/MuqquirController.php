@@ -223,7 +223,7 @@ class MuqquirController extends Controller
     }
 
     /**
-     * Get Muqquir's current unavailable/booked dates
+     * Get Muqquir's current unavailable dates
      */
     public function getAvailability(): JsonResponse
     {
@@ -238,16 +238,11 @@ class MuqquirController extends Controller
 
         $availabilities = $profile->availabilities()
             ->where('available_date', '>=', now()->toDateString())
-            ->whereIn('status', ['booked', 'unavailable'])
+            ->where('status', 'unavailable')
             ->orderBy('available_date')
             ->get();
 
-        $unavailableDates = $availabilities->where('status', 'unavailable')
-            ->pluck('available_date')
-            ->map(fn($date) => $date->format('Y-m-d'))
-            ->values();
-
-        $bookedDates = $availabilities->where('status', 'booked')
+        $unavailableDates = $availabilities
             ->pluck('available_date')
             ->map(fn($date) => $date->format('Y-m-d'))
             ->values();
@@ -255,8 +250,7 @@ class MuqquirController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'unavailable_dates' => $unavailableDates,
-                'booked_dates' => $bookedDates
+                'unavailable_dates' => $unavailableDates
             ]
         ]);
     }
