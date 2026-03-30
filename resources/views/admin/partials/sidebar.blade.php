@@ -134,6 +134,14 @@
                 </a>
             @endif
 
+            {{-- Muqquir --}}
+            @if ($user->canAccess('manage_muqquir'))
+                <a href="{{ route('admin.muqquirs.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('admin.muqquirs.*') ? 'active' : '' }}">
+                    <i class="fas fa-microphone"></i> Muqquir Requests
+                </a>
+            @endif
+
             {{-- Roles --}}
             @if ($user->canAccess('manage_roles'))
                 <a href="{{ route('roles.index') }}"
