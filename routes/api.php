@@ -103,6 +103,8 @@ Route::get('job-categories/masjid', [JobController::class, 'getMasjidCategories'
 Route::get('job-categories/madarsa', [JobController::class, 'getMadarsaCategories']);
 Route::get('jobs', [JobController::class, 'index']);
 Route::get('jobs/{id}', [JobController::class, 'show']);
+Route::get('muqquirs', [\App\Http\Controllers\Api\MuqquirController::class, 'getMuqquirs']);
+Route::get('muqquirs/{id}', [\App\Http\Controllers\Api\MuqquirController::class, 'showMuqquir']);
 
 
 Route::middleware('auth:sanctum')->group(function () {

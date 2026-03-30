@@ -9,6 +9,7 @@ use App\Models\MuqquirProfile;
 use App\Models\MuqquirVideo;
 use App\Models\MuqquirAvailability;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -88,6 +89,69 @@ class MuqquirController extends Controller
                 'message' => 'Failed to submit application: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get all approved Muqquirs with optional filtering
+     */
+    public function getMuqquirs(Request $request): JsonResponse
+    {
+        $query = MuqquirProfile::with(['user:id,name,phone,email,address', 'videos'])
+            ->where('status', 'approved');
+
+        // Filter by name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by date availability
+        if ($request->filled('date')) {
+            $date = $request->date;
+            $query->whereHas('availabilities', function($q) use ($date) {
+                $q->where('available_date', $date)
+                  ->where('status', 'available');
+            });
+        }
+
+        $muqquirs = $query->latest()->paginate(10);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Approved Muqquirs fetched successfully',
+            'data' => $muqquirs->items(),
+            'pagination' => [
+                'total' => $muqquirs->total(),
+                'per_page' => $muqquirs->perPage(),
+                'current_page' => $muqquirs->currentPage(),
+                'last_page' => $muqquirs->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get specific Muqquir details with availability
+     */
+    public function showMuqquir(int $id): JsonResponse
+    {
+        $muqquir = MuqquirProfile::with([
+            'user:id,name,phone,email,address,latitude,longitude',
+            'videos',
+            'availabilities' => function($q) {
+                $q->where('available_date', '>=', now()->toDateString())
+                  ->orderBy('available_date');
+            }
+        ])
+        ->where('status', 'approved')
+        ->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Muqquir details fetched successfully',
+            'data' => $muqquir
+        ]);
     }
 
     /**
