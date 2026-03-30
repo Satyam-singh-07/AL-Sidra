@@ -148,10 +148,26 @@ class MuqquirController extends Controller
         ->where('status', 'approved')
         ->findOrFail($id);
 
+        $unavailableDates = $muqquir->availabilities->where('status', 'unavailable')
+            ->pluck('available_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->values();
+
+        $bookedDates = $muqquir->availabilities->where('status', 'booked')
+            ->pluck('available_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->values();
+
+        // Convert to array to merge custom fields
+        $data = $muqquir->toArray();
+        $data['unavailable_dates'] = $unavailableDates;
+        $data['booked_dates'] = $bookedDates;
+        unset($data['availabilities']); // Remove the raw relationship data
+
         return response()->json([
             'success' => true,
             'message' => 'Muqquir details fetched successfully',
-            'data' => $muqquir
+            'data' => $data
         ]);
     }
 
@@ -161,7 +177,8 @@ class MuqquirController extends Controller
     public function updateAvailability(UpdateMuqquirAvailabilityRequest $request): JsonResponse
     {
         $profile = auth()->user()->muqquirProfile;
-        $unavailableDates = array_unique($request->unavailable_dates ?? []);
+        $validated = $request->validated();
+        $unavailableDates = array_unique($validated['unavailable_dates'] ?? []);
 
         try {
             DB::beginTransaction();
@@ -194,13 +211,7 @@ class MuqquirController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Unavailability updated successfully',
-                'data' => $profile->load(['availabilities' => function($q) {
-                    $q->where('available_date', '>=', now()->toDateString())->orderBy('available_date');
-                }])
-            ]);
+            return $this->getAvailability();
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -231,9 +242,22 @@ class MuqquirController extends Controller
             ->orderBy('available_date')
             ->get();
 
+        $unavailableDates = $availabilities->where('status', 'unavailable')
+            ->pluck('available_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->values();
+
+        $bookedDates = $availabilities->where('status', 'booked')
+            ->pluck('available_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->values();
+
         return response()->json([
             'success' => true,
-            'data' => $availabilities
+            'data' => [
+                'unavailable_dates' => $unavailableDates,
+                'booked_dates' => $bookedDates
+            ]
         ]);
     }
 }

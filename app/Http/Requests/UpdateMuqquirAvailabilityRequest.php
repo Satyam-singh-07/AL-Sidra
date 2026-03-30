@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateMuqquirAvailabilityRequest extends FormRequest
 {
@@ -33,5 +34,21 @@ class UpdateMuqquirAvailabilityRequest extends FormRequest
                 'before_or_equal:' . $sixMonthsFromNow
             ],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $allowedKeys = ['unavailable_dates'];
+            $inputKeys = array_keys($this->all());
+            $unexpectedKeys = array_diff($inputKeys, $allowedKeys);
+
+            if (!empty($unexpectedKeys)) {
+                $validator->errors()->add(
+                    'payload',
+                    'Only unavailable_dates is allowed in this request.'
+                );
+            }
+        });
     }
 }
