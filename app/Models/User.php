@@ -29,6 +29,11 @@ class User extends Authenticatable
         return $this->hasOne(MuqquirProfile::class);
     }
 
+    public function ruhaniIjalAamil()
+    {
+        return $this->hasOne(RuhaniIjalAamil::class);
+    }
+
     public function scopeMembers($query)
     {
         return $query->whereHas(

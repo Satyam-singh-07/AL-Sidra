@@ -244,11 +244,19 @@ class AuthController extends Controller
             'memberProfile.category',
             'memberProfile.kyc',
             'memberProfile.place',
+            'muqquirProfile',
+            'ruhaniIjalAamil'
         ]);
+
+        $is_muqquir = $user->muqquirProfile && $user->muqquirProfile->status === 'approved';
+        $is_aamil = $user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved';
 
         return response()->json([
             'success' => true,
-            'data' => $user
+            'data' => array_merge($user->toArray(), [
+                'is_muqquir' => (bool)$is_muqquir,
+                'is_aamil' => (bool)$is_aamil
+            ])
         ]);
     }
 
