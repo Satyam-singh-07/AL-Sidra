@@ -137,8 +137,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'updateAvailability']);
     Route::get('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'getAvailability']);
 
+    // Muqquir Bookings
+    Route::post('muqquir/bookings', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'store']);
+    Route::get('muqquir/bookings/received', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'receivedBookings']);
+    Route::get('muqquir/bookings/my', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'myBookings']);
+    Route::post('muqquir/bookings/{id}/status', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'updateStatus']);
+
     // Notifications
     Route::get('notifications', [NotificationController::class, 'index']);
+    Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
