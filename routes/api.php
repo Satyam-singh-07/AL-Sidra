@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\StaticDataController;
 use App\Http\Controllers\Api\TopicUpdateController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\YateemsHelpController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentController;
 
 
@@ -135,6 +136,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('muqquir/apply', [\App\Http\Controllers\Api\MuqquirController::class, 'apply']);
     Route::post('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'updateAvailability']);
     Route::get('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'getAvailability']);
+
+    // Notifications
+    Route::get('notifications', [NotificationController::class, 'index']);
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
 });
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {

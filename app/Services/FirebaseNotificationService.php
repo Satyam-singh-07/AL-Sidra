@@ -7,6 +7,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use App\Models\User;
 use App\Models\UserFcmToken;
+use App\Notifications\AppNotification;
 use Illuminate\Support\Facades\Log;
 
 class FirebaseNotificationService
@@ -21,7 +22,7 @@ class FirebaseNotificationService
     }
 
     /**
-     * Send push notification to ONE user
+     * Send push notification to ONE user and store in database
      */
     public function sendToUser(
         User $user,
@@ -29,6 +30,9 @@ class FirebaseNotificationService
         string $body,
         array $data = []
     ): void {
+        // Store in database
+        $user->notify(new AppNotification($title, $body, $data));
+
         $tokens = UserFcmToken::where('user_id', $user->id)
             ->pluck('token')
             ->toArray();
@@ -41,7 +45,7 @@ class FirebaseNotificationService
     }
 
     /**
-     * Send push notification to MANY users (chunked)
+     * Send push notification to MANY users (chunked) and store in database
      */
     public function sendToUsers(
         iterable $users,
@@ -55,13 +59,18 @@ class FirebaseNotificationService
     }
 
     /**
-     * Send push notification to ALL users (chunked)
+     * Send push notification to ALL users (chunked) and store in database
      */
     public function sendToAll(
         string $title,
         string $body,
         array $data = []
     ): int {
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->notify(new AppNotification($title, $body, $data));
+        }
+
         $tokens = UserFcmToken::pluck('token')->unique()->toArray();
         $totalSent = 0;
 
