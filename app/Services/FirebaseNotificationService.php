@@ -7,6 +7,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 use App\Models\User;
 use App\Models\UserFcmToken;
+use App\Models\Notification;
 use App\Notifications\AppNotification;
 use Illuminate\Support\Facades\Log;
 
@@ -30,8 +31,17 @@ class FirebaseNotificationService
         string $body,
         array $data = []
     ): void {
-        // Store in database
-        $user->notify(new AppNotification($title, $body, $data));
+        // Custom save to database (Integer ID)
+        Notification::create([
+            'type' => AppNotification::class,
+            'notifiable_id' => $user->id,
+            'notifiable_type' => get_class($user),
+            'data' => [
+                'title' => $title,
+                'body' => $body,
+                'data' => $data,
+            ],
+        ]);
 
         $tokens = UserFcmToken::where('user_id', $user->id)
             ->pluck('token')
@@ -68,7 +78,16 @@ class FirebaseNotificationService
     ): int {
         $users = User::all();
         foreach ($users as $user) {
-            $user->notify(new AppNotification($title, $body, $data));
+            Notification::create([
+                'type' => AppNotification::class,
+                'notifiable_id' => $user->id,
+                'notifiable_type' => get_class($user),
+                'data' => [
+                    'title' => $title,
+                    'body' => $body,
+                    'data' => $data,
+                ],
+            ]);
         }
 
         $tokens = UserFcmToken::pluck('token')->unique()->toArray();

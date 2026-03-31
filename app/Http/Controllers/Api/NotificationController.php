@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -14,7 +15,9 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        $notifications = $user->notifications()
+        $notifications = Notification::where('notifiable_id', $user->id)
+            ->where('notifiable_type', get_class($user))
+            ->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
         return response()->json([
@@ -28,8 +31,8 @@ class NotificationController extends Controller
      */
     public function markAsRead(Request $request, $id)
     {
-        $notification = $request->user()
-            ->notifications()
+        $notification = Notification::where('notifiable_id', $request->user()->id)
+            ->where('notifiable_type', get_class($request->user()))
             ->findOrFail($id);
 
         $notification->markAsRead();
@@ -45,9 +48,10 @@ class NotificationController extends Controller
      */
     public function markAllAsRead(Request $request)
     {
-        $request->user()
-            ->unreadNotifications
-            ->markAsRead();
+        Notification::where('notifiable_id', $request->user()->id)
+            ->where('notifiable_type', get_class($request->user()))
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         return response()->json([
             'success' => true,
@@ -60,8 +64,8 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $notification = $request->user()
-            ->notifications()
+        $notification = Notification::where('notifiable_id', $request->user()->id)
+            ->where('notifiable_type', get_class($request->user()))
             ->findOrFail($id);
 
         $notification->delete();
