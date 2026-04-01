@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MuqquirProfile;
+use App\Models\MuqquirBooking;
 use Illuminate\Http\Request;
 
 class MuqquirController extends Controller
@@ -15,6 +16,15 @@ class MuqquirController extends Controller
     {
         $muqquirs = MuqquirProfile::with(['user', 'videos'])->latest()->get();
         return view('admin.muqquirs', compact('muqquirs'));
+    }
+
+    /**
+     * Display all Muqquir bookings.
+     */
+    public function bookings()
+    {
+        $bookings = MuqquirBooking::with(['user', 'muqquirProfile.user'])->latest()->get();
+        return view('admin.muqquir-bookings', compact('bookings'));
     }
 
     /**

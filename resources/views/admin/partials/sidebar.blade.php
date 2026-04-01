@@ -137,8 +137,12 @@
             {{-- Muqquir --}}
             @if ($user->canAccess('manage_muqquir'))
                 <a href="{{ route('admin.muqquirs.index') }}"
-                    class="list-group-item list-group-item-action {{ request()->routeIs('admin.muqquirs.*') ? 'active' : '' }}">
+                    class="list-group-item list-group-item-action {{ request()->routeIs('admin.muqquirs.index') ? 'active' : '' }}">
                     <i class="fas fa-microphone"></i> Muqquir Requests
+                </a>
+                <a href="{{ route('admin.muqquir-bookings.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('admin.muqquir-bookings.index') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-check"></i> Muqquir Bookings
                 </a>
             @endif
 

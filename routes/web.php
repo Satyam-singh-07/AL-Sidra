@@ -153,6 +153,7 @@ Route::prefix('admin')->group(function () {
         ]);
         Route::post('muqquirs/{muqquir}/approve', [\App\Http\Controllers\Admin\MuqquirController::class, 'approve'])->name('admin.muqquirs.approve');
         Route::post('muqquirs/{muqquir}/reject', [\App\Http\Controllers\Admin\MuqquirController::class, 'reject'])->name('admin.muqquirs.reject');
+        Route::get('muqquir-bookings', [\App\Http\Controllers\Admin\MuqquirController::class, 'bookings'])->name('admin.muqquir-bookings.index');
 
         Route::resource('roles', RoleController::class);
 

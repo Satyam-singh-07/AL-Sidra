@@ -263,10 +263,14 @@ class AuthController extends Controller
             'ruhaniIjalAamil'
         ]);
 
+        $is_muqquir = $user->muqquirProfile && $user->muqquirProfile->status === 'approved';
+        $is_amil = $user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved';
+
         return response()->json([
             'success' => true,
             'data' => array_merge($user->toArray(), [
-                'role' => $this->getUserRole($user),
+                'is_muqquir' => (bool)$is_muqquir,
+                'is_amil' => (bool)$is_amil
             ])
         ]);
     }
