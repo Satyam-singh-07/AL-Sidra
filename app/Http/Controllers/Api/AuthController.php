@@ -11,6 +11,20 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
+    private function getUserType($user)
+    {
+        if ($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved') {
+            return 'aamil';
+        }
+        if ($user->muqquirProfile && $user->muqquirProfile->status === 'approved') {
+            return 'muqquir';
+        }
+        if ($user->memberProfile) {
+            return 'member';
+        }
+        return 'user';
+    }
+
     public function userSignup(Request $request, OtpService $otpService)
     {
         $request->validate([
@@ -59,13 +73,10 @@ class AuthController extends Controller
             'message' => 'Signup successful',
             'token'   => $token,
             'user'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
-                'roles' => $user->roles->pluck('slug'),
-                'is_member'  => (bool)$user->memberProfile,
-                'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
-                'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
+                'id'        => $user->id,
+                'name'      => $user->name,
+                'phone'     => $user->phone,
+                'user_type' => $this->getUserType($user),
             ]
         ]);
     }
@@ -175,20 +186,14 @@ class AuthController extends Controller
             // 7️⃣ Create token ONLY after everything succeeds
             $token = $user->createToken('mobile')->plainTextToken;
 
-            // Load roles for the response
-            $user->load('roles');
-
             return response()->json([
                 'message' => 'Member signup successful',
                 'token'   => $token,
                 'user'    => [
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'phone' => $user->phone,
-                    'roles' => $user->roles->pluck('slug'),
-                    'is_member'  => true,
-                    'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
-                    'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
+                    'id'        => $user->id,
+                    'name'      => $user->name,
+                    'phone'     => $user->phone,
+                    'user_type' => $this->getUserType($user),
                 ]
             ], 201);
         });
@@ -200,7 +205,7 @@ class AuthController extends Controller
         $otp = $otpService->generate($request->phone);
 
         return response()->json([
-            'message' => 'OTP send successfully',
+            'message' => 'OTP sent successfully',
         ]);
     }
 
@@ -225,13 +230,10 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'token'   => $token,
             'user'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
-                'roles' => $user->roles->pluck('slug'),
-                'is_member'  => (bool)$user->memberProfile,
-                'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
-                'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
+                'id'        => $user->id,
+                'name'      => $user->name,
+                'phone'     => $user->phone,
+                'user_type' => $this->getUserType($user),
             ],
         ]);
     }
@@ -267,14 +269,10 @@ class AuthController extends Controller
             'ruhaniIjalAamil'
         ]);
 
-        $is_muqquir = $user->muqquirProfile && $user->muqquirProfile->status === 'approved';
-        $is_aamil = $user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved';
-
         return response()->json([
             'success' => true,
             'data' => array_merge($user->toArray(), [
-                'is_muqquir' => (bool)$is_muqquir,
-                'is_aamil' => (bool)$is_aamil
+                'user_type' => $this->getUserType($user),
             ])
         ]);
     }
