@@ -11,14 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-    private function getUserType($user)
+    private function getUserRole($user)
     {
-        if ($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved') {
-            return 'aamil';
-        }
-        if ($user->muqquirProfile && $user->muqquirProfile->status === 'approved') {
-            return 'muqquir';
-        }
         if ($user->memberProfile) {
             return 'member';
         }
@@ -73,10 +67,10 @@ class AuthController extends Controller
             'message' => 'Signup successful',
             'token'   => $token,
             'user'    => [
-                'id'        => $user->id,
-                'name'      => $user->name,
-                'phone'     => $user->phone,
-                'user_type' => $this->getUserType($user),
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'role'  => $this->getUserRole($user),
             ]
         ]);
     }
@@ -190,10 +184,10 @@ class AuthController extends Controller
                 'message' => 'Member signup successful',
                 'token'   => $token,
                 'user'    => [
-                    'id'        => $user->id,
-                    'name'      => $user->name,
-                    'phone'     => $user->phone,
-                    'user_type' => $this->getUserType($user),
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'phone' => $user->phone,
+                    'role'  => $this->getUserRole($user),
                 ]
             ], 201);
         });
@@ -230,10 +224,10 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'token'   => $token,
             'user'    => [
-                'id'        => $user->id,
-                'name'      => $user->name,
-                'phone'     => $user->phone,
-                'user_type' => $this->getUserType($user),
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'role'  => $this->getUserRole($user),
             ],
         ]);
     }
@@ -272,7 +266,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'data' => array_merge($user->toArray(), [
-                'user_type' => $this->getUserType($user),
+                'role' => $this->getUserRole($user),
             ])
         ]);
     }
