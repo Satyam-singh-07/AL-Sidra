@@ -62,6 +62,10 @@ class AuthController extends Controller
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'phone' => $user->phone,
+                'roles' => $user->roles->pluck('slug'),
+                'is_member'  => (bool)$user->memberProfile,
+                'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
+                'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
             ]
         ]);
     }
@@ -171,10 +175,21 @@ class AuthController extends Controller
             // 7️⃣ Create token ONLY after everything succeeds
             $token = $user->createToken('mobile')->plainTextToken;
 
+            // Load roles for the response
+            $user->load('roles');
+
             return response()->json([
                 'message' => 'Member signup successful',
                 'token'   => $token,
-                // 'member'  => $memberProfile
+                'user'    => [
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'phone' => $user->phone,
+                    'roles' => $user->roles->pluck('slug'),
+                    'is_member'  => true,
+                    'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
+                    'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
+                ]
             ], 201);
         });
     }
@@ -213,6 +228,10 @@ class AuthController extends Controller
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'phone' => $user->phone,
+                'roles' => $user->roles->pluck('slug'),
+                'is_member'  => (bool)$user->memberProfile,
+                'is_muqquir' => (bool)($user->muqquirProfile && $user->muqquirProfile->status === 'approved'),
+                'is_aamil'   => (bool)($user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved'),
             ],
         ]);
     }
