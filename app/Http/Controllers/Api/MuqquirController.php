@@ -99,6 +99,11 @@ class MuqquirController extends Controller
         $query = MuqquirProfile::with(['user:id,name,phone,email,address', 'videos'])
             ->where('status', 'approved');
 
+        // Exclude the currently logged-in user
+        if (auth('sanctum')->check()) {
+            $query->where('user_id', '!=', auth('sanctum')->id());
+        }
+
         // Filter by name
         if ($request->filled('search')) {
             $search = $request->search;
