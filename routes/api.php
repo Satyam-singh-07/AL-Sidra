@@ -141,7 +141,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('muqquir/bookings', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'store']);
     Route::get('muqquir/bookings/received', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'receivedBookings']);
     Route::get('muqquir/bookings/my', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'myBookings']);
-    Route::post('muqquir/bookings/{id}/status', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'updateStatus']);
+    Route::post('muqquir/bookings/{id}/propose-fee', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'proposeFee']);
+    Route::post('muqquir/bookings/{id}/accept', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'acceptBooking']);
+    Route::post('muqquir/bookings/{id}/reject', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'rejectBooking']);
 
     // Notifications
     Route::get('notifications', [NotificationController::class, 'index']);
