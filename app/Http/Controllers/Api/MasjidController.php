@@ -118,6 +118,7 @@ class MasjidController extends Controller
     {
         $masjid = Masjid::with([
             'images',
+            'community',
             'members.memberProfile.category'
         ])->find($id);
 

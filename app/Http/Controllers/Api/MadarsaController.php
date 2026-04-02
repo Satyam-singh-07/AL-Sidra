@@ -111,7 +111,8 @@ class MadarsaController extends Controller
             'images',
             'members.memberProfile.category',
             'courses',
-            'collectors'
+            'collectors',
+            'community' 
         ])->find($id);
 
         if (!$madarsa) {
