@@ -4,6 +4,9 @@
 
 @section('content')
 
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
     <style>
         .action-btns .btn {
             margin-right: 5px;
@@ -13,20 +16,6 @@
             margin-right: 0;
         }
 
-        .editor-toolbar {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-bottom: none;
-            padding: 8px;
-            border-radius: 4px 4px 0 0;
-        }
-
-        .editor-area {
-            min-height: 150px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
         .cat-content {
             max-height: 100px;
             overflow: hidden;
@@ -34,6 +23,15 @@
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
+        }
+        
+        /* Fix modal scrolling when summernote is open */
+        .modal {
+            overflow-y: auto !important;
+        }
+        
+        .note-editable {
+            background: #fff !important;
         }
     </style>
 
@@ -97,7 +95,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
 
-                                        <form method="POST" action="{{ route('ruhani-ijal-categories.update', $category->id) }}" class="edit-category-form">
+                                        <form method="POST" action="{{ route('ruhani-ijal-categories.update', $category->id) }}">
                                             @csrf
                                             @method('PUT')
 
@@ -113,22 +111,7 @@
                                                 {{-- Content --}}
                                                 <div class="mb-3">
                                                     <label class="form-label">Content</label>
-                                                    <div class="editor-toolbar">
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="bold">
-                                                            <i class="fas fa-bold"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="italic">
-                                                            <i class="fas fa-italic"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertUnorderedList">
-                                                            <i class="fas fa-list-ul"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertOrderedList">
-                                                            <i class="fas fa-list-ol"></i>
-                                                        </button>
-                                                    </div>
-                                                    <div class="form-control editor-area" contenteditable="true">{!! $category->description !!}</div>
-                                                    <input type="hidden" name="description" class="content-input">
+                                                    <textarea name="description" class="form-control summernote">{{ $category->description }}</textarea>
                                                 </div>
 
                                             </div>
@@ -199,7 +182,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('ruhani-ijal-categories.store') }}" id="addCategoryForm">
+                    <form method="POST" action="{{ route('ruhani-ijal-categories.store') }}">
                         @csrf
 
                         <div class="mb-3">
@@ -209,22 +192,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Content</label>
-                            <div class="editor-toolbar">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="bold">
-                                    <i class="fas fa-bold"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="italic">
-                                    <i class="fas fa-italic"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertUnorderedList">
-                                    <i class="fas fa-list-ul"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" data-command="insertOrderedList">
-                                    <i class="fas fa-list-ol"></i>
-                                </button>
-                            </div>
-                            <div class="form-control editor-area" contenteditable="true" placeholder="Enter content here..."></div>
-                            <input type="hidden" name="description" id="addContentInput">
+                            <textarea name="description" class="form-control summernote" placeholder="Enter content here..."></textarea>
                         </div>
 
                         <div class="modal-footer">
@@ -239,32 +207,28 @@
         </div>
     </div>
 
+    <!-- JQuery (Required for Summernote) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle Toolbar Commands
-            document.querySelectorAll('[data-command]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const command = this.dataset.command;
-                    document.execCommand(command, false, null);
-                });
+        $(document).ready(function() {
+            $('.summernote').summernote({
+                height: 200,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
             });
-
-            // Handle Add Form Submission
-            const addForm = document.getElementById('addCategoryForm');
-            if (addForm) {
-                addForm.addEventListener('submit', function() {
-                    const editor = this.querySelector('.editor-area');
-                    const contentInput = document.getElementById('addContentInput');
-                    contentInput.value = editor.innerHTML.trim();
-                });
-            }
-
-            // Handle Edit Forms Submission
-            document.querySelectorAll('.edit-category-form').forEach(form => {
-                form.addEventListener('submit', function() {
-                    const editor = this.querySelector('.editor-area');
-                    const contentInput = this.querySelector('.content-input');
-                    contentInput.value = editor.innerHTML.trim();
+            
+            // Re-initialize summernote when modal is opened to fix width issues
+            $('.modal').on('shown.bs.modal', function () {
+                $(this).find('.summernote').summernote({
+                    focus: true
                 });
             });
         });
