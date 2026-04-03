@@ -19,6 +19,8 @@ class MemberSignupRequest extends FormRequest
             'name'  => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:15'],
 
+            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+
             // member classification
             'member_category_id' => ['required', 'exists:member_categories,id'],
 
