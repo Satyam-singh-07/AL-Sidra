@@ -21,6 +21,12 @@ class MemberController extends Controller
             ], 404);
         }
 
+        if ($request->hasFile('profile_picture')) {
+            $user->update([
+                'profile_picture' => $request->file('profile_picture')->store('profile_pictures', 'public')
+            ]);
+        }
+
         $kyc = MemberKycDocument::updateOrCreate(
             ['member_profile_id' => $memberProfile->id],
             [

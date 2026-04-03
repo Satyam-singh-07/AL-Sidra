@@ -7,12 +7,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = ['name', 'email', 'language', 'phone', 'password', 'status', 'profile_picture', 'address', 'latitude', 'longitude'];
+
+    protected $appends = ['profile_picture_url'];
+
+    public function getProfilePictureUrlAttribute()
+    {
+        return $this->profile_picture ? Storage::disk('public')->url($this->profile_picture) : null;
+    }
 
     public function roles()
     {

@@ -49,6 +49,7 @@ Route::prefix('user')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('profile', [AuthController::class, 'userProfile']);
+        Route::post('profile', [AuthController::class, 'updateProfile']);
         Route::post('masjid', [MasjidController::class, 'store']);
     });
 });

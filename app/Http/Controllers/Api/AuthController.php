@@ -67,10 +67,11 @@ class AuthController extends Controller
             'message' => 'Signup successful',
             'token'   => $token,
             'user'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
-                'role'  => $this->getUserRole($user),
+                'id'                  => $user->id,
+                'name'                => $user->name,
+                'phone'               => $user->phone,
+                'profile_picture_url' => $user->profile_picture_url,
+                'role'                => $this->getUserRole($user),
             ]
         ]);
     }
@@ -102,8 +103,17 @@ class AuthController extends Controller
                 ['name' => $request->name]
             );
 
+            $updateData = [];
             if ($user->name !== $request->name) {
-                $user->update(['name' => $request->name]);
+                $updateData['name'] = $request->name;
+            }
+
+            if ($request->hasFile('profile_picture')) {
+                $updateData['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+            }
+
+            if (!empty($updateData)) {
+                $user->update($updateData);
             }
 
             // 2️⃣ Prevent duplicate member
@@ -184,10 +194,11 @@ class AuthController extends Controller
                 'message' => 'Member signup successful',
                 'token'   => $token,
                 'user'    => [
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'phone' => $user->phone,
-                    'role'  => $this->getUserRole($user),
+                    'id'                  => $user->id,
+                    'name'                => $user->name,
+                    'phone'               => $user->phone,
+                    'profile_picture_url' => $user->profile_picture_url,
+                    'role'                => $this->getUserRole($user),
                 ]
             ], 201);
         });
@@ -224,10 +235,11 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'token'   => $token,
             'user'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'phone' => $user->phone,
-                'role'  => $this->getUserRole($user),
+                'id'                  => $user->id,
+                'name'                => $user->name,
+                'phone'               => $user->phone,
+                'profile_picture_url' => $user->profile_picture_url,
+                'role'                => $this->getUserRole($user),
             ],
         ]);
     }
@@ -250,7 +262,33 @@ class AuthController extends Controller
     public function userProfile(Request $request)
     {
         $user = $request->user();
-        return response($user);
+        return response()->json($user);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'            => ['nullable', 'string', 'max:255'],
+            'email'           => ['nullable', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+        ]);
+
+        if ($request->hasFile('profile_picture')) {
+            // Delete old picture if exists
+            if ($user->profile_picture) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_picture);
+            }
+            $validated['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user'    => $user
+        ]);
     }
 
     public function memberProfile(Request $request)

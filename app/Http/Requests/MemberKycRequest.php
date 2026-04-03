@@ -14,6 +14,7 @@ class MemberKycRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'profile_picture'       => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'institute_name'        => ['nullable', 'string', 'max:255'],
             'degree_complete_year'  => ['nullable', 'digits:4'],
             'degree_photo'          => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
