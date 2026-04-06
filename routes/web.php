@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\VideoCategoryController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\YateemController;
 use App\Http\Controllers\Admin\DailyQuoteController;
+use App\Http\Controllers\Admin\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -156,6 +157,11 @@ Route::prefix('admin')->group(function () {
         Route::get('muqquir-bookings', [\App\Http\Controllers\Admin\MuqquirController::class, 'bookings'])->name('admin.muqquir-bookings.index');
 
         Route::resource('roles', RoleController::class);
+
+        Route::resource('payments', PaymentController::class)->only(['index', 'show'])->names([
+            'index' => 'admin.payments.index',
+            'show' => 'admin.payments.show',
+        ]);
 
         Route::resource('daily-quotes', DailyQuoteController::class);
         Route::get('daily-quote-logs', [DailyQuoteController::class, 'logs'])->name('daily-quotes.logs');

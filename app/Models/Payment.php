@@ -19,6 +19,7 @@ class Payment extends Model
         'razorpay_payment_id',
         'razorpay_signature',
         'status',
+        'donation_type',
         'paymentable_id',
         'paymentable_type',
     ];

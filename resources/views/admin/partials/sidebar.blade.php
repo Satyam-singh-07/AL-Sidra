@@ -174,6 +174,14 @@
                 </a>
             @endif
 
+            {{-- Payments --}}
+            @if ($user->canAccess('manage_payments'))
+                <a href="{{ route('admin.payments.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+                    <i class="fas fa-credit-card"></i> Payment Transactions
+                </a>
+            @endif
+
         </div>
     </div>
 </div>

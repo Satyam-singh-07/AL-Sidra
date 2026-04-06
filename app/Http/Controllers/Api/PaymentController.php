@@ -28,6 +28,7 @@ class PaymentController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:1',
+            'donation_type' => 'nullable|string',
             'paymentable_id' => 'nullable|integer',
             'paymentable_type' => 'nullable|string',
         ]);
@@ -49,6 +50,7 @@ class PaymentController extends Controller
                 'currency'          => 'INR',
                 'razorpay_order_id' => $razorpayOrder['id'],
                 'status'            => 'pending',
+                'donation_type'     => $request->donation_type,
                 'paymentable_id'    => $request->paymentable_id,
                 'paymentable_type'  => $request->paymentable_type,
             ]);
