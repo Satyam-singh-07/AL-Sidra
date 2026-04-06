@@ -10,6 +10,7 @@
                                                 <th>Approved By</th>
                                                 <th>Approved Date</th>
                                                 <th>Status</th>
+                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -20,7 +21,12 @@
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="user-avatar me-3">
-                                                            {{ strtoupper(substr($member->name, 0, 2)) }}
+                                                            @if ($member->profile_picture)
+                                                                <img src="{{ asset('storage/' . $member->profile_picture) }}"
+                                                                    alt="{{ $member->name }}" class="user-avatar">
+                                                            @else
+                                                                {{ strtoupper(substr($member->name, 0, 2)) }}
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <div class="user-name">{{ $member->name }}</div>
@@ -78,10 +84,15 @@
                                                 <td>
                                                     <span class="status-badge status-approved">Approved</span>
                                                 </td>
+                                                <td>
+                                                    <a href="{{ route('members.edit', $member->id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
                                             @empty
                                             <tr>
-                                                <td colspan="6" class="text-center text-muted py-4">
+                                                <td colspan="8" class="text-center text-muted py-4">
                                                     No approved members found
                                                 </td>
                                             </tr>

@@ -68,7 +68,45 @@ public function index(Request $request)
     ));
 }
 
+public function edit(User $member)
+{
+    $member->load(['memberProfile.category', 'memberProfile.place']);
+    $categories = \App\Models\MemberCategory::orderBy('name')->get();
+    return view('admin.members-edit', compact('member', 'categories'));
+}
 
+public function update(Request $request, User $member)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'nullable|email|unique:users,email,' . $member->id,
+        'phone' => 'required|string|max:15|unique:users,phone,' . $member->id,
+        'status' => 'required|in:active,blocked',
+        'member_category_id' => 'required|exists:member_categories,id',
+        'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    if ($request->hasFile('profile_picture')) {
+        if ($member->profile_picture) {
+            \Storage::disk('public')->delete($member->profile_picture);
+        }
+        $validated['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+    }
+
+    $member->update([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'phone' => $validated['phone'],
+        'status' => $validated['status'],
+        'profile_picture' => $validated['profile_picture'] ?? $member->profile_picture,
+    ]);
+
+    $member->memberProfile->update([
+        'member_category_id' => $validated['member_category_id'],
+    ]);
+
+    return redirect()->route('members.index')->with('success', 'Member profile updated successfully');
+}
 
 public function kyc(User $member)
 {

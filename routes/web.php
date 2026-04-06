@@ -79,12 +79,16 @@ Route::prefix('admin')->group(function () {
         Route::resource('job-categories', JobCategoryController::class);
 
         Route::get('members', [MemberController::class, 'index'])->name('members.index');
+        Route::get('/members/{member}/edit', [MemberController::class, 'edit'])->name('members.edit');
+        Route::put('/members/{member}', [MemberController::class, 'update'])->name('members.update');
         Route::get('/members/{member}/kyc', [MemberController::class, 'kyc'])->name('admin.members.kyc');
         Route::post('/members/{member}/kyc/approve', [MemberController::class, 'approveKyc'])->name('admin.members.kyc.approve');
         Route::post('/members/{member}/kyc/reject', [MemberController::class, 'rejectKyc'])->name('admin.members.kyc.reject');
         Route::post('/members/{member}/toggle-status', [MemberController::class, 'toggleStatus'])->name('members.toggle-status');
 
         Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::post('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 
         Route::resource('membercategories', MemberCategoryController::class);

@@ -196,6 +196,7 @@
                             <th>Location</th>
                             <th>Registration Date</th>
                             <th>Active Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -206,7 +207,12 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="user-avatar me-3">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            @if ($user->profile_picture)
+                                                <img src="{{ asset('storage/' . $user->profile_picture) }}"
+                                                    alt="{{ $user->name }}" class="user-avatar">
+                                            @else
+                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div>
                                             <div class="user-name">{{ $user->name }}</div>
@@ -250,6 +256,11 @@
                                             {{ ucfirst($user->status) }}
                                         </button>
                                     </form>
+                                </td>
+                                <td>
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @empty
