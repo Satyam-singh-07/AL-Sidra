@@ -10,6 +10,7 @@ class Madarsa extends Model
     use HasFactory;
 
     protected $fillable = [
+        'unique_id',
         'user_id',
         'name',
         'gender',
@@ -34,6 +35,14 @@ class Madarsa extends Model
         'latitude',
         'longitude',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($madarsa) {
+            $madarsa->unique_id = 'ASMA' . str_pad($madarsa->id, 6, '0', STR_PAD_LEFT);
+            $madarsa->save();
+        });
+    }
 
     protected $casts = [
         'registration_date' => 'date',

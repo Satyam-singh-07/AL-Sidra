@@ -12,7 +12,7 @@ class MadarsaController extends Controller
 {
     public function show()
     {
-        $madarsas = Madarsa::select('id', 'name')->get();
+        $madarsas = Madarsa::select('id', 'name', 'unique_id')->get();
         return response($madarsas);
     }
 
@@ -49,6 +49,7 @@ class MadarsaController extends Controller
 
         $query = Madarsa::selectRaw("
         madarsas.id,
+        madarsas.unique_id,
         madarsas.name,
         madarsas.address,
         madarsas.gender,
@@ -67,7 +68,10 @@ class MadarsaController extends Controller
             ->whereNotNull('madarsas.longitude');
 
         if ($request->filled('search')) {
-            $query->where('madarsas.name', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('madarsas.name', 'like', '%' . $request->search . '%')
+                    ->orWhere('madarsas.unique_id', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->filled('gender')) {
@@ -90,6 +94,7 @@ class MadarsaController extends Controller
         $madarsas->getCollection()->transform(function ($madarsa) {
             return [
                 'id'       => $madarsa->id,
+                'unique_id' => $madarsa->unique_id,
                 'name'     => $madarsa->name,
                 'address'  => $madarsa->address,
                 'gender'   => $madarsa->gender,
@@ -126,6 +131,7 @@ class MadarsaController extends Controller
             'success' => true,
             'data' => [
                 'id' => $madarsa->id,
+                'unique_id' => $madarsa->unique_id,
                 'name' => $madarsa->name,
                 'gender' => $madarsa->gender,
                 'address' => $madarsa->address,
@@ -165,6 +171,7 @@ class MadarsaController extends Controller
                 'members' => $madarsa->members->map(function ($member) {
                     return [
                         'id' => $member->id,
+                        'unique_id' => $member->unique_id,
                         'name' => $member->name,
                         'phone' => $member->phone,
                         'category' => $member->memberProfile->category->name ?? null,

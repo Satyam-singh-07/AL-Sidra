@@ -12,7 +12,7 @@ class MasjidController extends Controller
 {
     public function show()
     {
-        $majids = Masjid::select('id', 'name')->get();
+        $majids = Masjid::select('id', 'name', 'unique_id')->get();
         return response($majids);
     }
 
@@ -63,7 +63,8 @@ class MasjidController extends Controller
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('masjids.name', 'LIKE', "%{$search}%")
-                    ->orWhere('masjids.address', 'LIKE', "%{$search}%");
+                    ->orWhere('masjids.address', 'LIKE', "%{$search}%")
+                    ->orWhere('masjids.unique_id', 'LIKE', "%{$search}%");
             });
         }
 
@@ -79,6 +80,7 @@ class MasjidController extends Controller
 
             return [
                 'id'       => $masjid->id,
+                'unique_id' => $masjid->unique_id,
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
 
@@ -136,6 +138,7 @@ class MasjidController extends Controller
                 'members' => $masjid->members->map(function ($member) {
                     return [
                         'id'       => $member->id,
+                        'unique_id' => $member->unique_id,
                         'name'     => $member->name,
                         'phone'    => $member->phone,
                         'category' => $member->memberProfile->category->name ?? null,

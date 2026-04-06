@@ -13,9 +13,17 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'language', 'phone', 'password', 'status', 'profile_picture', 'address', 'latitude', 'longitude'];
+    protected $fillable = ['unique_id', 'name', 'email', 'language', 'phone', 'password', 'status', 'profile_picture', 'address', 'latitude', 'longitude'];
 
     protected $appends = ['profile_picture_url'];
+
+    public function generateUniqueId()
+    {
+        if ($this->roles()->where('slug', 'member')->exists()) {
+            $this->unique_id = 'ASMR' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+            $this->save();
+        }
+    }
 
     public function getProfilePictureUrlAttribute()
     {

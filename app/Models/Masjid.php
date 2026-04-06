@@ -10,6 +10,7 @@ class Masjid extends Model
     use HasFactory;
 
     protected $fillable = [
+        'unique_id',
         'user_id',
         'name',
         'gender',
@@ -23,6 +24,14 @@ class Masjid extends Model
         'latitude',
         'longitude',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($masjid) {
+            $masjid->unique_id = 'ASMD' . str_pad($masjid->id, 6, '0', STR_PAD_LEFT);
+            $masjid->save();
+        });
+    }
 
     protected $appends = ['video_url','passbook_url'];
 

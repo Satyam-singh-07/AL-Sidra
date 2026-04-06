@@ -187,6 +187,9 @@ class AuthController extends Controller
                 ['user_id' => $user->id, 'role_id' => $memberRoleId],
             ]);
 
+            // Generate Unique ID for member
+            $user->generateUniqueId();
+
             // 7️⃣ Create token ONLY after everything succeeds
             $token = $user->createToken('mobile')->plainTextToken;
 
