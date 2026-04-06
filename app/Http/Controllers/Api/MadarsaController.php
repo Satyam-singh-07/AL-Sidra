@@ -103,7 +103,7 @@ class MadarsaController extends Controller
             'data' => $madarsas,
         ]);
     }
-    
+
 
     public function showMadarsaDetails($id)
     {
@@ -111,7 +111,8 @@ class MadarsaController extends Controller
             'images',
             'members.memberProfile.category',
             'courses',
-            'collectors'
+            'collectors',
+            'community'
         ])->find($id);
 
         if (!$madarsa) {
@@ -138,6 +139,11 @@ class MadarsaController extends Controller
                 'video' => $madarsa->video_url,
 
                 'images' => $madarsa->images->map(fn($img) => $img->image_url),
+
+                'community' => $madarsa->community ? [   // Added community block
+                    'id' => $madarsa->community->id,
+                    'name' => $madarsa->community->name,
+                ] : null,
 
                 'courses' => $madarsa->courses->map(function ($course) {
                     return [

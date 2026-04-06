@@ -13,6 +13,7 @@ class MuqquirBooking extends Model
         'user_id',
         'muqquir_profile_id',
         'booking_date',
+        'purpose_of_event',
         'status',
         'travel_fee',
         'details',

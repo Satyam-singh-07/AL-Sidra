@@ -29,6 +29,7 @@ class MuqquirBookingController extends Controller
         $validator = Validator::make($request->all(), [
             'muqquir_profile_id' => 'required|exists:muqquir_profiles,id',
             'booking_date' => 'required|date|after_or_equal:today',
+            'purpose_of_event' => 'required|string',
             'details' => 'nullable|string',
         ]);
 
@@ -57,6 +58,7 @@ class MuqquirBookingController extends Controller
                 'user_id' => auth()->id(),
                 'muqquir_profile_id' => $request->muqquir_profile_id,
                 'booking_date' => $request->booking_date,
+                'purpose_of_event' => $request->purpose_of_event,
                 'details' => $request->details,
                 'status' => 'pending',
             ]);
