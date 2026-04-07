@@ -214,7 +214,7 @@
 
     <script>
         $(document).ready(function() {
-            $('.summernote').summernote({
+            const summernoteOptions = {
                 height: 200,
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -222,14 +222,22 @@
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['insert', ['link']],
                     ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
+                ],
+                callbacks: {
+                    onPaste: function (e) {
+                        var bufferText = ((e.originalEvent || e).clipboardData || window.clipboardData).getData('Text');
+                        e.preventDefault();
+                        // Standardize newlines and then insert as plain text
+                        document.execCommand('insertText', false, bufferText);
+                    }
+                }
+            };
+
+            $('.summernote').summernote(summernoteOptions);
             
             // Re-initialize summernote when modal is opened to fix width issues
             $('.modal').on('shown.bs.modal', function () {
-                $(this).find('.summernote').summernote({
-                    focus: true
-                });
+                $(this).find('.summernote').summernote(summernoteOptions);
             });
         });
     </script>

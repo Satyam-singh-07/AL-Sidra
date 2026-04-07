@@ -28,9 +28,11 @@ class RuhaniIjalCategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $cleanDescription = $this->sanitizeHtml($request->description);
+
         RuhaniIjalCategory::create([
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $cleanDescription,
         ]);
 
         return redirect()
@@ -50,14 +52,35 @@ class RuhaniIjalCategoryController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        $cleanDescription = $this->sanitizeHtml($request->description);
+
         $category->update([
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $cleanDescription,
         ]);
 
         return redirect()
             ->route('ruhani-ijal-categories.index')
             ->with('success', 'Category updated successfully.');
+    }
+
+    /**
+     * Helper to sanitize dirty HTML from pastes
+     */
+    private function sanitizeHtml($html)
+    {
+        if (empty($html)) return $html;
+
+        // 1. Strip all tags except basic formatting
+        $allowedTags = '<p><br><b><i><u><ul><ol><li><h3><h4><h5><h6><a><blockquote>';
+        $stripped = strip_tags($html, $allowedTags);
+
+        // 2. Remove problematic attributes like _ngcontent, data-*, aria-*, etc.
+        // This preserves the tags but cleans the garbage inside them
+        $clean = preg_replace('/\s(_ngcontent|data-|inline-copy-host|aria-|id|style|class|inline-copy-button)[^=>]*="[^"]*"/i', '', $stripped);
+        $clean = preg_replace('/\s(_ngcontent|data-|inline-copy-host|aria-|id|style|class|inline-copy-button)[^=>]*=\'[^\']*\'/i', '', $clean);
+
+        return trim($clean);
     }
 
     /**
