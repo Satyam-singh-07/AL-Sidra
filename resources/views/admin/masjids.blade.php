@@ -173,6 +173,9 @@
                                         @endif
                                         <div>
                                             <h6 class="mb-1">{{ $masjid->name }}</h6>
+                                            @if($masjid->unique_id)
+                                                <div class="mb-1"><small class="text-success fw-bold">{{ $masjid->unique_id }}</small></div>
+                                            @endif
                                             <small class="text-muted">
                                                 <i class="fas fa-map-marker-alt me-1"></i>
                                                 {{ Str::limit($masjid->address, 40) }}

@@ -107,6 +107,9 @@
                                     @endif
                                     <div>
                                         <h6 class="mb-1">{{ $madarsa->name }}</h6>
+                                        @if($madarsa->unique_id)
+                                            <div class="mb-1"><small class="text-success fw-bold">{{ $madarsa->unique_id }}</small></div>
+                                        @endif
                                         <span class="badge bg-secondary gender-badge">
                                             {{ ucfirst($madarsa->gender) }}
                                         </span>
