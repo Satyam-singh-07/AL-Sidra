@@ -13,9 +13,15 @@ class RuhaniIjalController extends Controller
     /**
      * Get all Ruhani Ijal categories
      */
-    public function getCategories(): JsonResponse
+    public function getCategories(Request $request): JsonResponse
     {
-        $categories = RuhaniIjalCategory::all(['id', 'name', 'description']);
+        $query = RuhaniIjalCategory::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $categories = $query->get(['id', 'name', 'description']);
 
         return response()->json([
             'success' => true,
