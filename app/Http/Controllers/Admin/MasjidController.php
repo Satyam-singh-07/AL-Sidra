@@ -123,6 +123,17 @@ class MasjidController extends Controller
         ]);
     }
 
+    public function cycleKycStatus(Masjid $masjid)
+    {
+        $nextStatus = $masjid->kyc_status === 'active' ? 'inactive' : 'active';
+
+        $masjid->update(['kyc_status' => $nextStatus]);
+
+        return response()->json([
+            'kyc_status' => $nextStatus,
+        ]);
+    }
+
     public function deleteImage(int $imageId)
     {
         $this->masjidService->deleteImage($imageId);

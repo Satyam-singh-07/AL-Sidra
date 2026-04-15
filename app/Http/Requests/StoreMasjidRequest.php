@@ -23,6 +23,7 @@ class StoreMasjidRequest extends FormRequest
             'longitude' => 'required|numeric',
             'community_id' => 'required|exists:communities,id',
             'status' => 'required|in:active,pending,inactive',
+            'kyc_status' => 'nullable|in:active,inactive',
 
             'passbook' => 'nullable|file|max:5120',
             'registration_number' => 'nullable|string|max:255',

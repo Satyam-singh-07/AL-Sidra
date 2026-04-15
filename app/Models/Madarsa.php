@@ -17,7 +17,7 @@ class Madarsa extends Model
         'address',
         'community_id',
         'status',
-
+        'kyc_status',
         'students_count',
         'staff_count',
 

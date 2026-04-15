@@ -118,6 +118,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('masjids', MasjidController::class);
         Route::patch('/masjids/{masjid}/status', [MasjidController::class, 'cycleStatus'])
             ->name('masjids.cycle-status');
+        Route::patch('/masjids/{masjid}/kyc-status', [MasjidController::class, 'cycleKycStatus'])
+            ->name('masjids.cycle-kyc-status');
         Route::delete('masjids/{masjid}/video', [MasjidController::class, 'deleteVideo'])->name('masjids.delete-video');
         Route::delete('masjids/images/{image}', [MasjidController::class, 'deleteImage'])->name('masjids.delete-image');
 
@@ -137,6 +139,10 @@ Route::prefix('admin')->group(function () {
             'madarsas/{madarsa}/status',
             [MadrasaController::class, 'cycleStatus']
         )->name('madarsas.status');
+        Route::patch(
+            'madarsas/{madarsa}/kyc-status',
+            [MadrasaController::class, 'cycleKycStatus']
+        )->name('madarsas.kyc-status');
         Route::delete('madarsas/{madarsa}/video', [MadrasaController::class, 'deleteVideo'])->name('madarsas.delete-video');
         Route::delete('madarsas/images/{image}', [MadrasaController::class, 'deleteImage'])->name('madarsas.delete-image');
 

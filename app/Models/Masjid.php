@@ -17,6 +17,7 @@ class Masjid extends Model
         'address',
         'community_id',
         'status',
+        'kyc_status',
         'passbook',
         'registration_number',
         'registration_date',

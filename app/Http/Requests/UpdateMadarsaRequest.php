@@ -22,6 +22,7 @@ class UpdateMadarsaRequest extends FormRequest
             'longitude' => ['required', 'numeric'],
             'community_id' => ['required', 'exists:communities,id'],
             'status' => ['required', 'in:active,pending,inactive'],
+            'kyc_status' => ['nullable', 'in:active,inactive'],
 
             'students_count' => ['nullable', 'integer', 'min:0'],
             'staff_count' => ['nullable', 'integer', 'min:0'],

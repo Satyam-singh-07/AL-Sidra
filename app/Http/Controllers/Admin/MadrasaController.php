@@ -141,6 +141,17 @@ class MadrasaController extends Controller
         ]);
     }
 
+    public function cycleKycStatus(Madarsa $madarsa)
+    {
+        $nextStatus = $madarsa->kyc_status === 'active' ? 'inactive' : 'active';
+
+        $madarsa->update(['kyc_status' => $nextStatus]);
+
+        return response()->json([
+            'kyc_status' => $nextStatus,
+        ]);
+    }
+
     public function deleteImage(int $imageId)
     {
         $this->madarsaService->deleteImage($imageId);

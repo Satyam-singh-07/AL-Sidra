@@ -13,7 +13,7 @@
             border: 2px solid #e9ecef;
         }
 
-        .status-badge {
+        .status-badge, .kyc-status-badge {
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
             cursor: pointer;
@@ -90,6 +90,7 @@
                         <th>Location</th>
                         <th>Community</th>
                         <th>Status</th>
+                        <th>KYC Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -139,8 +140,18 @@
         @if ($madarsa->status == 'active') bg-success
         @elseif($madarsa->status == 'pending') bg-warning text-dark
         @else bg-danger @endif"
-                                    data-id="{{ $madarsa->id }}" style="cursor:pointer;">
+                                    data-id="{{ $madarsa->id }}">
                                     {{ ucfirst($madarsa->status) }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span
+                                    class="badge kyc-status-badge
+        @if ($madarsa->kyc_status == 'active') bg-success
+        @else bg-danger @endif"
+                                    data-id="{{ $madarsa->id }}">
+                                    {{ ucfirst($madarsa->kyc_status) }}
                                 </span>
                             </td>
 
@@ -165,7 +176,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 No madarsas found
                             </td>
                         </tr>
@@ -182,38 +193,67 @@
 
     <script>
         document.addEventListener('click', function(e) {
-            if (!e.target.classList.contains('status-badge')) return;
+            if (e.target.classList.contains('status-badge')) {
+                const badge = e.target;
+                const madarsaId = badge.dataset.id;
 
-            const badge = e.target;
-            const madarsaId = badge.dataset.id;
+                fetch(`/admin/madarsas/${madarsaId}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        badge.textContent =
+                            data.status.charAt(0).toUpperCase() + data.status.slice(1);
 
-            fetch(`/admin/madarsas/${madarsaId}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                    },
-                })
-                .then(res => res.json())
-                .then(data => {
-                    badge.textContent =
-                        data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                        badge.classList.remove(
+                            'bg-success',
+                            'bg-warning',
+                            'bg-danger',
+                            'text-dark'
+                        );
 
-                    badge.classList.remove(
-                        'bg-success',
-                        'bg-warning',
-                        'bg-danger',
-                        'text-dark'
-                    );
+                        if (data.status === 'active') {
+                            badge.classList.add('bg-success');
+                        } else if (data.status === 'pending') {
+                            badge.classList.add('bg-warning', 'text-dark');
+                        } else {
+                            badge.classList.add('bg-danger');
+                        }
+                    });
+            }
 
-                    if (data.status === 'active') {
-                        badge.classList.add('bg-success');
-                    } else if (data.status === 'pending') {
-                        badge.classList.add('bg-warning', 'text-dark');
-                    } else {
-                        badge.classList.add('bg-danger');
-                    }
-                });
+            if (e.target.classList.contains('kyc-status-badge')) {
+                const badge = e.target;
+                const madarsaId = badge.dataset.id;
+
+                fetch(`/admin/madarsas/${madarsaId}/kyc-status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        badge.textContent =
+                            data.kyc_status.charAt(0).toUpperCase() + data.kyc_status.slice(1);
+
+                        badge.classList.remove(
+                            'bg-success',
+                            'bg-danger'
+                        );
+
+                        if (data.kyc_status === 'active') {
+                            badge.classList.add('bg-success');
+                        } else {
+                            badge.classList.add('bg-danger');
+                        }
+                    });
+            }
         });
     </script>
 
