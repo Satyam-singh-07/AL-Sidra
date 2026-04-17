@@ -24,6 +24,7 @@ class Masjid extends Model
         'video',
         'latitude',
         'longitude',
+        'jummah_khutba_time',
     ];
 
     protected static function booted()

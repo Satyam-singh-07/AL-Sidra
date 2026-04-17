@@ -150,6 +150,12 @@
                         <option value="inactive" {{ old('status', $masjid->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="jummah_khutba_time" class="form-label">Jummah Khutba Time</label>
+                    <input type="time" class="form-control" name="jummah_khutba_time" id="jummah_khutba_time"
+                        value="{{ old('jummah_khutba_time', $masjid->jummah_khutba_time ? \Carbon\Carbon::parse($masjid->jummah_khutba_time)->format('H:i') : '') }}">
+                </div>
             </div>
         </div>
 

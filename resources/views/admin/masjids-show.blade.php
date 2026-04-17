@@ -52,6 +52,10 @@
                             <strong>Longitude:</strong> {{ $masjid->longitude }}
                         </div>
 
+                        <div class="col-md-6 mb-2">
+                            <strong>Jummah Khutba Time:</strong> {{ $masjid->jummah_khutba_time ?? 'N/A' }}
+                        </div>
+
                         <div class="col-md-12 mt-2">
                             <strong>Created By:</strong>
                             {{ $masjid->user->name ?? 'Admin' }}

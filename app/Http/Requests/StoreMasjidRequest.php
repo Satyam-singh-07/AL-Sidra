@@ -28,6 +28,7 @@ class StoreMasjidRequest extends FormRequest
             'passbook' => 'nullable|file|max:5120',
             'registration_number' => 'nullable|string|max:255',
             'registration_date' => 'nullable|date',
+            'jummah_khutba_time' => 'nullable|date_format:H:i',
             'masjid_images' => $imageRule,
             'masjid_images.*' => 'image|max:5120',
             'masjid_video' => 'nullable|mimes:mp4,webm,ogg|max:20480',

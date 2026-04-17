@@ -73,6 +73,7 @@ class MasjidService
                 'longitude'   => $data['longitude'],
                 'community_id' => $data['community_id'],
                 'status'      => $data['status'],
+                'jummah_khutba_time' => $data['jummah_khutba_time'] ?? $masjid->jummah_khutba_time,
             ]);
 
             if (!empty($data['passbook'])) {
