@@ -104,6 +104,36 @@ class MemberController extends Controller
         ]);
     }
 
+    public function leavePlace(Request $request)
+    {
+        $user = $request->user();
+        $memberProfile = $user->memberProfile;
+
+        if (!$memberProfile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Member profile not found',
+            ], 404);
+        }
+
+        if (!$memberProfile->place_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not currently linked to any masjid or madarsa',
+            ], 422);
+        }
+
+        $memberProfile->update([
+            'place_type' => null,
+            'place_id'   => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Successfully removed from the place',
+        ]);
+    }
+
     public function showMemberDetails($id)
     {
         $user = User::where('id', $id)
