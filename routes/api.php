@@ -69,6 +69,7 @@ Route::prefix('member')->group(function () {
 });
 
 Route::get('member-categories', [MemberCategoryController::class, 'show']);
+Route::get('member-details/{id}', [MemberController::class, 'showMemberDetails']);
 Route::get('masjid', [MasjidController::class, 'show']);
 Route::get('madarsa', [MadarsaController::class, 'show']);
 Route::post('login/send-otp', [AuthController::class, 'userSendLoginOtp']);

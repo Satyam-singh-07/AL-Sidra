@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MemberKycRequest;
 use App\Models\MemberKycDocument;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class MemberController extends Controller
@@ -103,4 +104,33 @@ class MemberController extends Controller
         ]);
     }
 
+    public function showMemberDetails($id)
+    {
+        $user = User::where('id', $id)
+            ->orWhere('unique_id', $id)
+            ->with(['memberProfile.category'])
+            ->first();
+
+        if (!$user || !$user->memberProfile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Member not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'id'                 => $user->id,
+                'unique_id'          => $user->unique_id,
+                'name'               => $user->name,
+                'email'              => $user->email,
+                'profile_picture_url' => $user->profile_picture_url,
+                'address'            => $user->address,
+                'category'           => $user->memberProfile->category->name ?? null,
+                'status'             => $user->status,
+                'kyc_status'         => $user->memberProfile->kyc_status,
+            ]
+        ]);
+    }
 }
