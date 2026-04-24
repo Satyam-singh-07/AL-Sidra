@@ -39,6 +39,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/donation', [\App\Http\Controllers\DonationController::class, 'index'])->name('donation');
+Route::post('/donation/create-order', [\App\Http\Controllers\DonationController::class, 'createOrder'])->name('donation.create-order');
+Route::post('/donation/verify', [\App\Http\Controllers\DonationController::class, 'verifyPayment'])->name('donation.verify');
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
