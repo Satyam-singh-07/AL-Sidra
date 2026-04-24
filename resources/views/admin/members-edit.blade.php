@@ -72,9 +72,39 @@
                                 @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Associated Place</label>
-                                <input type="text" class="form-control" value="{{ $member->memberProfile->place->name ?? 'N/A' }}" disabled>
-                                <div class="form-text">Place can only be changed by the member.</div>
+                                <label class="form-label fw-bold">KYC Status</label>
+                                <input type="text" class="form-control" value="{{ ucfirst($member->memberProfile->kyc_status) }}" disabled>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Linked Masjid</label>
+                                <select name="masjid_id" class="form-select @error('masjid_id') is-invalid @enderror">
+                                    <option value="">No Masjid Linked</option>
+                                    @foreach($masjids as $masjid)
+                                        <option value="{{ $masjid->id }}" {{ old('masjid_id', $member->memberProfile->masjid_id) == $masjid->id ? 'selected' : '' }}>
+                                            {{ $masjid->name }} ({{ $masjid->unique_id }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('masjid_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Linked Madarsa</label>
+                                <select name="madarsa_id" class="form-select @error('madarsa_id') is-invalid @enderror">
+                                    <option value="">No Madarsa Linked</option>
+                                    @foreach($madarsas as $madarsa)
+                                        <option value="{{ $madarsa->id }}" {{ old('madarsa_id', $member->memberProfile->madarsa_id) == $madarsa->id ? 'selected' : '' }}>
+                                            {{ $madarsa->name }} ({{ $madarsa->unique_id }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('madarsa_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 

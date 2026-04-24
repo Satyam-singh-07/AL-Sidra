@@ -144,6 +144,8 @@ class AuthController extends Controller
                 'member_category_id' => $request->member_category_id,
                 'place_type'         => $request->place_type,
                 'place_id'           => $request->place_id,
+                'masjid_id'          => $request->place_type === 'masjid' ? $request->place_id : null,
+                'madarsa_id'         => $request->place_type === 'madarsa' ? $request->place_id : null,
                 'kyc_status'         => 'not_started',
             ]);
 

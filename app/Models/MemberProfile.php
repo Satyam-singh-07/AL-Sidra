@@ -10,6 +10,8 @@ class MemberProfile extends Model
     protected $fillable = [
         'user_id',
         'member_category_id',
+        'masjid_id',
+        'madarsa_id',
         'place_type',
         'place_id',
         'kyc_status',
@@ -27,6 +29,16 @@ class MemberProfile extends Model
     public function category()
     {
         return $this->belongsTo(MemberCategory::class, 'member_category_id');
+    }
+
+    public function masjid()
+    {
+        return $this->belongsTo(Masjid::class);
+    }
+
+    public function madarsa()
+    {
+        return $this->belongsTo(Madarsa::class);
     }
 
     public function kyc()

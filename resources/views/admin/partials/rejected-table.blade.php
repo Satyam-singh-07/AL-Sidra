@@ -46,7 +46,15 @@
                                                     </span>
                                                 </div>
                                                 <div class="text-muted small">
-                                                    {{ optional($member->memberProfile->place)->name ?? '-' }}
+                                                    @if($member->memberProfile->masjid)
+                                                        <div><i class="fas fa-mosque me-1"></i> {{ $member->memberProfile->masjid->name }}</div>
+                                                    @endif
+                                                    @if($member->memberProfile->madarsa)
+                                                        <div><i class="fas fa-school me-1"></i> {{ $member->memberProfile->madarsa->name }}</div>
+                                                    @endif
+                                                    @if(!$member->memberProfile->masjid && !$member->memberProfile->madarsa)
+                                                        -
+                                                    @endif
                                                 </div>
                                             </td>
 

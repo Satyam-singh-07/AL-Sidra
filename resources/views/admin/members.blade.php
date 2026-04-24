@@ -542,8 +542,15 @@ document.getElementById('viewKycModal')
             document.getElementById('kycCategory').innerText =
                 member.member_profile?.category?.name ?? '-';
 
-            document.getElementById('kycPlace').innerText =
-                member.member_profile?.place?.name ?? '-';
+            let places = [];
+            if (member.member_profile?.masjid) {
+                places.push('Masjid: ' + member.member_profile.masjid.name);
+            }
+            if (member.member_profile?.madarsa) {
+                places.push('Madarsa: ' + member.member_profile.madarsa.name);
+            }
+            document.getElementById('kycPlace').innerHTML =
+                places.length > 0 ? places.join('<br>') : '-';
 
             /* Action buttons */
             document.getElementById('approveFromModal').onclick =

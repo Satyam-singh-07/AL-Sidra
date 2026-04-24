@@ -16,7 +16,7 @@ public function index(Request $request)
     $activeTab = $request->get('tab', 'pending');
 
     $baseQuery = User::members()
-        ->with(['memberProfile.category', 'memberProfile.kyc', 'memberProfile.place'])
+        ->with(['memberProfile.category', 'memberProfile.kyc', 'memberProfile.masjid', 'memberProfile.madarsa'])
         ->when($request->search, function ($q) use ($request) {
             $q->where(function ($qq) use ($request) {
                 $qq->where('name', 'like', '%' . $request->search . '%')
@@ -68,51 +68,72 @@ public function index(Request $request)
     ));
 }
 
-public function edit(User $member)
-{
-    $member->load(['memberProfile.category', 'memberProfile.place']);
-    $categories = \App\Models\MemberCategory::orderBy('name')->get();
-    return view('admin.members-edit', compact('member', 'categories'));
-}
-
-public function update(Request $request, User $member)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'nullable|email|unique:users,email,' . $member->id,
-        'phone' => 'required|string|max:15|unique:users,phone,' . $member->id,
-        'status' => 'required|in:active,blocked',
-        'member_category_id' => 'required|exists:member_categories,id',
-        'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    if ($request->hasFile('profile_picture')) {
-        if ($member->profile_picture) {
-            \Storage::disk('public')->delete($member->profile_picture);
-        }
-        $validated['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+    public function edit(User $member)
+    {
+        $member->load(['memberProfile.category', 'memberProfile.masjid', 'memberProfile.madarsa']);
+        $categories = \App\Models\MemberCategory::orderBy('name')->get();
+        $masjids = \App\Models\Masjid::orderBy('name')->get();
+        $madarsas = \App\Models\Madarsa::orderBy('name')->get();
+        return view('admin.members-edit', compact('member', 'categories', 'masjids', 'madarsas'));
     }
 
-    $member->update([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'phone' => $validated['phone'],
-        'status' => $validated['status'],
-        'profile_picture' => $validated['profile_picture'] ?? $member->profile_picture,
-    ]);
+    public function update(Request $request, User $member)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $member->id,
+            'phone' => 'required|string|max:15|unique:users,phone,' . $member->id,
+            'status' => 'required|in:active,blocked',
+            'member_category_id' => 'required|exists:member_categories,id',
+            'masjid_id' => 'nullable|exists:masjids,id',
+            'madarsa_id' => 'nullable|exists:madarsas,id',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-    $member->memberProfile->update([
-        'member_category_id' => $validated['member_category_id'],
-    ]);
+        if ($request->hasFile('profile_picture')) {
+            if ($member->profile_picture) {
+                \Storage::disk('public')->delete($member->profile_picture);
+            }
+            $validated['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
 
-    return redirect()->route('members.index')->with('success', 'Member profile updated successfully');
-}
+        $member->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'status' => $validated['status'],
+            'profile_picture' => $validated['profile_picture'] ?? $member->profile_picture,
+        ]);
+
+        // Sync place_type and place_id for backward compatibility
+        $place_type = null;
+        $place_id = null;
+
+        if ($validated['masjid_id']) {
+            $place_type = 'masjid';
+            $place_id = $validated['masjid_id'];
+        } elseif ($validated['madarsa_id']) {
+            $place_type = 'madarsa';
+            $place_id = $validated['madarsa_id'];
+        }
+
+        $member->memberProfile->update([
+            'member_category_id' => $validated['member_category_id'],
+            'masjid_id' => $validated['masjid_id'],
+            'madarsa_id' => $validated['madarsa_id'],
+            'place_type' => $place_type,
+            'place_id' => $place_id,
+        ]);
+
+        return redirect()->route('members.index')->with('success', 'Member profile updated successfully');
+    }
 
 public function kyc(User $member)
 {
     $member->load([
         'memberProfile.category',
-        'memberProfile.place',
+        'memberProfile.masjid',
+        'memberProfile.madarsa',
         'memberProfile.kyc',
     ]);
 
