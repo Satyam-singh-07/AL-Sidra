@@ -104,10 +104,10 @@
                     <hr>
                     <div class="text-start">
                         <small class="text-muted d-block mb-1">User ID</small>
-                        <p class="fw-bold mb-3">#{{ $payment->user_id }}</p>
+                        <p class="fw-bold mb-3">#{{ $payment->user_id ?? 'N/A' }}</p>
 
                         <small class="text-muted d-block mb-1">Registered On</small>
-                        <p class="fw-bold mb-0">{{ $payment->user->created_at->format('d M Y') }}</p>
+                        <p class="fw-bold mb-0">{{ $payment->user ? $payment->user->created_at->format('d M Y') : 'N/A' }}</p>
                     </div>
                 </div>
             </div>

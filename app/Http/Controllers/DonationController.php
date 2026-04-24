@@ -47,6 +47,7 @@ class DonationController extends Controller
             $razorpayOrder = $this->razorpayApi->order->create($orderData);
 
             Payment::create([
+                'user_id'           => auth()->id(),
                 'amount'            => $amountInPaisa,
                 'currency'          => 'INR',
                 'razorpay_order_id' => $razorpayOrder['id'],
