@@ -91,7 +91,7 @@ class JobController extends Controller
     /**
      * Store a new job opening (Mutvalli only)
      */
-    public function store(Request $request)
+        public function store(Request $request)
     {
         $user = $request->user();
         
@@ -106,8 +106,8 @@ class JobController extends Controller
         }
 
         // Check if user is a Mutvalli (Recruiter)
-        // We check category name 'Mutvalli' (ID 4)
-        if (!$memberProfile->category || $memberProfile->category->name !== 'Mutvalli') {
+        // We check category ID (Mutvalli ID is 4)
+        if ($memberProfile->member_category_id != 4) {
             return response()->json([
                 'success' => false,
                 'message' => 'Only a Mutvalli can post job openings.'

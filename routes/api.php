@@ -154,6 +154,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
+
+    // User Account
+    Route::delete('account-delete', function (Request $request) {
+        $request->user()->delete();
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ], 200);
+    });
 });
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
@@ -258,22 +266,3 @@ Route::post('send-notification-token', function (
         'message' => 'Notification sent successfully to token',
     ]);
 });
-
-// use App\Models\User;
-
-// Route::delete('/users/{id}', function ($id) {
-
-//     $user = User::find($id);
-
-//     if (!$user) {
-//         return response()->json([
-//             'message' => 'User not found'
-//         ], 404);
-//     }
-
-//     $user->delete();
-
-//     return response()->json([
-//         'message' => 'User deleted successfully'
-//     ], 200);
-// });
