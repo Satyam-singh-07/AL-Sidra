@@ -216,7 +216,7 @@ class MuqquirController extends Controller
 
             DB::commit();
 
-            return $this->getAvailability();
+            return $this->getAvailability($profile->id);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -230,9 +230,9 @@ class MuqquirController extends Controller
     /**
      * Get Muqquir's current availability (unavailable and booked dates)
      */
-    public function getAvailability(): JsonResponse
+    public function getAvailability($id): JsonResponse
     {
-        $profile = auth()->user()->muqquirProfile;
+        $profile = \App\Models\MuqquirProfile::find($id);
 
         if (!$profile) {
             return response()->json([

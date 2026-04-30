@@ -140,7 +140,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ruhani-ijal/aamils/{id}', [RuhaniIjalController::class, 'showAamilDetails']);
     Route::post('muqquir/apply', [\App\Http\Controllers\Api\MuqquirController::class, 'apply']);
     Route::post('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'updateAvailability']);
-    Route::get('muqquir/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'getAvailability']);
+    Route::get('muqquir/{id}/availability', [\App\Http\Controllers\Api\MuqquirController::class, 'getAvailability']);
 
     // Muqquir Bookings
     Route::post('muqquir/bookings', [\App\Http\Controllers\Api\MuqquirBookingController::class, 'store']);
