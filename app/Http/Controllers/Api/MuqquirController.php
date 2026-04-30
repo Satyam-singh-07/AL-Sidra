@@ -96,7 +96,7 @@ class MuqquirController extends Controller
      */
     public function getMuqquirs(Request $request): JsonResponse
     {
-        $query = MuqquirProfile::with(['user:id,name,phone,email,address', 'videos'])
+        $query = MuqquirProfile::with(['user:id,name,phone,email,address,profile_picture', 'videos'])
             ->where('status', 'approved');
 
         // Exclude the currently logged-in user
@@ -142,7 +142,7 @@ class MuqquirController extends Controller
     public function showMuqquir(int $id): JsonResponse
     {
         $muqquir = MuqquirProfile::with([
-            'user:id,name,phone,email,address,latitude,longitude',
+            'user:id,name,phone,email,address,latitude,longitude,profile_picture',
             'videos',
             'availabilities' => function($q) {
                 $q->where('available_date', '>=', now()->toDateString())
