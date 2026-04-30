@@ -154,4 +154,46 @@ class JobController extends Controller
             'data' => $job
         ], 201);
     }
+
+    /**
+     * Get jobs created by the authenticated user
+     */
+    public function myJobs(Request $request)
+    {
+        $user = $request->user();
+        $jobs = Job::with(['category'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your jobs retrieved successfully',
+            'data' => $jobs
+        ]);
+    }
+
+    /**
+     * Delete a job opening (Owner only)
+     */
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+        $job = Job::findOrFail($id);
+
+        // Check if the user is the owner of the job
+        if ($job->user_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to delete this job.'
+            ], 403);
+        }
+
+        $job->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Job opening deleted successfully.'
+        ]);
+    }
 }

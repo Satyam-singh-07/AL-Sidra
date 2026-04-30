@@ -65,6 +65,8 @@ Route::prefix('member')->group(function () {
         Route::post('kyc/submit', [MemberController::class, 'submit']);
         Route::post('masjid', [MasjidController::class, 'store']);
         Route::post('job', [JobController::class, 'store']);
+        Route::get('my-jobs', [JobController::class, 'myJobs']);
+        Route::delete('job/{id}', [JobController::class, 'destroy']);
         Route::post('leave-place', [MemberController::class, 'leavePlace']);
     });
 });
@@ -161,7 +163,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json([
             'message' => 'User deleted successfully'
         ], 200);
-    });
+    }); 
 });
 
 Route::get('send-test-notification', function (Request $request, \App\Services\FirebaseNotificationService $firebase) {
