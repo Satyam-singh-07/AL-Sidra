@@ -97,6 +97,18 @@ public function index(Request $request)
             $validated['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
         }
 
+        // Check if the masjid already has a Mutvalli (Category ID 4)
+        if ($validated['member_category_id'] == 4 && $validated['masjid_id']) {
+            $existingMutvalli = \App\Models\MemberProfile::where('member_category_id', 4)
+                ->where('masjid_id', $validated['masjid_id'])
+                ->where('user_id', '!=', $member->id)
+                ->exists();
+
+            if ($existingMutvalli) {
+                return back()->withErrors(['masjid_id' => 'This masjid already has a Mutvalli assigned. Only one Mutvalli per masjid is allowed.'])->withInput();
+            }
+        }
+
         $member->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
