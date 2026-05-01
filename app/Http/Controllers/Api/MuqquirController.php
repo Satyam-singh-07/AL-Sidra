@@ -142,16 +142,18 @@ class MuqquirController extends Controller
     public function showMuqquir(int $id): JsonResponse
     {
         $muqquir = MuqquirProfile::with([
-            'user:id,name,phone,email,address,latitude,longitude,profile_picture',
+            'user',
             'videos',
             'availabilities' => function($q) {
                 $q->where('available_date', '>=', now()->toDateString())
                   ->whereIn('status', ['booked', 'unavailable'])
                   ->orderBy('available_date');
             }
-        ])
-        ->where('status', 'approved')
-        ->findOrFail($id);
+        ])->where('status', 'approved')->findOrFail($id);
+
+        $user = $muqquir->user;
+        $memberProfile = $user->memberProfile;
+        $jobs = $user->jobs ?? [];
 
         $unavailableDates = $muqquir->availabilities->where('status', 'unavailable')
             ->pluck('available_date')
@@ -163,11 +165,62 @@ class MuqquirController extends Controller
             ->map(fn($date) => $date->format('Y-m-d'))
             ->values();
 
-        // Convert to array to merge custom fields
         $data = $muqquir->toArray();
         $data['unavailable_dates'] = $unavailableDates;
         $data['booked_dates'] = $bookedDates;
-        unset($data['availabilities']); // Remove the raw relationship data
+        unset($data['availabilities']);
+
+        // Add user details
+        $data['user'] = $user ? [
+            'id' => $user->id,
+            'unique_id' => $user->unique_id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'latitude' => $user->latitude,
+            'longitude' => $user->longitude,
+            'profile_picture_url' => $user->profile_picture_url,
+            'status' => $user->status,
+        ] : null;
+
+        // Add member profile details if exists
+        if ($memberProfile) {
+            $data['member_profile'] = [
+                'id' => $memberProfile->id,
+                'category' => $memberProfile->category->name ?? null,
+                'kyc_status' => $memberProfile->kyc_status,
+                'masjid' => $memberProfile->masjid ? [
+                    'id' => $memberProfile->masjid->id,
+                    'name' => $memberProfile->masjid->name,
+                ] : null,
+                'madarsa' => $memberProfile->madarsa ? [
+                    'id' => $memberProfile->madarsa->id,
+                    'name' => $memberProfile->madarsa->name,
+                ] : null,
+                'place_type' => $memberProfile->place_type,
+                'place_id' => $memberProfile->place_id,
+                'kyc' => $memberProfile->kyc ? [
+                    'institute_name' => $memberProfile->kyc->institute_name,
+                    'degree_complete_year' => $memberProfile->kyc->degree_complete_year,
+                    'degree_photo_url' => $memberProfile->kyc->degree_photo_url,
+                    'aadhaar_front_url' => $memberProfile->kyc->aadhaar_front_url,
+                    'aadhaar_back_url' => $memberProfile->kyc->aadhaar_back_url,
+                    'submitted_at' => $memberProfile->kyc->submitted_at,
+                ] : null,
+            ];
+        }
+
+        // Add jobs posted by the user
+        $data['jobs'] = $jobs ? $jobs->map(function($job) {
+            return [
+                'id' => $job->id,
+                'title' => $job->title,
+                'description' => $job->description,
+                'category' => $job->category->name ?? null,
+                'status' => $job->status,
+            ];
+        })->toArray() : [];
 
         return response()->json([
             'success' => true,
