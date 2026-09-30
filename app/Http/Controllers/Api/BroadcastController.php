@@ -31,13 +31,21 @@ class BroadcastController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id) {
+            $isMutvalli = ($masjid->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->masjid_id == $masjid->id || ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id == $masjid->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
             $setting = MasjidBroadcastSetting::firstOrNew(['masjid_id' => $masjid->id]);
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id) {
+            $isMutvalli = ($madarsa->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->madarsa_id == $madarsa->id || ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id == $madarsa->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
             $setting = MasjidBroadcastSetting::firstOrNew(['madarsa_id' => $madarsa->id]);

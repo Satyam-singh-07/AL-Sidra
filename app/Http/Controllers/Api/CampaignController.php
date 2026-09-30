@@ -46,13 +46,21 @@ class CampaignController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id) {
+            $isMutvalli = ($masjid->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->masjid_id == $masjid->id || ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id == $masjid->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized. Only the Masjid Mutvalli can create campaigns.'], 403);
             }
             $placeName = $masjid->name;
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id) {
+            $isMutvalli = ($madarsa->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->madarsa_id == $madarsa->id || ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id == $madarsa->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized. Only the Madarsa Admin can create campaigns.'], 403);
             }
             $placeName = $madarsa->name;
@@ -206,9 +214,9 @@ class CampaignController extends Controller
 
         $isOwner = false;
         if ($campaign->masjid_id) {
-            $isOwner = Masjid::where('id', $campaign->masjid_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($campaign->masjid->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         } elseif ($campaign->madarsa_id) {
-            $isOwner = Madarsa::where('id', $campaign->madarsa_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($campaign->madarsa->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         }
 
         if (!$isOwner) {

@@ -30,7 +30,11 @@ class MohallaMutawalliController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id) {
+            $isMutvalli = ($masjid->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->masjid_id == $masjid->id || ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id == $masjid->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
 
@@ -40,7 +44,11 @@ class MohallaMutawalliController extends Controller
             );
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id) {
+            $isMutvalli = ($madarsa->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($user->memberProfile && ($user->memberProfile->madarsa_id == $madarsa->id || ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id == $madarsa->id)));
+
+            if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
 
@@ -93,9 +101,9 @@ class MohallaMutawalliController extends Controller
 
         $isOwner = false;
         if ($assignment->masjid_id) {
-            $isOwner = Masjid::where('id', $assignment->masjid_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($assignment->masjid->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         } elseif ($assignment->madarsa_id) {
-            $isOwner = Madarsa::where('id', $assignment->madarsa_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($assignment->madarsa->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         }
 
         if (!$isOwner) {

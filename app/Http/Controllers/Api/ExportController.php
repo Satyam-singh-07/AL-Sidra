@@ -179,9 +179,9 @@ class ExportController extends Controller
     {
         $isOwner = false;
         if ($campaign->masjid_id) {
-            $isOwner = Masjid::where('id', $campaign->masjid_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($campaign->masjid->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         } elseif ($campaign->madarsa_id) {
-            $isOwner = Madarsa::where('id', $campaign->madarsa_id)->where('user_id', $user->id)->exists();
+            $isOwner = ($campaign->madarsa->user_id === $user->id) || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
         }
 
         if ($isOwner) {
