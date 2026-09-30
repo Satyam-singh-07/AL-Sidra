@@ -83,18 +83,59 @@ class MasjidSelectController extends Controller
     }
 
     /**
-     * Get Current User's Selected Place & Mohalla
+     * Get Current User's Selected or Registered Place & Mohalla
      */
     public function myPlace(Request $request)
     {
-        $user = $request->user()->load(['selectedMasjid', 'selectedMadarsa']);
+        $user = $request->user()->load(['selectedMasjid', 'selectedMadarsa', 'memberProfile.masjid', 'memberProfile.madarsa']);
+
+        $masjid = null;
+        $madarsa = null;
+
+        // 1. Check if user is owner/Mutawalli of a Masjid or Madarsa
+        $ownedMasjid = Masjid::where('user_id', $user->id)->first();
+        if ($ownedMasjid) {
+            $masjid = $ownedMasjid;
+        }
+
+        $ownedMadarsa = Madarsa::where('user_id', $user->id)->first();
+        if ($ownedMadarsa) {
+            $madarsa = $ownedMadarsa;
+        }
+
+        // 2. Check Member Profile (Maulana / Imam / Qari / Staff)
+        if (!$masjid && $user->memberProfile) {
+            if ($user->memberProfile->masjid_id) {
+                $masjid = $user->memberProfile->masjid;
+            } elseif ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id) {
+                $masjid = Masjid::find($user->memberProfile->place_id);
+            }
+        }
+
+        if (!$madarsa && $user->memberProfile) {
+            if ($user->memberProfile->madarsa_id) {
+                $madarsa = $user->memberProfile->madarsa;
+            } elseif ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id) {
+                $madarsa = Madarsa::find($user->memberProfile->place_id);
+            }
+        }
+
+        // 3. Check Selected Place (Donor / General User)
+        if (!$masjid && $user->selectedMasjid) {
+            $masjid = $user->selectedMasjid;
+        }
+
+        if (!$madarsa && $user->selectedMadarsa) {
+            $madarsa = $user->selectedMadarsa;
+        }
 
         return response()->json([
             'success' => true,
             'data' => [
-                'masjid' => $user->selectedMasjid,
-                'madarsa' => $user->selectedMadarsa,
+                'masjid' => $masjid,
+                'madarsa' => $madarsa,
                 'mohalla' => $user->mohalla,
+                'is_linked' => ($masjid !== null || $madarsa !== null),
             ],
         ]);
     }
