@@ -5,16 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DonationCampaign;
 use App\Models\DonationLedger;
-use App\Models\Madarsa;
 use App\Models\Masjid;
-use App\Models\MasjidBroadcastSetting;
+use App\Models\Madarsa;
 use App\Models\MohallaMutawalli;
+use App\Models\MasjidBroadcastSetting;
 use Illuminate\Http\Request;
 
 class LedgerController extends Controller
 {
     /**
-     * Get Ledger entries with Privacy Controls & Summary Stats
+     * Get Ledger entries with privacy scoping
      */
     public function index(Request $request)
     {
@@ -23,30 +23,25 @@ class LedgerController extends Controller
             'mohalla' => 'nullable|string',
             'payment_status' => 'nullable|in:paid,partial,unpaid',
             'search' => 'nullable|string',
-            'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
         $user = $request->user();
         $campaign = DonationCampaign::findOrFail($request->campaign_id);
-
         $masjidId = $campaign->masjid_id;
         $madarsaId = $campaign->madarsa_id;
 
-        // Check ownership & role
-        $isMutawalli = false;
+        $isMutvalli = false;
         if ($masjidId) {
-            $isMutawalli = Masjid::where('id', $masjidId)->where('user_id', $user->id)->exists();
+            $isMutvalli = Masjid::where('id', $masjidId)->where('user_id', $user->id)->exists();
         } elseif ($madarsaId) {
-            $isMutawalli = Madarsa::where('id', $madarsaId)->where('user_id', $user->id)->exists();
+            $isMutvalli = Madarsa::where('id', $madarsaId)->where('user_id', $user->id)->exists();
         }
 
-        $isSuperAdmin = $user->isSuperAdmin();
-
-        $mohallaMutawalli = null;
+        $mohallaMutvalli = null;
         if ($masjidId) {
-            $mohallaMutawalli = MohallaMutawalli::where('masjid_id', $masjidId)->where('user_id', $user->id)->first();
+            $mohallaMutvalli = MohallaMutawalli::where('masjid_id', $masjidId)->where('user_id', $user->id)->first();
         } elseif ($madarsaId) {
-            $mohallaMutawalli = MohallaMutawalli::where('madarsa_id', $madarsaId)->where('user_id', $user->id)->first();
+            $mohallaMutvalli = MohallaMutawalli::where('madarsa_id', $madarsaId)->where('user_id', $user->id)->first();
         }
 
         $broadcast = null;
@@ -68,14 +63,14 @@ class LedgerController extends Controller
         ])->where('campaign_id', $campaign->id);
 
         // RBAC Scoping
-        if ($isMutawalli || $isSuperAdmin) {
-            // Full Admin Access: can view all and filter by mohalla
+        if ($isMutvalli) {
+            // Mutvalli Access: view all & filter by mohalla
             if ($request->filled('mohalla')) {
                 $query->where('mohalla', $request->mohalla);
             }
-        } elseif ($mohallaMutawalli) {
+        } elseif ($mohallaMutvalli) {
             // Sub-Admin Access: strictly scoped to assigned mohalla
-            $query->where('mohalla', $mohallaMutawalli->assigned_mohalla);
+            $query->where('mohalla', $mohallaMutvalli->assigned_mohalla);
         } elseif ($isPublic) {
             // Public Broadcast Mode active: anyone in this masjid/madarsa can view collection list
             if ($request->filled('mohalla')) {
@@ -100,7 +95,7 @@ class LedgerController extends Controller
             });
         }
 
-        // Calculate Summary Stats from the scoped query (before pagination)
+        // Summary Stats
         $summaryQuery = clone $query;
         $summary = [
             'total_calculated' => (float)$summaryQuery->sum('calculated_amount'),
@@ -116,10 +111,10 @@ class LedgerController extends Controller
         $ledgers = $query->orderBy('mohalla')->orderBy('id')->paginate($request->query('per_page', 50));
 
         $userRole = 'donor';
-        if ($isMutawalli || $isSuperAdmin) {
-            $userRole = 'mutawalli';
-        } elseif ($mohallaMutawalli) {
-            $userRole = 'mohalla_mutawalli';
+        if ($isMutvalli) {
+            $userRole = 'mutvalli';
+        } elseif ($mohallaMutvalli) {
+            $userRole = 'mohalla_mutvalli';
         }
 
         return response()->json([
@@ -148,27 +143,27 @@ class LedgerController extends Controller
         $user = $request->user();
 
         // Check permission
-        $isMutawalli = false;
+        $isMutvalli = false;
         if ($ledger->masjid_id) {
-            $isMutawalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
+            $isMutvalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
         } elseif ($ledger->madarsa_id) {
-            $isMutawalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
+            $isMutvalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
         }
 
-        $isMohallaMutawalli = false;
+        $isMohallaMutvalli = false;
         if ($ledger->masjid_id) {
-            $isMohallaMutawalli = MohallaMutawalli::where('masjid_id', $ledger->masjid_id)
+            $isMohallaMutvalli = MohallaMutawalli::where('masjid_id', $ledger->masjid_id)
                 ->where('user_id', $user->id)
                 ->where('assigned_mohalla', $ledger->mohalla)
                 ->exists();
         } elseif ($ledger->madarsa_id) {
-            $isMohallaMutawalli = MohallaMutawalli::where('madarsa_id', $ledger->madarsa_id)
+            $isMohallaMutvalli = MohallaMutawalli::where('madarsa_id', $ledger->madarsa_id)
                 ->where('user_id', $user->id)
                 ->where('assigned_mohalla', $ledger->mohalla)
                 ->exists();
         }
 
-        if (!$isMutawalli && !$isMohallaMutawalli && !$user->isSuperAdmin()) {
+        if (!$isMutvalli && !$isMohallaMutvalli) {
             return response()->json(['message' => 'Unauthorized to record payments for this entry.'], 403);
         }
 
@@ -200,27 +195,27 @@ class LedgerController extends Controller
         $user = $request->user();
 
         // Check permission
-        $isMutawalli = false;
+        $isMutvalli = false;
         if ($ledger->masjid_id) {
-            $isMutawalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
+            $isMutvalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
         } elseif ($ledger->madarsa_id) {
-            $isMutawalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
+            $isMutvalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
         }
 
-        $isMohallaMutawalli = false;
+        $isMohallaMutvalli = false;
         if ($ledger->masjid_id) {
-            $isMohallaMutawalli = MohallaMutawalli::where('masjid_id', $ledger->masjid_id)
+            $isMohallaMutvalli = MohallaMutawalli::where('masjid_id', $ledger->masjid_id)
                 ->where('user_id', $user->id)
                 ->where('assigned_mohalla', $ledger->mohalla)
                 ->exists();
         } elseif ($ledger->madarsa_id) {
-            $isMohallaMutawalli = MohallaMutawalli::where('madarsa_id', $ledger->madarsa_id)
+            $isMohallaMutvalli = MohallaMutawalli::where('madarsa_id', $ledger->madarsa_id)
                 ->where('user_id', $user->id)
                 ->where('assigned_mohalla', $ledger->mohalla)
                 ->exists();
         }
 
-        if (!$isMutawalli && !$isMohallaMutawalli && !$user->isSuperAdmin()) {
+        if (!$isMutvalli && !$isMohallaMutvalli) {
             return response()->json(['message' => 'Unauthorized to update this ledger entry.'], 403);
         }
 

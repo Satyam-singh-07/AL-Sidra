@@ -31,13 +31,13 @@ class BroadcastController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id && !$user->isSuperAdmin()) {
+            if ($masjid->user_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
             $setting = MasjidBroadcastSetting::firstOrNew(['masjid_id' => $masjid->id]);
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id && !$user->isSuperAdmin()) {
+            if ($madarsa->user_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
             $setting = MasjidBroadcastSetting::firstOrNew(['madarsa_id' => $madarsa->id]);

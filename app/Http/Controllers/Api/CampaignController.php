@@ -46,13 +46,13 @@ class CampaignController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id && !$user->isSuperAdmin()) {
-                return response()->json(['message' => 'Unauthorized. Only the Masjid Mutawalli can create campaigns.'], 403);
+            if ($masjid->user_id !== $user->id) {
+                return response()->json(['message' => 'Unauthorized. Only the Masjid Mutvalli can create campaigns.'], 403);
             }
             $placeName = $masjid->name;
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id && !$user->isSuperAdmin()) {
+            if ($madarsa->user_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized. Only the Madarsa Admin can create campaigns.'], 403);
             }
             $placeName = $madarsa->name;
@@ -211,7 +211,7 @@ class CampaignController extends Controller
             $isOwner = Madarsa::where('id', $campaign->madarsa_id)->where('user_id', $user->id)->exists();
         }
 
-        if (!$isOwner && !$user->isSuperAdmin()) {
+        if (!$isOwner) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 

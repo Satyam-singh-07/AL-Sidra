@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class MohallaMutawalliController extends Controller
 {
     /**
-     * Assign user as Mohalla Mutawalli
+     * Assign user as Mohalla Mutvalli
      */
     public function assign(Request $request)
     {
@@ -30,7 +30,7 @@ class MohallaMutawalliController extends Controller
 
         if ($request->filled('masjid_id')) {
             $masjid = Masjid::findOrFail($request->masjid_id);
-            if ($masjid->user_id !== $user->id && !$user->isSuperAdmin()) {
+            if ($masjid->user_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
 
@@ -40,7 +40,7 @@ class MohallaMutawalliController extends Controller
             );
         } else {
             $madarsa = Madarsa::findOrFail($request->madarsa_id);
-            if ($madarsa->user_id !== $user->id && !$user->isSuperAdmin()) {
+            if ($madarsa->user_id !== $user->id) {
                 return response()->json(['message' => 'Unauthorized.'], 403);
             }
 
@@ -52,7 +52,7 @@ class MohallaMutawalliController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Mohalla Mutawalli assigned successfully.',
+            'message' => 'Mohalla Sub-Admin assigned successfully.',
             'data' => $assignment->load('user:id,name,phone'),
         ]);
     }
@@ -98,7 +98,7 @@ class MohallaMutawalliController extends Controller
             $isOwner = Madarsa::where('id', $assignment->madarsa_id)->where('user_id', $user->id)->exists();
         }
 
-        if (!$isOwner && !$user->isSuperAdmin()) {
+        if (!$isOwner) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 

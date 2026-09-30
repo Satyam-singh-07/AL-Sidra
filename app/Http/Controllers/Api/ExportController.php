@@ -177,10 +177,6 @@ class ExportController extends Controller
      */
     private function authorizeExport(DonationCampaign $campaign, $user, ?string $mohalla): void
     {
-        if ($user->isSuperAdmin()) {
-            return;
-        }
-
         $isOwner = false;
         if ($campaign->masjid_id) {
             $isOwner = Masjid::where('id', $campaign->masjid_id)->where('user_id', $user->id)->exists();
@@ -192,15 +188,15 @@ class ExportController extends Controller
             return;
         }
 
-        // Check if caller is Mohalla Mutawalli
-        $mohallaMutawalli = null;
+        // Check if caller is Mohalla Mutvalli
+        $mohallaMutvalli = null;
         if ($campaign->masjid_id) {
-            $mohallaMutawalli = MohallaMutawalli::where('masjid_id', $campaign->masjid_id)->where('user_id', $user->id)->first();
+            $mohallaMutvalli = MohallaMutawalli::where('masjid_id', $campaign->masjid_id)->where('user_id', $user->id)->first();
         } elseif ($campaign->madarsa_id) {
-            $mohallaMutawalli = MohallaMutawalli::where('madarsa_id', $campaign->madarsa_id)->where('user_id', $user->id)->first();
+            $mohallaMutvalli = MohallaMutawalli::where('madarsa_id', $campaign->madarsa_id)->where('user_id', $user->id)->first();
         }
 
-        if ($mohallaMutawalli && (!$mohalla || $mohalla === $mohallaMutawalli->assigned_mohalla)) {
+        if ($mohallaMutvalli && (!$mohalla || $mohalla === $mohallaMutvalli->assigned_mohalla)) {
             return;
         }
 

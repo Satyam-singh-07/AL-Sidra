@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DonationCampaign;
+use App\Models\DonationLedger;
 use App\Models\Madarsa;
 use App\Models\Masjid;
+use App\Models\MohallaMutawalli;
 use Illuminate\Http\Request;
 
 class MasjidSelectController extends Controller
@@ -46,7 +49,7 @@ class MasjidSelectController extends Controller
     }
 
     /**
-     * Select / Link User to Masjid or Madarsa and Mohalla
+     * Select / Link User to Masjid or Madarsa and Mohalla (Become a Donor)
      */
     public function selectMasjid(Request $request)
     {
@@ -70,9 +73,44 @@ class MasjidSelectController extends Controller
             'mohalla' => $request->mohalla,
         ]);
 
+        // Auto-create ledger entries for all active campaigns in this place
+        $activeCampaigns = DonationCampaign::where('status', 'active')
+            ->when($request->filled('masjid_id'), function ($q) use ($request) {
+                $q->where('masjid_id', $request->masjid_id);
+            })
+            ->when($request->filled('madarsa_id'), function ($q) use ($request) {
+                $q->where('madarsa_id', $request->madarsa_id);
+            })
+            ->get();
+
+        foreach ($activeCampaigns as $campaign) {
+            $unitRate = (float)($campaign->rate_per_unit ?? 0);
+            $calcAmount = match ($campaign->category) {
+                'mard', 'zameen', 'nikah' => $unitRate,
+                default => 0.00,
+            };
+
+            DonationLedger::firstOrCreate(
+                [
+                    'campaign_id' => $campaign->id,
+                    'donor_user_id' => $user->id,
+                ],
+                [
+                    'masjid_id' => $request->masjid_id,
+                    'madarsa_id' => $request->madarsa_id,
+                    'mohalla' => $request->mohalla,
+                    'unit_count' => 1.00,
+                    'calculated_amount' => $calcAmount,
+                    'paid_amount' => 0.00,
+                    'balance' => $calcAmount,
+                    'payment_status' => 'unpaid',
+                ]
+            );
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Masjid and Mohalla selected successfully.',
+            'message' => 'You are now linked as a Donor to this place.',
             'data' => [
                 'user_id' => $user->id,
                 'selected_masjid_id' => $user->selected_masjid_id,
@@ -92,7 +130,7 @@ class MasjidSelectController extends Controller
         $masjid = null;
         $madarsa = null;
 
-        // 1. Check if user is owner/Mutawalli of a Masjid or Madarsa
+        // 1. Check if user is owner/Mutvalli of a Masjid or Madarsa
         $ownedMasjid = Masjid::where('user_id', $user->id)->first();
         if ($ownedMasjid) {
             $masjid = $ownedMasjid;
@@ -129,6 +167,28 @@ class MasjidSelectController extends Controller
             $madarsa = $user->selectedMadarsa;
         }
 
+        // Determine Effective User Role for Management strictly as 'mutvalli'
+        $isMutvalli = false;
+        if ($masjid && $masjid->user_id === $user->id) {
+            $isMutvalli = true;
+        } elseif ($madarsa && $madarsa->user_id === $user->id) {
+            $isMutvalli = true;
+        }
+
+        $isMohallaMutvalli = false;
+        if ($masjid) {
+            $isMohallaMutvalli = MohallaMutawalli::where('masjid_id', $masjid->id)->where('user_id', $user->id)->exists();
+        } elseif ($madarsa) {
+            $isMohallaMutvalli = MohallaMutawalli::where('madarsa_id', $madarsa->id)->where('user_id', $user->id)->exists();
+        }
+
+        $effectiveRole = 'donor';
+        if ($isMutvalli) {
+            $effectiveRole = 'mutvalli';
+        } elseif ($isMohallaMutvalli) {
+            $effectiveRole = 'mohalla_mutvalli';
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -136,6 +196,9 @@ class MasjidSelectController extends Controller
                 'madarsa' => $madarsa,
                 'mohalla' => $user->mohalla,
                 'is_linked' => ($masjid !== null || $madarsa !== null),
+                'is_mutvalli' => $isMutvalli,
+                'is_mohalla_mutvalli' => $isMohallaMutvalli,
+                'user_role' => $effectiveRole,
             ],
         ]);
     }
