@@ -125,7 +125,7 @@ class MasjidSelectController extends Controller
      */
     public function myPlace(Request $request)
     {
-        $user = $request->user()->load(['selectedMasjid', 'selectedMadarsa', 'memberProfile.masjid', 'memberProfile.madarsa']);
+        $user = $request->user()->load(['selectedMasjid', 'selectedMadarsa', 'memberProfile.masjid', 'memberProfile.madarsa', 'roles']);
 
         $masjid = null;
         $madarsa = null;
@@ -167,13 +167,24 @@ class MasjidSelectController extends Controller
             $madarsa = $user->selectedMadarsa;
         }
 
-        // Determine Effective User Role for Management strictly as 'mutvalli'
-        $isMutvalli = false;
-        if ($masjid && $masjid->user_id === $user->id) {
-            $isMutvalli = true;
-        } elseif ($madarsa && $madarsa->user_id === $user->id) {
-            $isMutvalli = true;
+        // Determine Effective User Role for Management
+        $hasMutvalliRole = $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin', 'super_admin'])->exists();
+        $isCategoryMutvalli = false;
+        if ($user->memberProfile && $user->memberProfile->category) {
+            $catName = strtolower($user->memberProfile->category->name ?? '');
+            if (str_contains($catName, 'mutvalli') || str_contains($catName, 'mutawalli') || str_contains($catName, 'admin')) {
+                $isCategoryMutvalli = true;
+            }
         }
+
+        $isPlaceOwner = false;
+        if ($masjid && $masjid->user_id === $user->id) {
+            $isPlaceOwner = true;
+        } elseif ($madarsa && $madarsa->user_id === $user->id) {
+            $isPlaceOwner = true;
+        }
+
+        $isMutvalli = ($isPlaceOwner || $hasMutvalliRole || $isCategoryMutvalli);
 
         $isMohallaMutvalli = false;
         if ($masjid) {
