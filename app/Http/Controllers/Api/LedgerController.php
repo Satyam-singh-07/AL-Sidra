@@ -13,6 +13,28 @@ use Illuminate\Http\Request;
 
 class LedgerController extends Controller
 {
+    private function checkIsMutvalli($user, $masjidId = null, $madarsaId = null)
+    {
+        $hasMutvalliRole = $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
+
+        $isCategoryMutvalli = false;
+        if ($user->memberProfile && $user->memberProfile->category) {
+            $catName = strtolower($user->memberProfile->category->name ?? '');
+            if (str_contains($catName, 'mutvalli') || str_contains($catName, 'mutawalli') || str_contains($catName, 'admin')) {
+                $isCategoryMutvalli = true;
+            }
+        }
+
+        $isPlaceOwner = false;
+        if ($masjidId && Masjid::where('id', $masjidId)->where('user_id', $user->id)->exists()) {
+            $isPlaceOwner = true;
+        } elseif ($madarsaId && Madarsa::where('id', $madarsaId)->where('user_id', $user->id)->exists()) {
+            $isPlaceOwner = true;
+        }
+
+        return ($isPlaceOwner || $hasMutvalliRole || $isCategoryMutvalli);
+    }
+
     /**
      * Get Ledger entries with privacy scoping
      */
@@ -25,17 +47,12 @@ class LedgerController extends Controller
             'search' => 'nullable|string',
         ]);
 
-        $user = $request->user();
+        $user = $request->user()->load(['roles', 'memberProfile.category']);
         $campaign = DonationCampaign::findOrFail($request->campaign_id);
         $masjidId = $campaign->masjid_id;
         $madarsaId = $campaign->madarsa_id;
 
-        $isMutvalli = false;
-        if ($masjidId) {
-            $isMutvalli = Masjid::where('id', $masjidId)->where('user_id', $user->id)->exists();
-        } elseif ($madarsaId) {
-            $isMutvalli = Madarsa::where('id', $madarsaId)->where('user_id', $user->id)->exists();
-        }
+        $isMutvalli = $this->checkIsMutvalli($user, $masjidId, $madarsaId);
 
         $mohallaMutvalli = null;
         if ($masjidId) {
@@ -140,15 +157,9 @@ class LedgerController extends Controller
         ]);
 
         $ledger = DonationLedger::findOrFail($request->ledger_id);
-        $user = $request->user();
+        $user = $request->user()->load(['roles', 'memberProfile.category']);
 
-        // Check permission
-        $isMutvalli = false;
-        if ($ledger->masjid_id) {
-            $isMutvalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
-        } elseif ($ledger->madarsa_id) {
-            $isMutvalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
-        }
+        $isMutvalli = $this->checkIsMutvalli($user, $ledger->masjid_id, $ledger->madarsa_id);
 
         $isMohallaMutvalli = false;
         if ($ledger->masjid_id) {
@@ -192,15 +203,9 @@ class LedgerController extends Controller
         ]);
 
         $ledger = DonationLedger::with('campaign')->findOrFail($request->ledger_id);
-        $user = $request->user();
+        $user = $request->user()->load(['roles', 'memberProfile.category']);
 
-        // Check permission
-        $isMutvalli = false;
-        if ($ledger->masjid_id) {
-            $isMutvalli = Masjid::where('id', $ledger->masjid_id)->where('user_id', $user->id)->exists();
-        } elseif ($ledger->madarsa_id) {
-            $isMutvalli = Madarsa::where('id', $ledger->madarsa_id)->where('user_id', $user->id)->exists();
-        }
+        $isMutvalli = $this->checkIsMutvalli($user, $ledger->masjid_id, $ledger->madarsa_id);
 
         $isMohallaMutvalli = false;
         if ($ledger->masjid_id) {
