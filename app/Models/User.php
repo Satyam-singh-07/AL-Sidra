@@ -13,7 +13,22 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['unique_id', 'name', 'email', 'language', 'phone', 'password', 'status', 'profile_picture', 'address', 'latitude', 'longitude'];
+    protected $fillable = [
+        'unique_id',
+        'name',
+        'email',
+        'language',
+        'phone',
+        'password',
+        'status',
+        'profile_picture',
+        'address',
+        'latitude',
+        'longitude',
+        'selected_masjid_id',
+        'selected_madarsa_id',
+        'mohalla',
+    ];
 
     protected $appends = ['profile_picture_url'];
 
@@ -86,6 +101,10 @@ class User extends Authenticatable
 
     public function canAccess(string $module): bool
     {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
         return $this->roles()
             ->whereHas('modules', function ($q) use ($module) {
                 $q->where('module', $module);
@@ -93,8 +112,30 @@ class User extends Authenticatable
             ->exists();
     }
 
+
     public function fcmTokens()
     {
         return $this->hasMany(UserFcmToken::class);
     }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles()->where('slug', 'super_admin')->exists();
+    }
+
+    public function selectedMasjid()
+    {
+        return $this->belongsTo(Masjid::class, 'selected_masjid_id');
+    }
+
+    public function selectedMadarsa()
+    {
+        return $this->belongsTo(Madarsa::class, 'selected_madarsa_id');
+    }
+
+    public function donationLedgers()
+    {
+        return $this->hasMany(DonationLedger::class, 'donor_user_id');
+    }
 }
+

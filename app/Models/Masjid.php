@@ -79,4 +79,25 @@ class Masjid extends Model
             'user_id'     // Local key on MemberProfile table
         )->where('place_type', 'masjid');
     }
+
+    public function campaigns()
+    {
+        return $this->hasMany(DonationCampaign::class);
+    }
+
+    public function mohallaMutawallis()
+    {
+        return $this->hasMany(MohallaMutawalli::class);
+    }
+
+    public function broadcastSetting()
+    {
+        return $this->hasOne(MasjidBroadcastSetting::class);
+    }
+
+    public function donors()
+    {
+        return $this->hasMany(User::class, 'selected_masjid_id');
+    }
 }
+

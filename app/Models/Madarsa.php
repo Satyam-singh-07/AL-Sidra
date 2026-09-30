@@ -116,4 +116,25 @@ class Madarsa extends Model
     {
         return $this->hasOne(MadarsaImage::class)->oldestOfMany();
     }
+
+    public function campaigns()
+    {
+        return $this->hasMany(DonationCampaign::class);
+    }
+
+    public function mohallaMutawallis()
+    {
+        return $this->hasMany(MohallaMutawalli::class);
+    }
+
+    public function broadcastSetting()
+    {
+        return $this->hasOne(MasjidBroadcastSetting::class);
+    }
+
+    public function donors()
+    {
+        return $this->hasMany(User::class, 'selected_madarsa_id');
+    }
 }
+

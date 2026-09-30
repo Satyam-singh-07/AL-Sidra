@@ -17,10 +17,14 @@ class FirebaseNotificationService
 
     public function __construct()
     {
-        $this->messaging = (new Factory)
-            ->withServiceAccount(storage_path('app/public/firebase/firebase.json'))
-            ->createMessaging();
+        $credPath = storage_path('app/public/firebase/firebase.json');
+        if (file_exists($credPath)) {
+            $this->messaging = (new Factory)
+                ->withServiceAccount($credPath)
+                ->createMessaging();
+        }
     }
+
 
     /**
      * Send push notification to ONE user and store in database
@@ -125,6 +129,11 @@ class FirebaseNotificationService
         $message = CloudMessage::new()
             ->withData(array_map('strval', $payload)); // FCM requires strings
 
+        if (!$this->messaging) {
+            Log::warning('Firebase messaging is not initialized (missing credentials JSON).');
+            return;
+        }
+
         try {
             $report = $this->messaging->sendMulticast($message, $tokens);
 
@@ -160,6 +169,11 @@ class FirebaseNotificationService
 
         $message = CloudMessage::withTarget('token', $token)
             ->withData(array_map('strval', $payload));
+
+        if (!$this->messaging) {
+            Log::warning('Firebase messaging is not initialized (missing credentials JSON).');
+            return;
+        }
 
         try {
             $this->messaging->send($message);

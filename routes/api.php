@@ -25,6 +25,12 @@ use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\YateemsHelpController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\MasjidSelectController;
+use App\Http\Controllers\Api\CampaignController;
+use App\Http\Controllers\Api\LedgerController;
+use App\Http\Controllers\Api\BroadcastController;
+use App\Http\Controllers\Api\MohallaMutawalliController;
+use App\Http\Controllers\Api\ExportController;
 
 
 /*
@@ -267,4 +273,41 @@ Route::post('send-notification-token', function (
         'success' => true,
         'message' => 'Notification sent successfully to token',
     ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Masjid & Madarsa Management (Hisab-Kitab) Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('places/search', [MasjidSelectController::class, 'search']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Donor Place & Mohalla Selection
+    Route::post('user/select-place', [MasjidSelectController::class, 'selectMasjid']);
+    Route::get('user/my-place', [MasjidSelectController::class, 'myPlace']);
+
+    // Campaign Management
+    Route::get('campaigns', [CampaignController::class, 'index']);
+    Route::post('campaigns', [CampaignController::class, 'store']);
+    Route::get('campaigns/{id}', [CampaignController::class, 'show']);
+    Route::patch('campaigns/{id}/status', [CampaignController::class, 'updateStatus']);
+
+    // Ledger (Hisab-Kitab) & Payments
+    Route::get('ledger', [LedgerController::class, 'index']);
+    Route::post('ledger/record-payment', [LedgerController::class, 'recordPayment']);
+    Route::patch('ledger/update-units', [LedgerController::class, 'updateUnitCount']);
+
+    // Mohalla Mutawalli (Sub-Admin) Management
+    Route::get('mohalla-mutawallis', [MohallaMutawalliController::class, 'index']);
+    Route::post('mohalla-mutawalli/assign', [MohallaMutawalliController::class, 'assign']);
+    Route::delete('mohalla-mutawalli/{id}', [MohallaMutawalliController::class, 'destroy']);
+
+    // Timed Public Broadcast Mode
+    Route::post('broadcast/toggle', [BroadcastController::class, 'togglePublicMode']);
+    Route::get('broadcast/status', [BroadcastController::class, 'status']);
+
+    // Collection Sheet Export Engine (CSV & PDF)
+    Route::get('ledger/export/csv', [ExportController::class, 'exportCsv']);
+    Route::get('ledger/export/pdf', [ExportController::class, 'exportPdf']);
 });
