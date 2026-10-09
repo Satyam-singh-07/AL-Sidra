@@ -287,6 +287,7 @@ Route::get('mohallas', [MohallaController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     // Mohalla Management
     Route::post('mohallas', [MohallaController::class, 'store']);
+    Route::delete('mohallas/{id}', [MohallaController::class, 'destroy']);
 
     // Donor Place & Mohalla Selection
     Route::post('user/select-place', [MasjidSelectController::class, 'selectMasjid']);

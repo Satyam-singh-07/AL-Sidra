@@ -121,4 +121,35 @@ class MohallaController extends Controller
             'data' => $mohalla,
         ], 201);
     }
+
+    /**
+     * Mutvalli deletes a registered Mohalla
+     */
+    public function destroy(Request $request, $id)
+    {
+        $mohalla = Mohalla::findOrFail($id);
+        $user = $request->user();
+
+        $isMutvalli = false;
+        if ($mohalla->masjid_id) {
+            $masjid = Masjid::findOrFail($mohalla->masjid_id);
+            $isMutvalli = ($masjid->user_id === $user->id)
+                || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
+        } elseif ($mohalla->madarsa_id) {
+            $madarsa = Madarsa::findOrFail($mohalla->madarsa_id);
+            $isMutvalli = ($madarsa->user_id === $user->id)
+                || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists();
+        }
+
+        if (!$isMutvalli) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        $mohalla->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mohalla deleted successfully.',
+        ]);
+    }
 }
