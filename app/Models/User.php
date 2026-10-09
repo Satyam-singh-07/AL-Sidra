@@ -28,6 +28,8 @@ class User extends Authenticatable
         'selected_masjid_id',
         'selected_madarsa_id',
         'mohalla',
+        'mohalla_id',
+        'role',
     ];
 
     protected $appends = ['profile_picture_url'];
@@ -136,6 +138,11 @@ class User extends Authenticatable
     public function donationLedgers()
     {
         return $this->hasMany(DonationLedger::class, 'donor_user_id');
+    }
+
+    public function mohallaRecord()
+    {
+        return $this->belongsTo(Mohalla::class, 'mohalla_id');
     }
 }
 

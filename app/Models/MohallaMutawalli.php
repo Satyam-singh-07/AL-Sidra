@@ -16,6 +16,7 @@ class MohallaMutawalli extends Model
         'user_id',
         'mohalla_id',
         'assigned_mohalla',
+        'status',
     ];
 
     public function mohallaRecord(): BelongsTo

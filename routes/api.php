@@ -290,8 +290,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('mohallas/{id}', [MohallaController::class, 'destroy']);
 
     // Donor Place & Mohalla Selection
+    Route::post('select-place', [MasjidSelectController::class, 'selectMasjid']);
     Route::post('user/select-place', [MasjidSelectController::class, 'selectMasjid']);
     Route::get('user/my-place', [MasjidSelectController::class, 'myPlace']);
+    Route::get('masjid-donors', [MohallaMutawalliController::class, 'getMasjidDonors']);
 
     // Campaign Management
     Route::get('campaigns', [CampaignController::class, 'index']);
