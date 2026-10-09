@@ -5,23 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class MohallaMutawalli extends Model
+class Mohalla extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'masjid_id',
         'madarsa_id',
-        'user_id',
-        'mohalla_id',
-        'assigned_mohalla',
+        'name',
+        'status',
+        'created_by',
     ];
-
-    public function mohallaRecord(): BelongsTo
-    {
-        return $this->belongsTo(Mohalla::class, 'mohalla_id');
-    }
 
     public function masjid(): BelongsTo
     {
@@ -33,8 +29,13 @@ class MohallaMutawalli extends Model
         return $this->belongsTo(Madarsa::class);
     }
 
-    public function user(): BelongsTo
+    public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function subAdmins(): HasMany
+    {
+        return $this->hasMany(MohallaMutawalli::class, 'mohalla_id');
     }
 }

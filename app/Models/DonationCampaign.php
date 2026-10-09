@@ -15,6 +15,7 @@ class DonationCampaign extends Model
         'created_by',
         'name',
         'category',
+        'target_mohalla',
         'rate_per_unit',
         'target_amount',
         'description',

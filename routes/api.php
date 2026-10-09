@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\LedgerController;
 use App\Http\Controllers\Api\BroadcastController;
 use App\Http\Controllers\Api\MohallaMutawalliController;
+use App\Http\Controllers\Api\MohallaController;
 use App\Http\Controllers\Api\ExportController;
 
 
@@ -281,8 +282,12 @@ Route::post('send-notification-token', function (
 |--------------------------------------------------------------------------
 */
 Route::get('places/search', [MasjidSelectController::class, 'search']);
+Route::get('mohallas', [MohallaController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    // Mohalla Management
+    Route::post('mohallas', [MohallaController::class, 'store']);
+
     // Donor Place & Mohalla Selection
     Route::post('user/select-place', [MasjidSelectController::class, 'selectMasjid']);
     Route::get('user/my-place', [MasjidSelectController::class, 'myPlace']);
@@ -301,7 +306,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mohalla Mutawalli (Sub-Admin) Management
     Route::get('mohalla-mutawallis', [MohallaMutawalliController::class, 'index']);
     Route::post('mohalla-mutawalli/assign', [MohallaMutawalliController::class, 'assign']);
+    Route::post('mohalla-mutawallis/assign', [MohallaMutawalliController::class, 'assign']);
     Route::delete('mohalla-mutawalli/{id}', [MohallaMutawalliController::class, 'destroy']);
+    Route::delete('mohalla-mutawallis/{id}', [MohallaMutawalliController::class, 'destroy']);
 
     // Timed Public Broadcast Mode
     Route::post('broadcast/toggle', [BroadcastController::class, 'togglePublicMode']);

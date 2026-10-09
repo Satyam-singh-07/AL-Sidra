@@ -7,6 +7,7 @@ use App\Models\DonationCampaign;
 use App\Models\DonationLedger;
 use App\Models\Madarsa;
 use App\Models\Masjid;
+use App\Models\Mohalla;
 use App\Models\User;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class CampaignController extends Controller
     }
 
     /**
-     * Create a new Donation Campaign
+     * Create a new Donation Campaign (supports target_mohalla scoping)
      */
     public function store(Request $request)
     {
@@ -32,6 +33,8 @@ class CampaignController extends Controller
             'madarsa_id' => 'nullable|exists:madarsas,id',
             'name' => 'required|string|max:255',
             'category' => 'required|in:zameen,mard,nikah,by_choice',
+            'target_mohalla' => 'nullable|string|max:255',
+            'mohalla_id' => 'nullable|exists:mohallas,id',
             'rate_per_unit' => 'nullable|numeric|min:0',
             'target_amount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
@@ -66,6 +69,15 @@ class CampaignController extends Controller
             $placeName = $madarsa->name;
         }
 
+        // Resolve target mohalla name
+        $targetMohalla = $request->target_mohalla ?: 'All';
+        if ($request->filled('mohalla_id')) {
+            $mohallaRecord = Mohalla::find($request->mohalla_id);
+            if ($mohallaRecord) {
+                $targetMohalla = $mohallaRecord->name;
+            }
+        }
+
         DB::beginTransaction();
         try {
             $campaign = DonationCampaign::create([
@@ -74,21 +86,26 @@ class CampaignController extends Controller
                 'created_by' => $user->id,
                 'name' => $request->name,
                 'category' => $request->category,
+                'target_mohalla' => $targetMohalla,
                 'rate_per_unit' => $request->rate_per_unit,
                 'target_amount' => $request->target_amount,
                 'description' => $request->description,
                 'status' => 'active',
             ]);
 
-            // Auto-initialize ledger entries for all donors linked to this place
+            // Auto-initialize ledger entries for donors (scoped to target_mohalla if not 'All')
             $donorsQuery = User::query();
             if ($request->filled('masjid_id')) {
                 $donorsQuery->where('selected_masjid_id', $request->masjid_id);
             } else {
                 $donorsQuery->where('selected_madarsa_id', $request->madarsa_id);
             }
-            $donors = $donorsQuery->get();
 
+            if (!empty($targetMohalla) && strtolower($targetMohalla) !== 'all') {
+                $donorsQuery->where('mohalla', $targetMohalla);
+            }
+
+            $donors = $donorsQuery->get();
             $unitRate = (float)($request->rate_per_unit ?? 0);
 
             foreach ($donors as $donor) {
@@ -113,7 +130,7 @@ class CampaignController extends Controller
 
             DB::commit();
 
-            // Broadcast FCM push notification to all linked donors
+            // Broadcast FCM push notification to targeted donors
             if ($donors->isNotEmpty()) {
                 try {
                     $title = "Naya Chanda Campaign: {$campaign->name}";
@@ -122,6 +139,7 @@ class CampaignController extends Controller
                         'type' => 'new_campaign',
                         'campaign_id' => (string)$campaign->id,
                         'place_name' => (string)$placeName,
+                        'target_mohalla' => (string)$targetMohalla,
                     ];
 
                     $this->firebase->sendToUsers($donors, $title, $body, $data);
@@ -155,6 +173,7 @@ class CampaignController extends Controller
             'masjid_id' => 'nullable|exists:masjids,id',
             'madarsa_id' => 'nullable|exists:madarsas,id',
             'status' => 'nullable|in:active,completed,archived',
+            'target_mohalla' => 'nullable|string',
         ]);
 
         $query = DonationCampaign::query();
@@ -167,6 +186,14 @@ class CampaignController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('target_mohalla') && strtolower($request->target_mohalla) !== 'all') {
+            $query->where(function ($q) use ($request) {
+                $q->where('target_mohalla', $request->target_mohalla)
+                  ->orWhere('target_mohalla', 'All')
+                  ->orWhereNull('target_mohalla');
+            });
         }
 
         $campaigns = $query->withCount('ledgers')

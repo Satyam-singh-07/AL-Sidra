@@ -99,5 +99,10 @@ class Masjid extends Model
     {
         return $this->hasMany(User::class, 'selected_masjid_id');
     }
+
+    public function mohallas()
+    {
+        return $this->hasMany(Mohalla::class);
+    }
 }
 
