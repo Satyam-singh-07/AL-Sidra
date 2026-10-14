@@ -258,4 +258,80 @@ class CampaignController extends Controller
             'data' => $campaign,
         ]);
     }
+
+    /**
+     * Update Campaign Details
+     */
+    public function update(Request $request, $id)
+    {
+        $campaign = DonationCampaign::with(['masjid', 'madarsa'])->findOrFail($id);
+        $user = $request->user();
+
+        $isOwner = false;
+        if ($campaign->masjid_id) {
+            $isOwner = ($campaign->masjid && $campaign->masjid->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($campaign->created_by === $user->id);
+        } elseif ($campaign->madarsa_id) {
+            $isOwner = ($campaign->madarsa && $campaign->madarsa->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($campaign->created_by === $user->id);
+        }
+
+        if (!$isOwner) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized to edit this campaign.'], 403);
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'category' => 'sometimes|required|in:zameen,mard,nikah,by_choice',
+            'target_mohalla' => 'nullable|string',
+            'rate_per_unit' => 'nullable|numeric|min:0',
+            'target_amount' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string',
+            'status' => 'nullable|in:active,completed,archived',
+        ]);
+
+        $campaign->fill($request->only([
+            'name', 'category', 'target_mohalla', 'rate_per_unit', 'target_amount', 'description', 'status'
+        ]));
+        $campaign->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Campaign updated successfully.',
+            'data' => $campaign->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete Campaign
+     */
+    public function destroy(Request $request, $id)
+    {
+        $campaign = DonationCampaign::with(['masjid', 'madarsa'])->findOrFail($id);
+        $user = $request->user();
+
+        $isOwner = false;
+        if ($campaign->masjid_id) {
+            $isOwner = ($campaign->masjid && $campaign->masjid->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($campaign->created_by === $user->id);
+        } elseif ($campaign->madarsa_id) {
+            $isOwner = ($campaign->madarsa && $campaign->madarsa->user_id === $user->id) ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                ($campaign->created_by === $user->id);
+        }
+
+        if (!$isOwner) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized to delete this campaign.'], 403);
+        }
+
+        $campaign->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Campaign deleted successfully.',
+        ]);
+    }
 }

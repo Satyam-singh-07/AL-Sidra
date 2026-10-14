@@ -151,12 +151,36 @@ class LedgerController extends Controller
     public function recordPayment(Request $request)
     {
         $request->validate([
-            'ledger_id' => 'required|exists:donation_ledgers,id',
+            'ledger_id' => 'required_without_all:campaign_id,donor_user_id|nullable|exists:donation_ledgers,id',
+            'campaign_id' => 'required_without:ledger_id|nullable|exists:donation_campaigns,id',
+            'donor_user_id' => 'required_without:ledger_id|nullable|exists:users,id',
             'amount_paid' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $ledger = DonationLedger::findOrFail($request->ledger_id);
+        $ledger = null;
+        if ($request->filled('ledger_id')) {
+            $ledger = DonationLedger::findOrFail($request->ledger_id);
+        } else {
+            $campaign = DonationCampaign::findOrFail($request->campaign_id);
+            $donor = \App\Models\User::findOrFail($request->donor_user_id);
+            $ledger = DonationLedger::firstOrCreate(
+                [
+                    'campaign_id' => $campaign->id,
+                    'donor_user_id' => $donor->id,
+                ],
+                [
+                    'masjid_id' => $campaign->masjid_id,
+                    'madarsa_id' => $campaign->madarsa_id,
+                    'mohalla' => $donor->mohalla ?? 'General',
+                    'unit_count' => 1.00,
+                    'calculated_amount' => (float)($campaign->rate_per_unit ?? $request->amount_paid),
+                    'paid_amount' => 0.00,
+                    'balance' => (float)($campaign->rate_per_unit ?? $request->amount_paid),
+                    'payment_status' => 'unpaid',
+                ]
+            );
+        }
         $user = $request->user()->load(['roles', 'memberProfile.category']);
 
         $isMutvalli = $this->checkIsMutvalli($user, $ledger->masjid_id, $ledger->madarsa_id);

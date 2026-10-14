@@ -299,7 +299,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('campaigns', [CampaignController::class, 'index']);
     Route::post('campaigns', [CampaignController::class, 'store']);
     Route::get('campaigns/{id}', [CampaignController::class, 'show']);
+    Route::put('campaigns/{id}', [CampaignController::class, 'update']);
     Route::patch('campaigns/{id}/status', [CampaignController::class, 'updateStatus']);
+    Route::delete('campaigns/{id}', [CampaignController::class, 'destroy']);
 
     // Ledger (Hisab-Kitab) & Payments
     Route::get('ledger', [LedgerController::class, 'index']);

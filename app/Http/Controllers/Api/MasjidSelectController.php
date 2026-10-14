@@ -252,6 +252,8 @@ class MasjidSelectController extends Controller
                 'mohalla' => $user->mohalla,
                 'mohalla_id' => $user->mohalla_id,
                 'role' => $role,
+                'user_role' => $role,
+                'is_mutvalli' => ($role === 'mutvalli'),
                 'is_sub_admin' => ($subAdminAssignment !== null),
                 'sub_admin_details' => $subAdminAssignment,
                 'is_linked' => ($masjid !== null || $madarsa !== null),
