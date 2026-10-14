@@ -51,9 +51,24 @@ class DonationLedger extends Model
         return $this->belongsTo(User::class, 'donor_user_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'donor_user_id');
+    }
+
     public function recorder()
     {
         return $this->belongsTo(User::class, 'recorded_by_user_id');
+    }
+
+    public function getTotalAmountAttribute()
+    {
+        return $this->calculated_amount;
+    }
+
+    public function getStatusAttribute()
+    {
+        return $this->payment_status;
     }
 
     protected static function booted()

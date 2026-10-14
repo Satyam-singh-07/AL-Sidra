@@ -30,11 +30,18 @@ class FirebaseNotificationService
      * Send push notification to ONE user and store in database
      */
     public function sendToUser(
-        User $user,
+        $user,
         string $title,
         string $body,
         array $data = []
     ): void {
+        if (!($user instanceof User)) {
+            $user = User::find($user);
+            if (!$user) {
+                return;
+            }
+        }
+
         // Custom save to database (Integer ID)
         Notification::create([
             'type' => AppNotification::class,

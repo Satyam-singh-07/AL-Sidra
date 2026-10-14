@@ -46,4 +46,24 @@ class DonationCampaign extends Model
     {
         return $this->hasMany(DonationLedger::class, 'campaign_id');
     }
+
+    public function place()
+    {
+        return $this->masjid_id ? $this->masjid() : $this->madarsa();
+    }
+
+    public function getPlaceAttribute()
+    {
+        return $this->masjid ?? $this->madarsa;
+    }
+
+    public function getTitleAttribute()
+    {
+        return $this->name;
+    }
+
+    public function getPlaceIdAttribute()
+    {
+        return $this->masjid_id ?? $this->madarsa_id;
+    }
 }

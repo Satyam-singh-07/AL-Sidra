@@ -9,7 +9,10 @@ use App\Models\Masjid;
 use App\Models\Madarsa;
 use App\Models\MohallaMutawalli;
 use App\Models\MasjidBroadcastSetting;
+use App\Models\User;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LedgerController extends Controller
 {
@@ -260,5 +263,106 @@ class LedgerController extends Controller
             'message' => 'Unit count and calculated amount updated successfully.',
             'data' => $ledger->fresh(['donor', 'campaign']),
         ]);
+    }
+
+    /**
+     * Assign an offline cash donation amount to an applied donor.
+     * Creates/updates the campaign donation ledger and notifies the donor via FCM.
+     */
+    public function assignDonationAmount(Request $request, FirebaseNotificationService $firebase)
+    {
+        $validated = $request->validate([
+            'campaign_id' => 'required|exists:donation_campaigns,id',
+            'user_id'     => 'required|exists:users,id',
+            'amount'      => 'required|numeric|min:1',
+            'unit_count'  => 'nullable|numeric|min:0.01',
+            'mohalla'     => 'nullable|string|max:255',
+            'notes'       => 'nullable|string|max:1000',
+            'masjid_id'   => 'nullable|exists:masjids,id',
+            'madarsa_id'  => 'nullable|exists:madarsas,id',
+        ]);
+
+        $user = $request->user()->load(['roles', 'memberProfile.category']);
+        $campaign = DonationCampaign::with(['masjid', 'madarsa'])->findOrFail($validated['campaign_id']);
+        $masjidId = $campaign->masjid_id ?? $validated['masjid_id'] ?? null;
+        $madarsaId = $campaign->madarsa_id ?? $validated['madarsa_id'] ?? null;
+
+        // Authorization: Verify the requesting user is the Mutawalli / Admin or Sub-Admin of this place
+        $isMutvalli = $this->checkIsMutvalli($user, $masjidId, $madarsaId);
+        $isMohallaMutvalli = false;
+        if ($masjidId) {
+            $isMohallaMutvalli = MohallaMutawalli::where('masjid_id', $masjidId)
+                ->where('user_id', $user->id)
+                ->exists();
+        } elseif ($madarsaId) {
+            $isMohallaMutvalli = MohallaMutawalli::where('madarsa_id', $madarsaId)
+                ->where('user_id', $user->id)
+                ->exists();
+        }
+
+        $isAuthorized = $user->isSuperAdmin() || $isMutvalli || $isMohallaMutvalli;
+
+        if (!$isAuthorized) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Only the Mutawalli or assigned sub-admins can assign donations.',
+            ], 403);
+        }
+
+        // Determine unit count & total amount
+        $unitCount = (float)($validated['unit_count'] ?? 1);
+        $amount = (float)$validated['amount'];
+
+        $targetUser = User::findOrFail($validated['user_id']);
+        $mohalla = !empty($validated['mohalla']) 
+            ? $validated['mohalla'] 
+            : ($targetUser->mohalla ?: 'General');
+
+        // Create or update the ledger record
+        $ledger = DonationLedger::updateOrCreate(
+            [
+                'campaign_id'   => $campaign->id,
+                'donor_user_id' => $targetUser->id,
+            ],
+            [
+                'masjid_id'          => $masjidId,
+                'madarsa_id'         => $madarsaId,
+                'calculated_amount'  => $amount,
+                'unit_count'         => $unitCount,
+                'mohalla'            => $mohalla,
+                'notes'              => $validated['notes'] ?? null,
+                'recorded_by_user_id'=> $user->id,
+                'payment_status'     => 'unpaid',
+            ]
+        );
+
+        // Dispatch FCM push notification to the donor
+        try {
+            $placeName = $campaign->masjid?->name ?? $campaign->madarsa?->name ?? 'Masjid';
+            $campaignTitle = $campaign->name ?? 'Donation Campaign';
+            $title = "Donation Assigned: {$campaignTitle}";
+            $body = "Assalamu Alaikum. An offline cash donation of ₹" . number_format($amount, 0) . 
+                    " has been assigned to you for \"{$campaignTitle}\" at {$placeName}. Please pay this offline to the Mutawalli in cash.";
+
+            $firebase->sendToUser(
+                $targetUser,
+                $title,
+                $body,
+                [
+                    'type'        => 'donation_assigned',
+                    'campaign_id' => (string) $campaign->id,
+                    'ledger_id'   => (string) $ledger->id,
+                    'amount'      => (string) $amount,
+                ]
+            );
+        } catch (\Throwable $e) {
+            Log::error('FCM donation assignment notification failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Donation amount successfully assigned and donor notified.',
+            'data'    => $ledger->fresh(['donor', 'campaign', 'masjid', 'madarsa']),
+        ], 200);
     }
 }

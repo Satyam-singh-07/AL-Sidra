@@ -66,11 +66,15 @@ class MasjidSelectController extends Controller
         $request->validate([
             'masjid_id' => 'nullable|exists:masjids,id',
             'madarsa_id' => 'nullable|exists:madarsas,id',
+            'place_id' => 'nullable',
             'mohalla_id' => 'nullable|exists:mohallas,id',
-            'mohalla' => 'required_without:mohalla_id|string|max:255',
+            'mohalla' => 'nullable|string|max:255',
         ]);
 
-        if (!$request->filled('masjid_id') && !$request->filled('madarsa_id')) {
+        $masjidId = $request->masjid_id ?? $request->place_id;
+        $madarsaId = $request->madarsa_id;
+
+        if (!$masjidId && !$madarsaId) {
             return response()->json([
                 'success' => false,
                 'message' => 'Please provide either masjid_id or madarsa_id.',
@@ -88,19 +92,21 @@ class MasjidSelectController extends Controller
         } elseif ($mohallaName) {
             $mohallaRecord = Mohalla::firstOrCreate(
                 [
-                    'masjid_id' => $request->masjid_id,
-                    'madarsa_id' => $request->madarsa_id,
+                    'masjid_id' => $masjidId,
+                    'madarsa_id' => $madarsaId,
                     'name' => trim($mohallaName),
                 ],
                 ['status' => 'active']
             );
             $mohallaId = $mohallaRecord->id;
+        } else {
+            $mohallaName = 'General';
         }
 
         $user = $request->user();
         $user->update([
-            'selected_masjid_id' => $request->masjid_id,
-            'selected_madarsa_id' => $request->madarsa_id,
+            'selected_masjid_id' => $masjidId,
+            'selected_madarsa_id' => $madarsaId,
             'mohalla_id' => $mohallaId,
             'mohalla' => $mohallaName,
             'role' => $user->role === 'mohalla_mutawalli' ? 'mohalla_mutawalli' : 'donor',
@@ -116,49 +122,7 @@ class MasjidSelectController extends Controller
             // Ignore role pivot errors if roles table is not populated
         }
 
-        // Auto-create ledger entries for all active campaigns in this place
-        $activeCampaigns = DonationCampaign::where('status', 'active')
-            ->when($request->filled('masjid_id'), function ($q) use ($request) {
-                $q->where('masjid_id', $request->masjid_id);
-            })
-            ->when($request->filled('madarsa_id'), function ($q) use ($request) {
-                $q->where('madarsa_id', $request->madarsa_id);
-            })
-            ->get();
-
-        foreach ($activeCampaigns as $campaign) {
-            // Check target mohalla scoping
-            if (!empty($campaign->target_mohalla) && strtolower($campaign->target_mohalla) !== 'all') {
-                if ($campaign->target_mohalla !== $mohallaName) {
-                    continue;
-                }
-            }
-
-            $unitRate = (float)($campaign->rate_per_unit ?? 0);
-            $calcAmount = match ($campaign->category) {
-                'mard', 'zameen', 'nikah' => $unitRate,
-                default => 0.00,
-            };
-
-            DonationLedger::firstOrCreate(
-                [
-                    'campaign_id' => $campaign->id,
-                    'donor_user_id' => $user->id,
-                ],
-                [
-                    'masjid_id' => $request->masjid_id,
-                    'madarsa_id' => $request->madarsa_id,
-                    'mohalla' => $mohallaName ?? 'General',
-                    'unit_count' => 1.00,
-                    'calculated_amount' => $calcAmount,
-                    'paid_amount' => 0.00,
-                    'balance' => $calcAmount,
-                    'payment_status' => 'unpaid',
-                ]
-            );
-        }
-
-        $placeType = $request->filled('masjid_id') ? "Masjid #{$request->masjid_id}" : "Madarsa #{$request->madarsa_id}";
+        $placeType = $masjidId ? "Masjid #{$masjidId}" : "Madarsa #{$madarsaId}";
 
         return response()->json([
             'success' => true,

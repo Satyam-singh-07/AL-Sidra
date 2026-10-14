@@ -25,33 +25,31 @@ class MohallaMutawalliController extends Controller
     /**
      * Mutvalli: Fetch List of Donors linked to a Masjid or Madarsa
      */
-    public function getMasjidDonors(Request $request)
+    public function getMasjidDonors(Request $request, $placeId = null)
     {
-        $request->validate([
-            'masjid_id' => 'nullable|exists:masjids,id',
-            'madarsa_id' => 'nullable|exists:madarsas,id',
-        ]);
+        $masjidId = $request->masjid_id ?? $request->place_id ?? $placeId;
+        $madarsaId = $request->madarsa_id;
 
-        if (!$request->filled('masjid_id') && !$request->filled('madarsa_id')) {
+        if (!$masjidId && !$madarsaId) {
             return response()->json(['message' => 'Please provide masjid_id or madarsa_id.'], 422);
         }
 
         $user = $request->user();
 
         // Access Control: Logged-in user must be Mutvalli of the place
-        if ($request->filled('masjid_id')) {
-            $masjid = Masjid::findOrFail($request->masjid_id);
+        if ($masjidId) {
+            $masjid = Masjid::findOrFail($masjidId);
             $isMutvalli = ($masjid->user_id === $user->id) ||
-                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin', 'super_admin'])->exists() ||
                 ($user->memberProfile && ($user->memberProfile->masjid_id == $masjid->id || ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id == $masjid->id)));
 
             if (!$isMutvalli) {
                 return response()->json(['message' => 'Unauthorized. Only the Mutvalli can view the donor pool.'], 403);
             }
         } else {
-            $madarsa = Madarsa::findOrFail($request->madarsa_id);
+            $madarsa = Madarsa::findOrFail($madarsaId);
             $isMutvalli = ($madarsa->user_id === $user->id) ||
-                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists() ||
+                $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin', 'super_admin'])->exists() ||
                 ($user->memberProfile && ($user->memberProfile->madarsa_id == $madarsa->id || ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id == $madarsa->id)));
 
             if (!$isMutvalli) {
@@ -61,8 +59,8 @@ class MohallaMutawalliController extends Controller
 
         // Fetch all users linked to this place as donors or members
         $donors = User::query()
-            ->when($request->filled('masjid_id'), fn($q) => $q->where('selected_masjid_id', $request->masjid_id))
-            ->when($request->filled('madarsa_id'), fn($q) => $q->where('selected_madarsa_id', $request->madarsa_id))
+            ->when($masjidId, fn($q) => $q->where('selected_masjid_id', $masjidId))
+            ->when($madarsaId, fn($q) => $q->where('selected_madarsa_id', $madarsaId))
             ->select('id', 'name', 'phone', 'email', 'mohalla', 'mohalla_id', 'role', 'created_at')
             ->orderBy('name')
             ->get()

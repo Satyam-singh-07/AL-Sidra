@@ -292,8 +292,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Donor Place & Mohalla Selection
     Route::post('select-place', [MasjidSelectController::class, 'selectMasjid']);
     Route::post('user/select-place', [MasjidSelectController::class, 'selectMasjid']);
+    Route::post('places/select', [MasjidSelectController::class, 'selectMasjid']);
     Route::get('user/my-place', [MasjidSelectController::class, 'myPlace']);
     Route::get('masjid-donors', [MohallaMutawalliController::class, 'getMasjidDonors']);
+    Route::get('places/{placeId}/donors', [MohallaMutawalliController::class, 'getMasjidDonors']);
 
     // Campaign Management
     Route::get('campaigns', [CampaignController::class, 'index']);
@@ -305,6 +307,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Ledger (Hisab-Kitab) & Payments
     Route::get('ledger', [LedgerController::class, 'index']);
+    Route::post('ledger/assign-amount', [LedgerController::class, 'assignDonationAmount']);
     Route::post('ledger/record-payment', [LedgerController::class, 'recordPayment']);
     Route::patch('ledger/update-units', [LedgerController::class, 'updateUnitCount']);
 
