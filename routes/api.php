@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\MohallaMutawalliController;
 use App\Http\Controllers\Api\MohallaController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\MasjidExpenseController;
+use App\Http\Controllers\DonorRequestController;
 
 
 /*
@@ -334,4 +335,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjid-expenses/{id}', [MasjidExpenseController::class, 'show']);
     Route::match(['put', 'patch', 'post'], 'masjid-expenses/{id}', [MasjidExpenseController::class, 'update']);
     Route::delete('masjid-expenses/{id}', [MasjidExpenseController::class, 'destroy']);
+
+    // Donor Request & Review Workflow
+    // User-side Endpoints
+    Route::post('donor-requests', [DonorRequestController::class, 'submit']);
+    Route::get('donor-requests/my-status', [DonorRequestController::class, 'myStatus']);
+
+    // Mutawalli / Management Endpoints (Scoped under masjid-management)
+    Route::prefix('masjid-management')->group(function () {
+        Route::get('donor-requests', [DonorRequestController::class, 'index']);
+        Route::get('donor-requests/{id}', [DonorRequestController::class, 'show']);
+        Route::match(['put', 'patch', 'post'], 'donor-requests/{id}', [DonorRequestController::class, 'update']);
+        Route::post('donor-requests/{id}/approve', [DonorRequestController::class, 'approve']);
+        Route::post('donor-requests/{id}/reject', [DonorRequestController::class, 'reject']);
+    });
+
+    // Top-level aliases for direct access
+    Route::get('donor-requests', [DonorRequestController::class, 'index']);
+    Route::get('donor-requests/{id}', [DonorRequestController::class, 'show']);
+    Route::match(['put', 'patch', 'post'], 'donor-requests/{id}', [DonorRequestController::class, 'update']);
+    Route::post('donor-requests/{id}/approve', [DonorRequestController::class, 'approve']);
+    Route::post('donor-requests/{id}/reject', [DonorRequestController::class, 'reject']);
 });

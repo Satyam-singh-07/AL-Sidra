@@ -144,5 +144,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Mohalla::class, 'mohalla_id');
     }
+
+    public function donorRequests()
+    {
+        return $this->hasMany(DonorRequest::class, 'user_id');
+    }
 }
 
