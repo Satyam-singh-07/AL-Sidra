@@ -104,5 +104,10 @@ class Masjid extends Model
     {
         return $this->hasMany(Mohalla::class);
     }
+
+    public function expenses()
+    {
+        return $this->hasMany(MasjidExpense::class);
+    }
 }
 

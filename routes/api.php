@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\BroadcastController;
 use App\Http\Controllers\Api\MohallaMutawalliController;
 use App\Http\Controllers\Api\MohallaController;
 use App\Http\Controllers\Api\ExportController;
+use App\Http\Controllers\Api\MasjidExpenseController;
 
 
 /*
@@ -325,4 +326,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Collection Sheet Export Engine (CSV & PDF)
     Route::get('ledger/export/csv', [ExportController::class, 'exportCsv']);
     Route::get('ledger/export/pdf', [ExportController::class, 'exportPdf']);
+
+    // Masjid Expense & Financial Management
+    Route::get('masjid-expenses/summary', [MasjidExpenseController::class, 'summary']);
+    Route::get('masjid-expenses', [MasjidExpenseController::class, 'index']);
+    Route::post('masjid-expenses', [MasjidExpenseController::class, 'store']);
+    Route::get('masjid-expenses/{id}', [MasjidExpenseController::class, 'show']);
+    Route::match(['put', 'patch', 'post'], 'masjid-expenses/{id}', [MasjidExpenseController::class, 'update']);
+    Route::delete('masjid-expenses/{id}', [MasjidExpenseController::class, 'destroy']);
 });

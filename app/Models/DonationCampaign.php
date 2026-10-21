@@ -66,4 +66,20 @@ class DonationCampaign extends Model
     {
         return $this->masjid_id ?? $this->madarsa_id;
     }
+
+    public function expenses()
+    {
+        return $this->hasMany(MasjidExpense::class, 'campaign_id')->where('entry_type', 'expense');
+    }
+
+    public function getTotalExpensesAttribute()
+    {
+        return (float) $this->expenses()->sum('amount');
+    }
+
+    public function getNetBalanceAttribute()
+    {
+        $totalRaised = (float) $this->ledgers()->sum('paid_amount');
+        return $totalRaised - $this->total_expenses;
+    }
 }
