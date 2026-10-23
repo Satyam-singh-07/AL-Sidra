@@ -24,7 +24,7 @@ class CampaignController extends Controller
     }
 
     /**
-     * Create a new Donation Campaign (supports target_mohalla scoping)
+     * Create a new Donation Campaign (applies globally across all Mohallas with Unit Price)
      */
     public function store(Request $request)
     {
@@ -33,8 +33,7 @@ class CampaignController extends Controller
             'madarsa_id' => 'nullable|exists:madarsas,id',
             'name' => 'required|string|max:255',
             'category' => 'required|in:zameen,mard,nikah,by_choice',
-            'target_mohalla' => 'nullable|string|max:255',
-            'mohalla_id' => 'nullable|exists:mohallas,id',
+            'unit_price' => 'nullable|numeric|min:0',
             'rate_per_unit' => 'nullable|numeric|min:0',
             'target_amount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
@@ -69,13 +68,13 @@ class CampaignController extends Controller
             $placeName = $madarsa->name;
         }
 
-        // Resolve target mohalla name
-        $targetMohalla = $request->target_mohalla ?: 'All';
-        if ($request->filled('mohalla_id')) {
-            $mohallaRecord = Mohalla::find($request->mohalla_id);
-            if ($mohallaRecord) {
-                $targetMohalla = $mohallaRecord->name;
-            }
+        // Resolve unit price (accepts either unit_price or rate_per_unit)
+        $unitPrice = $request->input('unit_price') ?? $request->input('rate_per_unit');
+        if ($request->category !== 'by_choice' && ($unitPrice === null || (float)$unitPrice <= 0)) {
+            return response()->json([
+                'message' => 'Unit price is required for unit-based campaigns.',
+                'errors' => ['unit_price' => ['The unit price field is required when category is not by_choice.']],
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -86,60 +85,90 @@ class CampaignController extends Controller
                 'created_by' => $user->id,
                 'name' => $request->name,
                 'category' => $request->category,
-                'target_mohalla' => $targetMohalla,
-                'rate_per_unit' => $request->rate_per_unit,
+                'target_mohalla' => null, // Explicitly NULL = All Mohallas
+                'unit_price' => $unitPrice,
+                'rate_per_unit' => $unitPrice, // Keep in sync for backward compatibility
                 'target_amount' => $request->target_amount,
                 'description' => $request->description,
                 'status' => 'active',
             ]);
 
-            // Auto-initialize ledger entries for donors (scoped to target_mohalla if not 'All')
-            $donorsQuery = User::query();
-            if ($request->filled('masjid_id')) {
-                $donorsQuery->where('selected_masjid_id', $request->masjid_id);
-            } else {
-                $donorsQuery->where('selected_madarsa_id', $request->madarsa_id);
-            }
-
-            if (!empty($targetMohalla) && strtolower($targetMohalla) !== 'all') {
-                $donorsQuery->where('mohalla', $targetMohalla);
-            }
+            // Auto-initialize ledger entries for all approved donors across ALL Mohallas
+            $donorsQuery = User::query()
+                ->where(function ($query) use ($request) {
+                    if ($request->filled('masjid_id')) {
+                        $query->where('selected_masjid_id', $request->masjid_id)
+                            ->orWhereHas('donorRequests', function ($sub) use ($request) {
+                                $sub->where('masjid_id', $request->masjid_id)->where('status', 'approved');
+                            });
+                    } else {
+                        $query->where('selected_madarsa_id', $request->madarsa_id)
+                            ->orWhereHas('donorRequests', function ($sub) use ($request) {
+                                $sub->where('madarsa_id', $request->madarsa_id)->where('status', 'approved');
+                            });
+                    }
+                })
+                ->with(['donorRequests' => function ($q) use ($request) {
+                    if ($request->filled('masjid_id')) {
+                        $q->where('masjid_id', $request->masjid_id)->where('status', 'approved')->latest();
+                    } else {
+                        $q->where('madarsa_id', $request->madarsa_id)->where('status', 'approved')->latest();
+                    }
+                }]);
 
             $donors = $donorsQuery->get();
-            $unitRate = (float)($request->rate_per_unit ?? 0);
+            $unitRate = (float)($unitPrice ?? 0);
 
             foreach ($donors as $donor) {
-                $calcAmount = match ($request->category) {
-                    'mard', 'zameen', 'nikah' => $unitRate,
-                    default => 0.00,
-                };
+                $donorReq = $donor->donorRequests->first();
+
+                // Retrieve Donor's Registered Family Unit Count (defaults to 1 if not set)
+                $unitCount = 1;
+                if (!empty($donor->unit_count) && (int)$donor->unit_count > 0) {
+                    $unitCount = (int)$donor->unit_count;
+                } elseif ($donorReq && !empty($donorReq->unit_count) && (int)$donorReq->unit_count > 0) {
+                    $unitCount = (int)$donorReq->unit_count;
+                }
+
+                // Resolve donor's mohalla name for ledger categorization
+                $mohallaName = $donor->mohalla ?? ($donorReq ? $donorReq->mohalla : null) ?? 'General';
+
+                // Auto-Ledger Calculation: unit_price * donor.unit_count
+                $calcAmount = 0.00;
+                if ($request->category !== 'by_choice' && $unitRate > 0) {
+                    $calcAmount = round($unitRate * $unitCount, 2);
+                }
 
                 DonationLedger::create([
                     'campaign_id' => $campaign->id,
                     'masjid_id' => $request->masjid_id,
                     'madarsa_id' => $request->madarsa_id,
                     'donor_user_id' => $donor->id,
-                    'mohalla' => $donor->mohalla ?? 'General',
-                    'unit_count' => 1.00,
+                    'mohalla' => $mohallaName,
+                    'unit_count' => $unitCount,
                     'calculated_amount' => $calcAmount,
                     'paid_amount' => 0.00,
                     'balance' => $calcAmount,
-                    'payment_status' => 'unpaid',
+                    'payment_status' => $calcAmount > 0 ? 'unpaid' : 'paid',
+                    'recorded_by_user_id' => $user->id,
+                    'notes' => "Auto pledge: {$unitCount} unit(s) @ ₹{$unitRate}/unit",
                 ]);
             }
 
             DB::commit();
 
-            // Broadcast FCM push notification to targeted donors
+            // Broadcast FCM push notification to all donors across all mohallas
             if ($donors->isNotEmpty()) {
                 try {
                     $title = "Naya Chanda Campaign: {$campaign->name}";
-                    $body = "{$placeName} me naya campaign shuru hua hai. Detail app me dekhein.";
+                    $body = ($unitRate > 0)
+                        ? "{$placeName} me naya campaign shuru hua hai (₹{$unitRate}/unit). Detail app me dekhein."
+                        : "{$placeName} me naya campaign shuru hua hai. Detail app me dekhein.";
                     $data = [
                         'type' => 'new_campaign',
                         'campaign_id' => (string)$campaign->id,
                         'place_name' => (string)$placeName,
-                        'target_mohalla' => (string)$targetMohalla,
+                        'unit_price' => (string)$unitRate,
                     ];
 
                     $this->firebase->sendToUsers($donors, $title, $body, $data);
@@ -150,7 +179,7 @@ class CampaignController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Campaign created successfully and notifications dispatched.',
+                'message' => 'Campaign created for all Mohallas and member ledgers initialized successfully.',
                 'data' => $campaign->load('ledgers'),
             ], 201);
 
@@ -159,7 +188,7 @@ class CampaignController extends Controller
             Log::error("Failed to create campaign: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create campaign: ' . $e->getMessage()
+                'message' => 'Failed to create campaign: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -285,17 +314,34 @@ class CampaignController extends Controller
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'category' => 'sometimes|required|in:zameen,mard,nikah,by_choice',
-            'target_mohalla' => 'nullable|string',
+            'unit_price' => 'nullable|numeric|min:0',
             'rate_per_unit' => 'nullable|numeric|min:0',
             'target_amount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
             'status' => 'nullable|in:active,completed,archived',
         ]);
 
-        $campaign->fill($request->only([
-            'name', 'category', 'target_mohalla', 'rate_per_unit', 'target_amount', 'description', 'status'
-        ]));
-        $campaign->save();
+        $unitPrice = $request->input('unit_price') ?? $request->input('rate_per_unit') ?? $campaign->unit_price;
+
+        $campaignUpdates = [
+            'name' => $request->input('name', $campaign->name),
+            'category' => $request->input('category', $campaign->category),
+            'unit_price' => $unitPrice,
+            'rate_per_unit' => $unitPrice,
+            'target_mohalla' => null, // Stays global for all mohallas
+        ];
+
+        if ($request->has('target_amount')) {
+            $campaignUpdates['target_amount'] = $request->target_amount;
+        }
+        if ($request->has('description')) {
+            $campaignUpdates['description'] = $request->description;
+        }
+        if ($request->has('status')) {
+            $campaignUpdates['status'] = $request->status;
+        }
+
+        $campaign->update($campaignUpdates);
 
         return response()->json([
             'success' => true,

@@ -15,17 +15,27 @@ class DonationCampaign extends Model
         'created_by',
         'name',
         'category',
-        'target_mohalla',
+        'unit_price',
         'rate_per_unit',
         'target_amount',
         'description',
+        'target_mohalla',
         'status',
     ];
 
     protected $casts = [
+        'unit_price' => 'decimal:2',
         'rate_per_unit' => 'decimal:2',
         'target_amount' => 'decimal:2',
     ];
+
+    /**
+     * Accessor to guarantee unit_price fallback to rate_per_unit
+     */
+    public function getUnitPriceAttribute($value)
+    {
+        return $value ?? $this->rate_per_unit;
+    }
 
     public function masjid()
     {

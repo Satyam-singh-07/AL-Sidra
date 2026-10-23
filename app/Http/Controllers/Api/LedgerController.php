@@ -78,7 +78,7 @@ class LedgerController extends Controller
         // Base query
         $query = DonationLedger::with([
             'donor:id,name,phone,profile_picture,mohalla',
-            'campaign:id,name,category,rate_per_unit',
+            'campaign:id,name,category,unit_price,rate_per_unit',
             'recorder:id,name',
         ])->where('campaign_id', $campaign->id);
 
@@ -176,10 +176,10 @@ class LedgerController extends Controller
                     'masjid_id' => $campaign->masjid_id,
                     'madarsa_id' => $campaign->madarsa_id,
                     'mohalla' => $donor->mohalla ?? 'General',
-                    'unit_count' => 1.00,
-                    'calculated_amount' => (float)($campaign->rate_per_unit ?? $request->amount_paid),
+                    'unit_count' => (float)($donor->unit_count ?? 1.00),
+                    'calculated_amount' => (float)(($campaign->unit_price ?? $campaign->rate_per_unit ?? $request->amount_paid) * ($donor->unit_count ?? 1)),
                     'paid_amount' => 0.00,
-                    'balance' => (float)($campaign->rate_per_unit ?? $request->amount_paid),
+                    'balance' => (float)(($campaign->unit_price ?? $campaign->rate_per_unit ?? $request->amount_paid) * ($donor->unit_count ?? 1)),
                     'payment_status' => 'unpaid',
                 ]
             );
@@ -251,11 +251,13 @@ class LedgerController extends Controller
             return response()->json(['message' => 'Unauthorized to update this ledger entry.'], 403);
         }
 
-        $unitRate = (float)($ledger->campaign->rate_per_unit ?? 0);
+        $unitRate = (float)($ledger->campaign->unit_price ?? $ledger->campaign->rate_per_unit ?? 0);
         $units = (float)$request->unit_count;
 
         $ledger->unit_count = $units;
         $ledger->calculated_amount = $unitRate * $units;
+        $ledger->balance = max(0, $ledger->calculated_amount - $ledger->paid_amount);
+        $ledger->payment_status = $ledger->balance <= 0 ? 'paid' : ($ledger->paid_amount > 0 ? 'partial' : 'unpaid');
         $ledger->save();
 
         return response()->json([
