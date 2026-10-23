@@ -30,6 +30,13 @@ class User extends Authenticatable
         'mohalla',
         'mohalla_id',
         'role',
+        'father_name',
+        'unit_count',
+        'notes',
+    ];
+
+    protected $casts = [
+        'unit_count' => 'integer',
     ];
 
     protected $appends = ['profile_picture_url'];

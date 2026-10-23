@@ -251,6 +251,16 @@ class DonorRequestController extends Controller
                     'role'       => 'donor',
                 ];
 
+                if ($donorRequest->father_name) {
+                    $userUpdates['father_name'] = $donorRequest->father_name;
+                }
+                if ($donorRequest->unit_count) {
+                    $userUpdates['unit_count'] = $donorRequest->unit_count;
+                }
+                if ($donorRequest->notes) {
+                    $userUpdates['notes'] = $donorRequest->notes;
+                }
+
                 if ($donorRequest->masjid_id) {
                     $userUpdates['selected_masjid_id'] = $donorRequest->masjid_id;
                 }

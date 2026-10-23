@@ -8,9 +8,12 @@ use App\Models\DonationLedger;
 use App\Models\Madarsa;
 use App\Models\Masjid;
 use App\Models\Mohalla;
+use App\Models\DonorRequest;
 use App\Models\MohallaMutawalli;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MasjidSelectController extends Controller
 {
@@ -223,5 +226,118 @@ class MasjidSelectController extends Controller
                 'is_linked' => ($masjid !== null || $madarsa !== null),
             ],
         ]);
+    }
+
+    /**
+     * Update an active donor's details using their Donor ID (User ID).
+     */
+    public function updateDonor(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'masjid_id'   => 'nullable|integer',
+            'madarsa_id'  => 'nullable|integer',
+            'place_id'    => 'nullable|integer',
+            'name'        => 'required|string|max:255',
+            'father_name' => 'nullable|string|max:255',
+            'unit_count'  => 'nullable|integer|min:1|max:50',
+            'phone'       => 'nullable|string|max:25',
+            'mohalla_id'  => 'nullable|integer',
+            'mohalla'     => 'nullable|string|max:255',
+            'notes'       => 'nullable|string|max:1000',
+        ]);
+
+        $user = User::findOrFail($id);
+        $masjidId = $validated['masjid_id'] ?? $validated['place_id'] ?? $user->selected_masjid_id;
+        $madarsaId = $validated['madarsa_id'] ?? $user->selected_madarsa_id;
+
+        // Resolve Mohalla Name if mohalla_id is provided
+        $mohallaName = $validated['mohalla'] ?? null;
+        if (!empty($validated['mohalla_id'])) {
+            $mohallaRecord = Mohalla::find($validated['mohalla_id']);
+            if ($mohallaRecord) {
+                $mohallaName = $mohallaRecord->name;
+            }
+        } elseif ($mohallaName && ($masjidId || $madarsaId)) {
+            // Find or create mohalla by name
+            $mohallaRecord = Mohalla::firstOrCreate(
+                [
+                    'masjid_id' => $masjidId,
+                    'madarsa_id' => $madarsaId,
+                    'name' => trim($mohallaName),
+                ],
+                ['status' => 'active']
+            );
+            $validated['mohalla_id'] = $mohallaRecord->id;
+        }
+
+        DB::transaction(function () use ($user, $validated, $masjidId, $madarsaId, $mohallaName) {
+            // 1. Update the User record
+            $user->name = trim($validated['name']);
+            if (isset($validated['phone'])) {
+                $user->phone = trim($validated['phone']);
+            }
+            if ($mohallaName !== null) {
+                $user->mohalla = $mohallaName;
+            }
+            if (!empty($validated['mohalla_id'])) {
+                $user->mohalla_id = $validated['mohalla_id'];
+            }
+            if (array_key_exists('father_name', $validated)) {
+                $user->father_name = $validated['father_name'] !== null ? trim($validated['father_name']) : null;
+            }
+            if (isset($validated['unit_count'])) {
+                $user->unit_count = (int)$validated['unit_count'];
+            }
+            if (array_key_exists('notes', $validated)) {
+                $user->notes = $validated['notes'] !== null ? trim($validated['notes']) : null;
+            }
+            if ($masjidId && !$user->selected_masjid_id) {
+                $user->selected_masjid_id = $masjidId;
+            }
+            if ($madarsaId && !$user->selected_madarsa_id) {
+                $user->selected_madarsa_id = $madarsaId;
+            }
+            $user->save();
+
+            // 2. Keep associated DonorRequest records in sync if table exists
+            if (DB::getSchemaBuilder()->hasTable('donor_requests')) {
+                $reqQuery = DonorRequest::where('user_id', $user->id);
+                if ($masjidId) {
+                    $reqQuery->where('masjid_id', $masjidId);
+                } elseif ($madarsaId) {
+                    $reqQuery->where('madarsa_id', $madarsaId);
+                }
+                $donorReqUpdate = array_filter([
+                    'applicant_name' => $user->name,
+                    'father_name'    => $user->father_name,
+                    'unit_count'     => $user->unit_count,
+                    'phone'          => $user->phone,
+                    'mohalla'        => $user->mohalla,
+                    'mohalla_id'     => $user->mohalla_id,
+                    'notes'          => $user->notes,
+                ], fn($val) => $val !== null);
+
+                if (!empty($donorReqUpdate)) {
+                    $reqQuery->update($donorReqUpdate);
+                }
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Donor details updated successfully.',
+            'data'    => [
+                'id'          => $user->id,
+                'name'        => $user->name,
+                'father_name' => $user->father_name,
+                'unit_count'  => $user->unit_count ?? 1,
+                'phone'       => $user->phone,
+                'email'       => $user->email,
+                'mohalla'     => $user->mohalla,
+                'mohalla_id'  => $user->mohalla_id,
+                'role'        => $user->role ?: 'donor',
+                'notes'       => $user->notes,
+            ],
+        ], 200);
     }
 }

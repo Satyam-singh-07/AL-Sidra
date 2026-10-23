@@ -61,18 +61,21 @@ class MohallaMutawalliController extends Controller
         $donors = User::query()
             ->when($masjidId, fn($q) => $q->where('selected_masjid_id', $masjidId))
             ->when($madarsaId, fn($q) => $q->where('selected_madarsa_id', $madarsaId))
-            ->select('id', 'name', 'phone', 'email', 'mohalla', 'mohalla_id', 'role', 'created_at')
+            ->select('id', 'name', 'father_name', 'unit_count', 'phone', 'email', 'mohalla', 'mohalla_id', 'role', 'notes', 'created_at')
             ->orderBy('name')
             ->get()
             ->map(function ($donor) {
                 return [
                     'id' => $donor->id,
                     'name' => $donor->name,
+                    'father_name' => $donor->father_name,
+                    'unit_count' => $donor->unit_count ?? 1,
                     'phone' => $donor->phone,
                     'email' => $donor->email,
                     'mohalla' => $donor->mohalla,
                     'mohalla_id' => $donor->mohalla_id,
                     'role' => $donor->role ?: 'donor',
+                    'notes' => $donor->notes,
                     'created_at' => $donor->created_at,
                 ];
             });

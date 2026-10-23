@@ -298,6 +298,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user/my-place', [MasjidSelectController::class, 'myPlace']);
     Route::get('masjid-donors', [MohallaMutawalliController::class, 'getMasjidDonors']);
     Route::get('places/{placeId}/donors', [MohallaMutawalliController::class, 'getMasjidDonors']);
+    Route::match(['put', 'patch', 'post'], 'masjid-donors/{id}', [MasjidSelectController::class, 'updateDonor']);
+    Route::match(['put', 'patch', 'post'], 'masjid-management/donors/{id}', [MasjidSelectController::class, 'updateDonor']);
+    Route::match(['put', 'patch', 'post'], 'donors/{id}', [MasjidSelectController::class, 'updateDonor']);
 
     // Campaign Management
     Route::get('campaigns', [CampaignController::class, 'index']);
