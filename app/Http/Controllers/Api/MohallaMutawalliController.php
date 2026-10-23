@@ -57,25 +57,50 @@ class MohallaMutawalliController extends Controller
             }
         }
 
+        $excludeElevated = $request->boolean('exclude_elevated', true);
+
         // Fetch all users linked to this place as donors or members
-        $donors = User::query()
+        $query = User::query()
             ->when($masjidId, fn($q) => $q->where('selected_masjid_id', $masjidId))
-            ->when($madarsaId, fn($q) => $q->where('selected_madarsa_id', $madarsaId))
+            ->when($madarsaId, fn($q) => $q->where('selected_madarsa_id', $madarsaId));
+
+        if ($excludeElevated) {
+            // Exclude users already elevated to Mohalla Mutawalli for this masjid/madarsa
+            $query->whereDoesntHave('mohallaMutawallis', function ($q) use ($masjidId, $madarsaId) {
+                if ($masjidId) {
+                    $q->where('masjid_id', $masjidId);
+                } elseif ($madarsaId) {
+                    $q->where('madarsa_id', $madarsaId);
+                }
+            });
+        }
+
+        $donors = $query
+            ->with(['mohallaMutawallis' => function ($q) use ($masjidId, $madarsaId) {
+                if ($masjidId) {
+                    $q->where('masjid_id', $masjidId);
+                } elseif ($madarsaId) {
+                    $q->where('madarsa_id', $madarsaId);
+                }
+            }])
             ->select('id', 'name', 'father_name', 'unit_count', 'phone', 'email', 'mohalla', 'mohalla_id', 'role', 'notes', 'created_at')
             ->orderBy('name')
             ->get()
             ->map(function ($donor) {
+                $isMutawalli = $donor->mohallaMutawallis->isNotEmpty();
                 return [
                     'id' => $donor->id,
                     'name' => $donor->name,
                     'father_name' => $donor->father_name,
                     'unit_count' => $donor->unit_count ?? 1,
+                    'units' => $donor->unit_count ?? 1,
                     'phone' => $donor->phone,
                     'email' => $donor->email,
                     'mohalla' => $donor->mohalla,
                     'mohalla_id' => $donor->mohalla_id,
                     'role' => $donor->role ?: 'donor',
                     'notes' => $donor->notes,
+                    'is_mutawalli' => $isMutawalli,
                     'created_at' => $donor->created_at,
                 ];
             });
@@ -210,7 +235,10 @@ class MohallaMutawalliController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Donor successfully elevated to Mohalla Mutvalli!',
-            'data' => $assignment->load(['user:id,name,phone,email,role', 'mohallaRecord']),
+            'data' => $assignment->load([
+                'user:id,name,phone,email,role,father_name,unit_count,notes,address,mohalla,mohalla_id',
+                'mohallaRecord',
+            ]),
         ]);
     }
 
@@ -224,7 +252,10 @@ class MohallaMutawalliController extends Controller
             'madarsa_id' => 'nullable|exists:madarsas,id',
         ]);
 
-        $query = MohallaMutawalli::with(['user:id,name,phone,email,role', 'mohallaRecord']);
+        $query = MohallaMutawalli::with([
+            'user:id,name,phone,email,role,father_name,unit_count,notes,address,mohalla,mohalla_id',
+            'mohallaRecord',
+        ]);
 
         if ($request->filled('masjid_id')) {
             $query->where('masjid_id', $request->masjid_id);

@@ -39,7 +39,12 @@ class User extends Authenticatable
         'unit_count' => 'integer',
     ];
 
-    protected $appends = ['profile_picture_url'];
+    protected $appends = ['profile_picture_url', 'units'];
+
+    public function getUnitsAttribute(): int
+    {
+        return (int)($this->unit_count ?? 1);
+    }
 
     public function generateUniqueId()
     {
@@ -155,6 +160,16 @@ class User extends Authenticatable
     public function donorRequests()
     {
         return $this->hasMany(DonorRequest::class, 'user_id');
+    }
+
+    public function mohallaMutawalli()
+    {
+        return $this->hasOne(MohallaMutawalli::class, 'user_id');
+    }
+
+    public function mohallaMutawallis()
+    {
+        return $this->hasMany(MohallaMutawalli::class, 'user_id');
     }
 }
 
