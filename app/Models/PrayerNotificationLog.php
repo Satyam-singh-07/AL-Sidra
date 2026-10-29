@@ -12,5 +12,11 @@ class PrayerNotificationLog extends Model
     protected $fillable = [
         'gregorian_date',
         'prayer',
+        'masjid_id',
     ];
+
+    public function masjid()
+    {
+        return $this->belongsTo(Masjid::class);
+    }
 }
