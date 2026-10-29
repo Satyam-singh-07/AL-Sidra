@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\MohallaMutawalliController;
 use App\Http\Controllers\Api\MohallaController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\MasjidExpenseController;
+use App\Http\Controllers\Api\MasjidPrayerTimingController;
 use App\Http\Controllers\DonorRequestController;
 
 
@@ -286,6 +287,12 @@ Route::post('send-notification-token', function (
 Route::get('places/search', [MasjidSelectController::class, 'search']);
 Route::get('mohallas', [MohallaController::class, 'index']);
 
+// Masjid Official Adhan & Prayer Timings (Public)
+Route::get('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'index']);
+Route::get('masjid/{masjid_id}/prayer-timings/today', [MasjidPrayerTimingController::class, 'today']);
+Route::get('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'index']);
+Route::get('masjids/{masjid_id}/prayer-timings/today', [MasjidPrayerTimingController::class, 'today']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // Mohalla Management
     Route::post('mohallas', [MohallaController::class, 'store']);
@@ -338,6 +345,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('masjid-expenses/{id}', [MasjidExpenseController::class, 'show']);
     Route::match(['put', 'patch', 'post'], 'masjid-expenses/{id}', [MasjidExpenseController::class, 'update']);
     Route::delete('masjid-expenses/{id}', [MasjidExpenseController::class, 'destroy']);
+
+    // Masjid Official Adhan & Prayer Timings Management (Mutawalli)
+    Route::post('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'store']);
+    Route::delete('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
+    Route::post('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'store']);
+    Route::delete('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
 
     // Donor Request & Review Workflow
     // User-side Endpoints
