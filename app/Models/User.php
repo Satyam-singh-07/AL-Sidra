@@ -32,11 +32,17 @@ class User extends Authenticatable
         'role',
         'father_name',
         'unit_count',
+        'family_count',
+        'nikkah_count',
+        'land_count',
         'notes',
     ];
 
     protected $casts = [
-        'unit_count' => 'integer',
+        'unit_count'   => 'integer',
+        'family_count' => 'integer',
+        'nikkah_count' => 'integer',
+        'land_count'   => 'decimal:2',
     ];
 
     protected $appends = ['profile_picture_url', 'units'];

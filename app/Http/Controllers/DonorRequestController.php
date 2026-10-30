@@ -31,7 +31,10 @@ class DonorRequestController extends Controller
             'masjid_id'       => 'nullable|exists:masjids,id',
             'madarsa_id'      => 'nullable|exists:madarsas,id',
             'father_name'     => 'required|string|max:255',
-            'unit_count'      => 'required|integer|min:1|max:50',
+            'unit_count'      => 'nullable|integer|min:0|max:50000',
+            'family_count'    => 'nullable|integer|min:0|max:50000',
+            'nikkah_count'    => 'nullable|integer|min:0|max:50000',
+            'land_count'      => 'nullable|numeric|min:0|max:1000000',
             'applicant_name'  => 'nullable|string|max:255',
             'phone'           => 'nullable|string|max:25',
             'notes'           => 'nullable|string|max:1000',
@@ -47,6 +50,11 @@ class DonorRequestController extends Controller
         $userId = $request->user()->id;
         $applicantName = $validated['applicant_name'] ?? $request->user()->name;
         $phone = $validated['phone'] ?? $request->user()->phone;
+
+        $familyCount = (int)($validated['family_count'] ?? $validated['unit_count'] ?? 0);
+        $nikkahCount = (int)($validated['nikkah_count'] ?? 0);
+        $landCount = (float)($validated['land_count'] ?? 0);
+        $unitCount = $familyCount;
 
         // Check if there is already a pending request for this masjid/madarsa
         $existingQuery = DonorRequest::where('user_id', $userId)
@@ -74,7 +82,10 @@ class DonorRequestController extends Controller
             'madarsa_id'     => $validated['madarsa_id'] ?? null,
             'applicant_name' => $applicantName,
             'father_name'    => trim($validated['father_name']),
-            'unit_count'     => $validated['unit_count'],
+            'unit_count'     => $unitCount,
+            'family_count'   => $familyCount,
+            'nikkah_count'   => $nikkahCount,
+            'land_count'     => $landCount,
             'phone'          => $phone,
             'notes'          => $validated['notes'] ?? null,
             'status'         => 'pending',
@@ -196,15 +207,32 @@ class DonorRequestController extends Controller
 
         $validated = $request->validate([
             'father_name'    => 'required|string|max:255',
-            'unit_count'     => 'required|integer|min:1|max:50',
+            'unit_count'     => 'nullable|integer|min:0|max:50000',
+            'family_count'   => 'nullable|integer|min:0|max:50000',
+            'nikkah_count'   => 'nullable|integer|min:0|max:50000',
+            'land_count'     => 'nullable|numeric|min:0|max:1000000',
             'applicant_name' => 'nullable|string|max:255',
             'phone'          => 'nullable|string|max:25',
             'notes'          => 'nullable|string|max:1000',
         ]);
 
+        $familyCount = isset($validated['family_count'])
+            ? (int)$validated['family_count']
+            : (isset($validated['unit_count']) ? (int)$validated['unit_count'] : ($donorRequest->family_count ?? $donorRequest->unit_count ?? 0));
+        $nikkahCount = isset($validated['nikkah_count'])
+            ? (int)$validated['nikkah_count']
+            : ($donorRequest->nikkah_count ?? 0);
+        $landCount = isset($validated['land_count'])
+            ? (float)$validated['land_count']
+            : ($donorRequest->land_count ?? 0);
+        $unitCount = $familyCount;
+
         $donorRequest->update([
             'father_name'    => trim($validated['father_name']),
-            'unit_count'     => $validated['unit_count'],
+            'unit_count'     => $unitCount,
+            'family_count'   => $familyCount,
+            'nikkah_count'   => $nikkahCount,
+            'land_count'     => $landCount,
             'applicant_name' => $validated['applicant_name'] ?? $donorRequest->applicant_name,
             'phone'          => $validated['phone'] ?? $donorRequest->phone,
             'notes'          => $validated['notes'] ?? $donorRequest->notes,
@@ -254,9 +282,10 @@ class DonorRequestController extends Controller
                 if ($donorRequest->father_name) {
                     $userUpdates['father_name'] = $donorRequest->father_name;
                 }
-                if ($donorRequest->unit_count) {
-                    $userUpdates['unit_count'] = $donorRequest->unit_count;
-                }
+                $userUpdates['unit_count'] = $donorRequest->family_count ?? $donorRequest->unit_count ?? 0;
+                $userUpdates['family_count'] = $donorRequest->family_count ?? $donorRequest->unit_count ?? 0;
+                $userUpdates['nikkah_count'] = $donorRequest->nikkah_count ?? 0;
+                $userUpdates['land_count'] = $donorRequest->land_count ?? 0;
                 if ($donorRequest->notes) {
                     $userUpdates['notes'] = $donorRequest->notes;
                 }

@@ -18,6 +18,9 @@ class DonorRequest extends Model
         'applicant_name',
         'father_name',
         'unit_count',
+        'family_count',
+        'nikkah_count',
+        'land_count',
         'phone',
         'mohalla_id',
         'mohalla',
@@ -29,8 +32,11 @@ class DonorRequest extends Model
     ];
 
     protected $casts = [
-        'unit_count'  => 'integer',
-        'reviewed_at' => 'datetime',
+        'unit_count'   => 'integer',
+        'family_count' => 'integer',
+        'nikkah_count' => 'integer',
+        'land_count'   => 'decimal:2',
+        'reviewed_at'  => 'datetime',
     ];
 
     // Relationships

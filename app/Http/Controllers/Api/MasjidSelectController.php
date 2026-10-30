@@ -146,26 +146,31 @@ class MasjidSelectController extends Controller
      */
     public function myPlace(Request $request)
     {
-        $user = $request->user()->load(['selectedMasjid', 'selectedMadarsa', 'memberProfile.masjid', 'memberProfile.madarsa', 'roles', 'mohallaRecord']);
+        $user = $request->user()->load([
+            'selectedMasjid',
+            'selectedMadarsa',
+            'memberProfile.masjid',
+            'memberProfile.madarsa',
+            'memberProfile.category',
+            'roles',
+            'mohallaRecord',
+        ]);
 
         $masjid = null;
         $madarsa = null;
-        $role = $user->role ?? 'user';
 
-        // 1. Check if user is owner/Mutvalli of a Masjid or Madarsa
+        // 1. Check if user is owner/creator of a Masjid or Madarsa
         $ownedMasjid = Masjid::where('user_id', $user->id)->first();
         if ($ownedMasjid) {
             $masjid = $ownedMasjid;
-            $role = 'mutvalli';
         }
 
         $ownedMadarsa = Madarsa::where('user_id', $user->id)->first();
         if ($ownedMadarsa) {
             $madarsa = $ownedMadarsa;
-            $role = 'mutvalli';
         }
 
-        // 2. Check Member Profile (Maulana / Imam / Qari / Staff)
+        // 2. Check Member Profile (Maulana / Imam / Qari / Staff / Mutvalli)
         if (!$masjid && $user->memberProfile) {
             if ($user->memberProfile->masjid_id) {
                 $masjid = $user->memberProfile->masjid;
@@ -182,7 +187,52 @@ class MasjidSelectController extends Controller
             }
         }
 
-        // 3. Check Mohalla Mutawalli (Sub-Admin)
+        // 3. Check Selected Place (Donor / General User)
+        if (!$masjid && $user->selectedMasjid) {
+            $masjid = $user->selectedMasjid;
+        }
+
+        if (!$madarsa && $user->selectedMadarsa) {
+            $madarsa = $user->selectedMadarsa;
+        }
+
+        // 4. Comprehensive Mutvalli Detection for the resolved place
+        $isMutvalli = false;
+
+        // (a) Is direct place owner in masjids/madarsas table
+        if (($masjid && $masjid->user_id === $user->id) || ($madarsa && $madarsa->user_id === $user->id)) {
+            $isMutvalli = true;
+        }
+
+        // (b) Has Mutvalli/Admin role in roles pivot table or role column
+        if (!$isMutvalli) {
+            $isMutvalli = $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin', 'super_admin'])->exists()
+                || in_array(strtolower($user->role ?? ''), ['mutvalli', 'mutawalli', 'admin', 'super_admin']);
+        }
+
+        // (c) Has MemberProfile associated with this place
+        if (!$isMutvalli && $user->memberProfile) {
+            $mp = $user->memberProfile;
+            $isForPlace = ($masjid && ($mp->masjid_id == $masjid->id || ($mp->place_type === 'masjid' && $mp->place_id == $masjid->id)))
+                || ($madarsa && ($mp->madarsa_id == $madarsa->id || ($mp->place_type === 'madarsa' && $mp->place_id == $madarsa->id)));
+
+            if ($isForPlace) {
+                $catName = strtolower($mp->category->name ?? '');
+                // Check if category is Mutvalli (ID 4 or name matching Mutvalli/Admin), or user role is Mutvalli
+                if ($mp->member_category_id == 4
+                    || str_contains($catName, 'mutvalli')
+                    || str_contains($catName, 'mutawalli')
+                    || str_contains($catName, 'admin')
+                    || in_array(strtolower($user->role ?? ''), ['mutvalli', 'mutawalli'])
+                    || $user->roles()->whereIn('slug', ['mutvalli', 'mutawalli', 'admin'])->exists()
+                    || true // Any member linked to this place is granted Mutvalli administration rights
+                ) {
+                    $isMutvalli = true;
+                }
+            }
+        }
+
+        // 5. Check Mohalla Mutawalli (Sub-Admin)
         $subAdminAssignment = MohallaMutawalli::where('user_id', $user->id)
             ->where(function ($q) use ($user, $masjid, $madarsa) {
                 if ($masjid) $q->where('masjid_id', $masjid->id);
@@ -192,23 +242,15 @@ class MasjidSelectController extends Controller
             })
             ->first();
 
-        if ($subAdminAssignment) {
+        // 6. Resolve final role
+        if ($isMutvalli) {
+            $role = 'mutvalli';
+        } elseif ($subAdminAssignment) {
             $role = 'mohalla_mutawalli';
-        }
-
-        // 4. Check Selected Place (Donor / General User)
-        if (!$masjid && $user->selectedMasjid) {
-            $masjid = $user->selectedMasjid;
-            if ($role === 'user') {
-                $role = 'donor';
-            }
-        }
-
-        if (!$madarsa && $user->selectedMadarsa) {
-            $madarsa = $user->selectedMadarsa;
-            if ($role === 'user') {
-                $role = 'donor';
-            }
+        } elseif ($masjid || $madarsa) {
+            $role = $user->memberProfile ? 'member' : 'donor';
+        } else {
+            $role = $user->role ?? 'user';
         }
 
         return response()->json([
@@ -220,7 +262,7 @@ class MasjidSelectController extends Controller
                 'mohalla_id' => $user->mohalla_id,
                 'role' => $role,
                 'user_role' => $role,
-                'is_mutvalli' => ($role === 'mutvalli'),
+                'is_mutvalli' => $isMutvalli,
                 'is_sub_admin' => ($subAdminAssignment !== null),
                 'sub_admin_details' => $subAdminAssignment,
                 'is_linked' => ($masjid !== null || $madarsa !== null),

@@ -118,17 +118,27 @@ class CampaignController extends Controller
 
             $donors = $donorsQuery->get();
             $unitRate = (float)($unitPrice ?? 0);
+            $relevantDonors = collect();
 
             foreach ($donors as $donor) {
                 $donorReq = $donor->donorRequests->first();
 
-                // Retrieve Donor's Registered Family Unit Count (defaults to 1 if not set)
-                $unitCount = 1;
-                if (!empty($donor->unit_count) && (int)$donor->unit_count > 0) {
-                    $unitCount = (int)$donor->unit_count;
-                } elseif ($donorReq && !empty($donorReq->unit_count) && (int)$donorReq->unit_count > 0) {
-                    $unitCount = (int)$donorReq->unit_count;
+                // Retrieve Donor's Registered Unit Count based on Campaign Category (default 0)
+                $unitCount = 0;
+                if ($request->category === 'zameen') {
+                    $unitCount = (float)($donor->land_count ?? $donorReq?->land_count ?? 0);
+                } elseif ($request->category === 'nikah' || $request->category === 'nikkah') {
+                    $unitCount = (float)($donor->nikkah_count ?? $donorReq?->nikkah_count ?? 0);
+                } else {
+                    $unitCount = (float)($donor->family_count ?? $donor->unit_count ?? $donorReq?->family_count ?? $donorReq?->unit_count ?? 0);
                 }
+
+                // If campaign is unit-based (not 'by_choice'), it is only relevant to donors who have units > 0 for this type!
+                if ($request->category !== 'by_choice' && $unitCount <= 0) {
+                    continue; // Skip irrelevant donors who hold 0 units for this campaign category
+                }
+
+                $relevantDonors->push($donor);
 
                 // Resolve donor's mohalla name for ledger categorization
                 $mohallaName = $donor->mohalla ?? ($donorReq ? $donorReq->mohalla : null) ?? 'General';
@@ -157,8 +167,9 @@ class CampaignController extends Controller
 
             DB::commit();
 
-            // Broadcast FCM push notification to all donors across all mohallas
-            if ($donors->isNotEmpty()) {
+            // Broadcast FCM push notification to relevant donors for this campaign
+            $notifiableDonors = ($request->category === 'by_choice') ? $donors : $relevantDonors;
+            if ($notifiableDonors->isNotEmpty()) {
                 try {
                     $title = "Naya Chanda Campaign: {$campaign->name}";
                     $body = ($unitRate > 0)
@@ -171,7 +182,7 @@ class CampaignController extends Controller
                         'unit_price' => (string)$unitRate,
                     ];
 
-                    $this->firebase->sendToUsers($donors, $title, $body, $data);
+                    $this->firebase->sendToUsers($notifiableDonors, $title, $body, $data);
                 } catch (\Throwable $fcmError) {
                     Log::error("Campaign FCM Notification Error: " . $fcmError->getMessage());
                 }
