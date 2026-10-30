@@ -36,7 +36,10 @@ class MohallaMutawalliController extends Controller
 
         $user = $request->user();
 
-        // Access Control: Logged-in user must be Mutvalli of the place
+        // Access Control: Logged-in user must be Mutvalli or Mohalla Mutawalli (Sub-Admin) of the place
+        $isMutvalli = false;
+        $mohallaMutawalli = null;
+
         if ($masjidId) {
             $masjid = Masjid::findOrFail($masjidId);
             $isMutvalli = ($masjid->user_id === $user->id) ||
@@ -44,7 +47,11 @@ class MohallaMutawalliController extends Controller
                 ($user->memberProfile && ($user->memberProfile->masjid_id == $masjid->id || ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id == $masjid->id)));
 
             if (!$isMutvalli) {
-                return response()->json(['message' => 'Unauthorized. Only the Mutvalli can view the donor pool.'], 403);
+                $mohallaMutawalli = MohallaMutawalli::where('masjid_id', $masjidId)->where('user_id', $user->id)->first();
+            }
+
+            if (!$isMutvalli && !$mohallaMutawalli) {
+                return response()->json(['message' => 'Unauthorized. Only the Mutvalli or Mohalla Mutvalli can view the donor pool.'], 403);
             }
         } else {
             $madarsa = Madarsa::findOrFail($madarsaId);
@@ -53,16 +60,56 @@ class MohallaMutawalliController extends Controller
                 ($user->memberProfile && ($user->memberProfile->madarsa_id == $madarsa->id || ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id == $madarsa->id)));
 
             if (!$isMutvalli) {
-                return response()->json(['message' => 'Unauthorized. Only the Admin can view the donor pool.'], 403);
+                $mohallaMutawalli = MohallaMutawalli::where('madarsa_id', $madarsaId)->where('user_id', $user->id)->first();
+            }
+
+            if (!$isMutvalli && !$mohallaMutawalli) {
+                return response()->json(['message' => 'Unauthorized. Only the Admin or Mohalla Mutvalli can view the donor pool.'], 403);
             }
         }
 
-        $excludeElevated = $request->boolean('exclude_elevated', true);
+        $excludeElevated = $request->boolean('exclude_elevated', false);
 
         // Fetch all users linked to this place as donors or members
         $query = User::query()
-            ->when($masjidId, fn($q) => $q->where('selected_masjid_id', $masjidId))
-            ->when($madarsaId, fn($q) => $q->where('selected_madarsa_id', $madarsaId));
+            ->where(function ($q) use ($masjidId, $madarsaId) {
+                if ($masjidId) {
+                    $q->where('selected_masjid_id', $masjidId)
+                        ->orWhereHas('donorRequests', function ($sub) use ($masjidId) {
+                            $sub->where('masjid_id', $masjidId)->where('status', 'approved');
+                        });
+                } elseif ($madarsaId) {
+                    $q->where('selected_madarsa_id', $madarsaId)
+                        ->orWhereHas('donorRequests', function ($sub) use ($madarsaId) {
+                            $sub->where('madarsa_id', $madarsaId)->where('status', 'approved');
+                        });
+                }
+            });
+
+        // RBAC Scoping: Mohalla Mutawalli strictly scoped to their assigned Mohalla
+        if (!$isMutvalli && $mohallaMutawalli) {
+            $query->where(function ($q) use ($mohallaMutawalli) {
+                $hasCondition = false;
+                if (!empty($mohallaMutawalli->mohalla_id)) {
+                    $q->where('mohalla_id', $mohallaMutawalli->mohalla_id);
+                    $hasCondition = true;
+                }
+                if (!empty($mohallaMutawalli->assigned_mohalla)) {
+                    if ($hasCondition) {
+                        $q->orWhere('mohalla', $mohallaMutawalli->assigned_mohalla);
+                    } else {
+                        $q->where('mohalla', $mohallaMutawalli->assigned_mohalla);
+                    }
+                }
+            });
+        } elseif ($isMutvalli) {
+            // Mutvalli can optionally filter by specific mohalla
+            if ($request->filled('mohalla_id')) {
+                $query->where('mohalla_id', $request->mohalla_id);
+            } elseif ($request->filled('mohalla')) {
+                $query->where('mohalla', $request->mohalla);
+            }
+        }
 
         if ($excludeElevated) {
             // Exclude users already elevated to Mohalla Mutawalli for this masjid/madarsa
