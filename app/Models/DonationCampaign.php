@@ -21,12 +21,17 @@ class DonationCampaign extends Model
         'description',
         'target_mohalla',
         'status',
+        'is_legacy',
+        'prior_collected_amount',
+        'legacy_notes',
     ];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
         'rate_per_unit' => 'decimal:2',
         'target_amount' => 'decimal:2',
+        'is_legacy' => 'boolean',
+        'prior_collected_amount' => 'decimal:2',
     ];
 
     /**

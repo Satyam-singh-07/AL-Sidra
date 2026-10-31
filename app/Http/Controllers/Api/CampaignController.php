@@ -28,6 +28,8 @@ class CampaignController extends Controller
      */
     public function store(Request $request)
     {
+        $isLegacy = $request->boolean('is_legacy', false);
+
         $request->validate([
             'masjid_id' => 'nullable|exists:masjids,id',
             'madarsa_id' => 'nullable|exists:madarsas,id',
@@ -37,6 +39,10 @@ class CampaignController extends Controller
             'rate_per_unit' => 'nullable|numeric|min:0',
             'target_amount' => 'nullable|numeric|min:0',
             'description' => 'nullable|string',
+            'is_legacy' => 'nullable|boolean',
+            'prior_collected_amount' => 'nullable|numeric|min:0',
+            'legacy_notes' => 'nullable|string|max:1000',
+            'status' => 'nullable|in:active,completed,archived',
         ]);
 
         if (!$request->filled('masjid_id') && !$request->filled('madarsa_id')) {
@@ -70,7 +76,7 @@ class CampaignController extends Controller
 
         // Resolve unit price (accepts either unit_price or rate_per_unit)
         $unitPrice = $request->input('unit_price') ?? $request->input('rate_per_unit');
-        if ($request->category !== 'by_choice' && ($unitPrice === null || (float)$unitPrice <= 0)) {
+        if (!$isLegacy && $request->category !== 'by_choice' && ($unitPrice === null || (float)$unitPrice <= 0)) {
             return response()->json([
                 'message' => 'Unit price is required for unit-based campaigns.',
                 'errors' => ['unit_price' => ['The unit price field is required when category is not by_choice.']],
@@ -79,6 +85,9 @@ class CampaignController extends Controller
 
         DB::beginTransaction();
         try {
+            $campaignStatus = $isLegacy ? ($request->input('status') ?: 'completed') : 'active';
+            $priorCollected = $isLegacy ? (float)($request->input('prior_collected_amount') ?? 0) : null;
+
             $campaign = DonationCampaign::create([
                 'masjid_id' => $request->masjid_id,
                 'madarsa_id' => $request->madarsa_id,
@@ -88,10 +97,41 @@ class CampaignController extends Controller
                 'target_mohalla' => null, // Explicitly NULL = All Mohallas
                 'unit_price' => $unitPrice,
                 'rate_per_unit' => $unitPrice, // Keep in sync for backward compatibility
-                'target_amount' => $request->target_amount,
+                'target_amount' => $request->target_amount ?: ($priorCollected ?: 0),
                 'description' => $request->description,
-                'status' => 'active',
+                'status' => $campaignStatus,
+                'is_legacy' => $isLegacy,
+                'prior_collected_amount' => $priorCollected,
+                'legacy_notes' => $request->legacy_notes,
             ]);
+
+            // If Prior / Legacy Campaign: record historical collection in ledger without member auto-pledging or FCM alert
+            if ($isLegacy) {
+                if ($priorCollected > 0) {
+                    DonationLedger::create([
+                        'campaign_id' => $campaign->id,
+                        'masjid_id' => $request->masjid_id,
+                        'madarsa_id' => $request->madarsa_id,
+                        'donor_user_id' => $user->id,
+                        'mohalla' => 'General',
+                        'unit_count' => 1,
+                        'calculated_amount' => $priorCollected,
+                        'paid_amount' => $priorCollected,
+                        'balance' => 0.00,
+                        'payment_status' => 'paid',
+                        'recorded_by_user_id' => $user->id,
+                        'notes' => $request->legacy_notes ?: "Prior collection recorded prior to Al-Sidra onboarding",
+                    ]);
+                }
+
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Prior campaign record created successfully without alerting members.',
+                    'data' => $campaign->load('ledgers'),
+                ], 201);
+            }
 
             // Auto-initialize ledger entries for all approved donors across ALL Mohallas
             $donorsQuery = User::query()
