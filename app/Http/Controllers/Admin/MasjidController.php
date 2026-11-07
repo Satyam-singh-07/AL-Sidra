@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Community;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreMasjidRequest;
+use App\Http\Requests\UpdateMasjidRequest;
 use App\Services\MasjidService;
 use App\Models\Masjid;
 
@@ -86,7 +87,7 @@ class MasjidController extends Controller
         return view('admin.masjids-edit', compact('masjid', 'communities'));
     }
 
-    public function update(StoreMasjidRequest $request, Masjid $masjid)
+    public function update(UpdateMasjidRequest $request, Masjid $masjid)
     {
         $this->masjidService->update(
             $masjid,

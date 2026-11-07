@@ -66,19 +66,22 @@ class MasjidService
         DB::transaction(function () use ($masjid, $data) {
 
             $masjid->update([
-                'name'        => $data['name'],
-                // 'gender'      => $data['gender'],
-                'address'     => $data['address'],
-                'latitude'    => $data['latitude'],
-                'longitude'   => $data['longitude'],
-                'community_id' => $data['community_id'],
-                'status'      => $data['status'],
-                'jummah_khutba_time' => $data['jummah_khutba_time'] ?? $masjid->jummah_khutba_time,
+                'name'                => $data['name'],
+                'gender'              => $data['gender'] ?? $masjid->gender,
+                'address'             => $data['address'],
+                'latitude'            => $data['latitude'] ?? $masjid->latitude,
+                'longitude'           => $data['longitude'] ?? $masjid->longitude,
+                'community_id'        => array_key_exists('community_id', $data) ? $data['community_id'] : $masjid->community_id,
+                'status'              => $data['status'],
+                'kyc_status'          => $data['kyc_status'] ?? $masjid->kyc_status,
+                'registration_number' => array_key_exists('registration_number', $data) ? $data['registration_number'] : $masjid->registration_number,
+                'registration_date'   => array_key_exists('registration_date', $data) ? $data['registration_date'] : $masjid->registration_date,
+                'jummah_khutba_time'  => array_key_exists('jummah_khutba_time', $data) ? $data['jummah_khutba_time'] : $masjid->jummah_khutba_time,
             ]);
 
-            if (!empty($data['passbook'])) {
-                if ($masjid->passbook_path) {
-                    Storage::disk('public')->delete($masjid->passbook_path);
+            if (!empty($data['passbook']) && $data['passbook'] instanceof \Illuminate\Http\UploadedFile) {
+                if ($masjid->passbook) {
+                    Storage::disk('public')->delete($masjid->passbook);
                 }
 
                 $masjid->update([
@@ -86,7 +89,7 @@ class MasjidService
                 ]);
             }
 
-            if (!empty($data['masjid_video'])) {
+            if (!empty($data['masjid_video']) && $data['masjid_video'] instanceof \Illuminate\Http\UploadedFile) {
                 if ($masjid->video) {
                     Storage::disk('public')->delete($masjid->video);
                 }
@@ -96,11 +99,13 @@ class MasjidService
                 ]);
             }
 
-            if (!empty($data['masjid_images'])) {
+            if (!empty($data['masjid_images']) && is_array($data['masjid_images'])) {
                 foreach ($data['masjid_images'] as $image) {
-                    $masjid->images()->create([
-                        'image_path' => $image->store('masjids/images', 'public')
-                    ]);
+                    if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
+                        $masjid->images()->create([
+                            'image_path' => $image->store('masjids/images', 'public')
+                        ]);
+                    }
                 }
             }
         });

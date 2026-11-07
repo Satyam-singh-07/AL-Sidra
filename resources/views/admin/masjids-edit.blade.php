@@ -90,6 +90,21 @@
         @csrf
         @method('PUT')
 
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-exclamation-circle fs-4 me-2"></i>
+                    <strong>Please correct the following errors:</strong>
+                </div>
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
 
         <!-- Section 1: Basic Information -->
         <div class="form-section">
@@ -121,21 +136,20 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="community" class="form-label required-label">Community</label>
+                    <label for="community" class="form-label">Community</label>
 
-                    <select name="community_id" id="community" class="form-select @error('community') is-invalid @enderror"
-                        required>
-                        <option value="">-- Select community --</option>
+                    <select name="community_id" id="community" class="form-select @error('community_id') is-invalid @enderror">
+                        <option value="">-- Select community (Optional) --</option>
 
                         @foreach ($communities as $community)
                             <option value="{{ $community->id }}"
-                                {{ old('community', $masjid->community_id ?? null) == $community->id ? 'selected' : '' }}>
+                                {{ old('community_id', $masjid->community_id ?? null) == $community->id ? 'selected' : '' }}>
                                 {{ $community->name }}
                             </option>
                         @endforeach
                     </select>
 
-                    @error('community')
+                    @error('community_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -243,7 +257,12 @@
             </label>
 
             <input type="file" name="masjid_images[]"
-                class="form-control @error('masjid_images') is-invalid @enderror" multiple>
+                class="form-control @if($errors->has('masjid_images') || $errors->has('masjid_images.*')) is-invalid @endif" multiple>
+            @if($errors->has('masjid_images') || $errors->has('masjid_images.*'))
+                <div class="invalid-feedback d-block">
+                    {{ $errors->first('masjid_images') ?: $errors->first('masjid_images.*') }}
+                </div>
+            @endif
 
             <small class="text-muted">
                 JPG, PNG only. Max 5 images. Each image should be under 5MB.
@@ -320,13 +339,22 @@
         let map, marker, autocomplete, geocoder;
 
         function initMap() {
-            const lat = parseFloat(document.getElementById('latitude').value);
-            const lng = parseFloat(document.getElementById('longitude').value);
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            const lat = latInput ? parseFloat(latInput.value) : null;
+            const lng = lngInput ? parseFloat(lngInput.value) : null;
 
             const location = {
-                lat: lat || 20.5937,
-                lng: lng || 78.9629
+                lat: (!isNaN(lat) && lat) ? lat : 20.5937,
+                lng: (!isNaN(lng) && lng) ? lng : 78.9629
             };
+
+            if (latInput && !latInput.value) {
+                latInput.value = location.lat;
+            }
+            if (lngInput && !lngInput.value) {
+                lngInput.value = location.lng;
+            }
 
             map = new google.maps.Map(document.getElementById("map"), {
                 center: location,
