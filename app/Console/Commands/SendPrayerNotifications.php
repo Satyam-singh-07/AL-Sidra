@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\PrayerTime;
 use App\Models\User;
+use App\Models\UserFcmToken;
 use App\Models\Masjid;
 use App\Models\MasjidPrayerTiming;
 use App\Models\PrayerNotificationLog;
@@ -75,18 +76,24 @@ class SendPrayerNotifications extends Command
                 })->get();
 
                 $prayerTitle = ucfirst($prayerKey);
-                foreach ($users as $user) {
-                    $this->firebase->sendToUser(
-                        $user,
+                $userIds = $users->pluck('id')->toArray();
+                $tokens = UserFcmToken::whereIn('user_id', $userIds)
+                    ->pluck('token')
+                    ->unique()
+                    ->toArray();
+
+                if (!empty($tokens)) {
+                    $this->firebase->sendToTokens(
+                        $tokens,
                         'Prayer Time',
                         "{$prayerTitle} adhan time has started at {$masjidName} ({$time})",
                         [
                             'type'        => 'namaz',
                             'prayer'      => $prayerTitle,
                             'time'        => $time,
-                            'is_official' => true,
-                            'masjid_id'   => $masjidId,
-                            'masjid_name' => $masjidName,
+                            'is_official' => 'true',
+                            'masjid_id'   => (string)$masjidId,
+                            'masjid_name' => (string)$masjidName,
                         ]
                     );
                 }
@@ -132,20 +139,24 @@ class SendPrayerNotifications extends Command
                     });
                 }
 
-                $globalUsersQuery->chunk(200, function ($users) use ($prayer, $time) {
-                    foreach ($users as $user) {
-                        $this->firebase->sendToUser(
-                            $user,
-                            'Prayer Time',
-                            "{$prayer} time has started ({$time})",
-                            [
-                                'type'   => 'namaz',
-                                'prayer' => $prayer,
-                                'time'   => $time,
-                            ]
-                        );
-                    }
-                });
+                $userIds = $globalUsersQuery->pluck('id')->toArray();
+                $tokens = UserFcmToken::whereIn('user_id', $userIds)
+                    ->pluck('token')
+                    ->unique()
+                    ->toArray();
+
+                if (!empty($tokens)) {
+                    $this->firebase->sendToTokens(
+                        $tokens,
+                        'Prayer Time',
+                        "{$prayer} time has started ({$time})",
+                        [
+                            'type'   => 'namaz',
+                            'prayer' => (string)$prayer,
+                            'time'   => (string)$time,
+                        ]
+                    );
+                }
 
                 PrayerNotificationLog::create([
                     'gregorian_date' => $today,

@@ -73,6 +73,7 @@ class UpdateMasjidRequest extends FormRequest
             'masjid_images'       => ['nullable', 'array', 'max:5'],
             'masjid_images.*'     => ['nullable', 'image', 'max:5120'],
             'masjid_video'        => ['nullable', 'mimes:mp4,webm,ogg', 'max:20480'],
+            'adhan_audio'         => ['nullable', 'file', 'mimes:mp3,wav,ogg,aac,m4a', 'max:10240'],
         ];
     }
 }

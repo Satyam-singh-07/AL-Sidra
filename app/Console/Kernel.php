@@ -27,6 +27,13 @@ class Kernel extends ConsoleKernel
             ->command('quotes:send')
             ->everyMinute()
             ->withoutOverlapping();
+
+        // Daily cleanup: Permanently purge notifications and prayer logs older than 2 weeks
+        $schedule
+            ->command('notifications:prune --days=14')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**

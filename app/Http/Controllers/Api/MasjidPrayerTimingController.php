@@ -5,10 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Masjid;
 use App\Models\MasjidPrayerTiming;
+use App\Models\User;
+use App\Models\UserFcmToken;
+use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class MasjidPrayerTimingController extends Controller
 {
@@ -50,6 +55,45 @@ class MasjidPrayerTimingController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Dispatch a silent sync event to all devices connected to this Masjid.
+     */
+    private function notifyConnectedUsersTimetableSync(int $masjidId): void
+    {
+        try {
+            $users = User::where(function ($q) use ($masjidId) {
+                $q->where('selected_masjid_id', $masjidId)
+                  ->orWhereHas('memberProfile', function ($mq) use ($masjidId) {
+                      $mq->where('place_type', 'masjid')->where('place_id', $masjidId);
+                  });
+            })->orWhereIn('id', function ($sub) use ($masjidId) {
+                $sub->select('user_id')->from('masjids')->where('id', $masjidId);
+            })->get();
+
+            $userIds = $users->pluck('id')->toArray();
+            $tokens = UserFcmToken::whereIn('user_id', $userIds)
+                ->pluck('token')
+                ->unique()
+                ->toArray();
+
+            if (!empty($tokens)) {
+                $firebase = app(FirebaseNotificationService::class);
+                $firebase->sendToTokens(
+                    $tokens,
+                    'Prayer Timings Updated',
+                    'Official prayer schedule has been updated.',
+                    [
+                        'type'      => 'silent_sync',
+                        'action'    => 'sync_prayer_timings',
+                        'masjid_id' => (string)$masjidId,
+                    ]
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed to dispatch timetable sync: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -151,13 +195,19 @@ class MasjidPrayerTimingController extends Controller
             ->where('date', $todayDate)
             ->first();
 
+        $hasCustomAdhan = !empty($masjid->adhan_audio);
+        $adhanAudioUrl = $masjid->adhan_audio_url;
+
         if ($timing) {
             return response()->json([
                 'success' => true,
                 'data'    => [
                     'masjid_id'            => (int)$masjidId,
+                    'masjid_name'          => $masjid->name,
                     'date'                 => $todayDate,
                     'has_custom_schedule' => true,
+                    'has_custom_adhan'    => $hasCustomAdhan,
+                    'adhan_audio_url'      => $adhanAudioUrl,
                     'timings'              => [
                         'fajr'    => $timing->fajr,
                         'sunrise' => $timing->sunrise,
@@ -175,8 +225,11 @@ class MasjidPrayerTimingController extends Controller
             'success' => true,
             'data'    => [
                 'masjid_id'            => (int)$masjidId,
+                'masjid_name'          => $masjid->name,
                 'date'                 => $todayDate,
                 'has_custom_schedule' => false,
+                'has_custom_adhan'    => $hasCustomAdhan,
+                'adhan_audio_url'      => $adhanAudioUrl,
                 'timings'              => null,
             ],
         ]);
@@ -311,6 +364,8 @@ class MasjidPrayerTimingController extends Controller
 
         sort($dates);
 
+        $this->notifyConnectedUsersTimetableSync((int)$masjidId);
+
         return response()->json([
             'success' => true,
             'message' => 'Prayer timings successfully saved.',
@@ -361,11 +416,109 @@ class MasjidPrayerTimingController extends Controller
 
         $deletedCount = $query->delete();
 
+        $this->notifyConnectedUsersTimetableSync((int)$masjidId);
+
         return response()->json([
             'success' => true,
             'message' => 'Prayer timings deleted for specified date(s).',
             'data'    => [
                 'deleted_count' => $deletedCount,
+            ],
+        ]);
+    }
+
+    /**
+     * 3.4 Upload Custom Adhan Audio for Masjid
+     * Route: POST /api/masjid/{masjid_id}/adhan-audio
+     */
+    public function uploadAdhanAudio(Request $request, $masjidId)
+    {
+        $masjid = Masjid::find($masjidId);
+        if (!$masjid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masjid not found.',
+            ], 404);
+        }
+
+        $user = $request->user();
+        if (!$this->checkAuthorization($user, (int)$masjidId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to upload Adhan audio for this Masjid.',
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'adhan_audio' => 'required|file|mimes:mp3,wav,ogg,aac,m4a|max:10240',
+        ], [
+            'adhan_audio.required' => 'Please select an audio file to upload.',
+            'adhan_audio.mimes'    => 'Audio file must be an MP3, WAV, OGG, AAC, or M4A format.',
+            'adhan_audio.max'      => 'Audio file size cannot exceed 10MB.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        if ($masjid->adhan_audio) {
+            Storage::disk('public')->delete($masjid->adhan_audio);
+        }
+
+        $path = $request->file('adhan_audio')->store('masjids/adhan', 'public');
+        $masjid->update(['adhan_audio' => $path]);
+
+        $this->notifyConnectedUsersTimetableSync((int)$masjidId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Custom Adhan audio uploaded successfully.',
+            'data'    => [
+                'masjid_id'       => (int)$masjidId,
+                'adhan_audio_url' => $masjid->adhan_audio_url,
+            ],
+        ]);
+    }
+
+    /**
+     * 3.5 Delete Custom Adhan Audio for Masjid (Revert to default)
+     * Route: DELETE /api/masjid/{masjid_id}/adhan-audio
+     */
+    public function deleteAdhanAudio(Request $request, $masjidId)
+    {
+        $masjid = Masjid::find($masjidId);
+        if (!$masjid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masjid not found.',
+            ], 404);
+        }
+
+        $user = $request->user();
+        if (!$this->checkAuthorization($user, (int)$masjidId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to modify Adhan audio for this Masjid.',
+            ], 403);
+        }
+
+        if ($masjid->adhan_audio) {
+            Storage::disk('public')->delete($masjid->adhan_audio);
+            $masjid->update(['adhan_audio' => null]);
+        }
+
+        $this->notifyConnectedUsersTimetableSync((int)$masjidId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Custom Adhan audio removed. Reverted to standard Adhan.',
+            'data'    => [
+                'masjid_id'       => (int)$masjidId,
+                'adhan_audio_url' => null,
             ],
         ]);
     }

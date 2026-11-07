@@ -99,6 +99,16 @@ class MasjidService
                 ]);
             }
 
+            if (!empty($data['adhan_audio']) && $data['adhan_audio'] instanceof \Illuminate\Http\UploadedFile) {
+                if ($masjid->adhan_audio) {
+                    Storage::disk('public')->delete($masjid->adhan_audio);
+                }
+
+                $masjid->update([
+                    'adhan_audio' => $data['adhan_audio']->store('masjids/adhan', 'public')
+                ]);
+            }
+
             if (!empty($data['masjid_images']) && is_array($data['masjid_images'])) {
                 foreach ($data['masjid_images'] as $image) {
                     if ($image instanceof \Illuminate\Http\UploadedFile && $image->isValid()) {
@@ -122,12 +132,16 @@ class MasjidService
                 $image->delete();
             }
 
-            if ($masjid->passbook_path) {
-                Storage::disk('public')->delete($masjid->passbook_path);
+            if ($masjid->passbook) {
+                Storage::disk('public')->delete($masjid->passbook);
             }
 
-            if ($masjid->video_path) {
-                Storage::disk('public')->delete($masjid->video_path);
+            if ($masjid->video) {
+                Storage::disk('public')->delete($masjid->video);
+            }
+
+            if ($masjid->adhan_audio) {
+                Storage::disk('public')->delete($masjid->adhan_audio);
             }
 
             $masjid->delete();

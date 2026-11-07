@@ -22,6 +22,7 @@ class Masjid extends Model
         'registration_number',
         'registration_date',
         'video',
+        'adhan_audio',
         'latitude',
         'longitude',
         'jummah_khutba_time',
@@ -35,7 +36,7 @@ class Masjid extends Model
         });
     }
 
-    protected $appends = ['video_url','passbook_url'];
+    protected $appends = ['video_url', 'passbook_url', 'adhan_audio_url'];
 
     public function getVideoUrlAttribute()
     {
@@ -45,6 +46,11 @@ class Masjid extends Model
     public function getPassbookUrlAttribute()
     {
         return $this->passbook ? asset('storage/' . $this->passbook) : null;
+    }
+
+    public function getAdhanAudioUrlAttribute()
+    {
+        return $this->adhan_audio ? asset('storage/' . $this->adhan_audio) : null;
     }
 
     public function images()

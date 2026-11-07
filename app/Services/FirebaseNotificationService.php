@@ -5,6 +5,8 @@ namespace App\Services;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use Kreait\Firebase\Messaging\AndroidConfig;
+use Kreait\Firebase\Messaging\ApnsConfig;
 use App\Models\User;
 use App\Models\UserFcmToken;
 use App\Models\Notification;
@@ -42,17 +44,19 @@ class FirebaseNotificationService
             }
         }
 
-        // Custom save to database (Integer ID)
-        Notification::create([
-            'type' => AppNotification::class,
-            'notifiable_id' => $user->id,
-            'notifiable_type' => get_class($user),
-            'data' => [
-                'title' => $title,
-                'body' => $body,
-                'data' => $data,
-            ],
-        ]);
+        // Save to database only for non-namaz notifications (prevents DB bloat from 5x daily prayer alerts)
+        if (($data['type'] ?? '') !== 'namaz') {
+            Notification::create([
+                'type' => AppNotification::class,
+                'notifiable_id' => $user->id,
+                'notifiable_type' => get_class($user),
+                'data' => [
+                    'title' => $title,
+                    'body' => $body,
+                    'data' => $data,
+                ],
+            ]);
+        }
 
         $tokens = UserFcmToken::where('user_id', $user->id)
             ->pluck('token')
@@ -120,6 +124,31 @@ class FirebaseNotificationService
     }
 
     /**
+     * Send push notification directly to a list of tokens in chunks (Bypasses DB writes)
+     */
+    public function sendToTokens(
+        array $tokens,
+        string $title,
+        string $body,
+        array $data = []
+    ): int {
+        $tokens = array_values(array_unique(array_filter($tokens)));
+        if (empty($tokens)) {
+            return 0;
+        }
+
+        $chunks = array_chunk($tokens, 500);
+        $totalSent = 0;
+
+        foreach ($chunks as $chunk) {
+            $this->sendMulticast($chunk, $title, $body, $data);
+            $totalSent += count($chunk);
+        }
+
+        return $totalSent;
+    }
+
+    /**
      * Core FCM multicast sender
      */
     protected function sendMulticast(
@@ -134,7 +163,20 @@ class FirebaseNotificationService
         ]);
 
         $message = CloudMessage::new()
-            ->withData(array_map('strval', $payload)); // FCM requires strings
+            ->withData(array_map('strval', $payload)) // FCM requires strings
+            ->withAndroidConfig(AndroidConfig::fromArray([
+                'priority' => 'high',
+            ]))
+            ->withApnsConfig(ApnsConfig::fromArray([
+                'headers' => [
+                    'apns-priority' => '10',
+                ],
+                'payload' => [
+                    'aps' => [
+                        'content-available' => 1,
+                    ],
+                ],
+            ]));
 
         if (!$this->messaging) {
             Log::warning('Firebase messaging is not initialized (missing credentials JSON).');

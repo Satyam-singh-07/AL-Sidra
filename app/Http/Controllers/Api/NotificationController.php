@@ -15,6 +15,12 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
+        // Automatically clean up notifications older than 2 weeks
+        Notification::where('notifiable_id', $user->id)
+            ->where('notifiable_type', get_class($user))
+            ->where('created_at', '<', now()->subWeeks(2))
+            ->delete();
+
         $notifications = Notification::where('notifiable_id', $user->id)
             ->where('notifiable_type', get_class($user))
             ->orderBy('created_at', 'desc')
@@ -89,6 +95,25 @@ class NotificationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Notification deleted',
+        ]);
+    }
+
+    /**
+     * Purge all notifications older than 2 weeks for the authenticated user
+     */
+    public function pruneOld(Request $request)
+    {
+        $cutoff = now()->subWeeks(2);
+
+        $deleted = Notification::where('notifiable_id', $request->user()->id)
+            ->where('notifiable_type', get_class($request->user()))
+            ->where('created_at', '<', $cutoff)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Old notifications removed from storage.',
+            'deleted_count' => $deleted,
         ]);
     }
 }

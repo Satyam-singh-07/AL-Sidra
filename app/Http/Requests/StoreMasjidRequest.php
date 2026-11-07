@@ -57,6 +57,7 @@ class StoreMasjidRequest extends FormRequest
             'masjid_images'       => 'required|array|min:1|max:5',
             'masjid_images.*'     => 'image|max:5120',
             'masjid_video'        => 'nullable|mimes:mp4,webm,ogg|max:20480',
+            'adhan_audio'         => 'nullable|file|mimes:mp3,wav,ogg,aac,m4a|max:10240',
         ];
     }
 }

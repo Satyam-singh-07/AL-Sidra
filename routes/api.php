@@ -165,6 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::delete('notifications/purge/older-than-two-weeks', [NotificationController::class, 'pruneOld']);
     Route::delete('notifications/{id}', [NotificationController::class, 'destroy']);
 
     // User Account
@@ -351,6 +352,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
     Route::post('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'store']);
     Route::delete('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
+    Route::post('masjid/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'uploadAdhanAudio']);
+    Route::delete('masjid/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'deleteAdhanAudio']);
+    Route::post('masjids/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'uploadAdhanAudio']);
+    Route::delete('masjids/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'deleteAdhanAudio']);
 
     // Donor Request & Review Workflow
     // User-side Endpoints
