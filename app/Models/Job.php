@@ -35,8 +35,6 @@ class Job extends Model
 
     public function place()
     {
-        return $this->place_type === 'masjid'
-            ? $this->belongsTo(Masjid::class, 'place_id')
-            : $this->belongsTo(Madarsa::class, 'place_id');
+        return $this->morphTo(__FUNCTION__, 'place_type', 'place_id');
     }
 }

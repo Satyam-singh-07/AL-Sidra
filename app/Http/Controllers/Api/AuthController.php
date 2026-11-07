@@ -13,10 +13,13 @@ class AuthController extends Controller
 {
     private function getUserRole($user)
     {
+        if ($user->roles()->where('slug', 'super_admin')->exists()) {
+            return 'super_admin';
+        }
         if ($user->memberProfile) {
             return 'member';
         }
-        return 'user';
+        return $user->role ?? 'user';
     }
 
     public function userSignup(Request $request, OtpService $otpService)
@@ -298,7 +301,21 @@ class AuthController extends Controller
 
     public function memberProfile(Request $request)
     {
-        $user = $request->user()->load([
+        $user = $request->user();
+
+        // Ensure unique_id exists for members
+        if ($user->memberProfile && empty($user->unique_id)) {
+            $user->generateUniqueId();
+            $user->refresh();
+        }
+
+        // Sync selected_masjid_id if null but member has masjid
+        if (empty($user->selected_masjid_id) && $user->memberProfile && $user->memberProfile->masjid_id) {
+            $user->selected_masjid_id = $user->memberProfile->masjid_id;
+            $user->save();
+        }
+
+        $user->load([
             'memberProfile.category',
             'memberProfile.kyc',
             'memberProfile.place',
@@ -306,12 +323,33 @@ class AuthController extends Controller
             'ruhaniIjalAamil'
         ]);
 
+        // Fallback for place relation in case of any legacy mismatch
+        if ($user->memberProfile && !$user->memberProfile->place) {
+            if ($user->memberProfile->masjid_id || $user->memberProfile->place_type === 'masjid') {
+                $masjidId = $user->memberProfile->masjid_id ?: $user->memberProfile->place_id;
+                if ($masjidId) {
+                    $user->memberProfile->setRelation('place', \App\Models\Masjid::find($masjidId));
+                }
+            } elseif ($user->memberProfile->madarsa_id || $user->memberProfile->place_type === 'madarsa') {
+                $madarsaId = $user->memberProfile->madarsa_id ?: $user->memberProfile->place_id;
+                if ($madarsaId) {
+                    $user->memberProfile->setRelation('place', \App\Models\Madarsa::find($madarsaId));
+                }
+            }
+        }
+
         $is_muqquir = $user->muqquirProfile && $user->muqquirProfile->status === 'approved';
         $is_amil = $user->ruhaniIjalAamil && $user->ruhaniIjalAamil->status === 'approved';
 
+        $userData = $user->toArray();
+        $userData['role'] = $this->getUserRole($user);
+        if (empty($userData['unique_id']) && $user->unique_id) {
+            $userData['unique_id'] = $user->unique_id;
+        }
+
         return response()->json([
             'success' => true,
-            'data' => array_merge($user->toArray(), [
+            'data' => array_merge($userData, [
                 'is_muqquir' => (bool)$is_muqquir,
                 'is_amil' => (bool)$is_amil
             ])

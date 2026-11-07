@@ -45,6 +45,11 @@ class User extends Authenticatable
         'land_count'   => 'decimal:2',
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected $appends = ['profile_picture_url', 'units'];
 
     public function getUnitsAttribute(): int
@@ -54,9 +59,11 @@ class User extends Authenticatable
 
     public function generateUniqueId()
     {
-        if ($this->roles()->where('slug', 'member')->exists()) {
-            $this->unique_id = 'ASMR' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
-            $this->save();
+        if (empty($this->unique_id)) {
+            if ($this->memberProfile()->exists() || $this->roles()->where('slug', 'member')->exists()) {
+                $this->unique_id = 'ASMR' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
+                $this->save();
+            }
         }
     }
 

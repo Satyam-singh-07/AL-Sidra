@@ -51,12 +51,10 @@ class MemberProfile extends Model
         return $this->belongsTo(User::class, 'kyc_reviewed_by');
     }
     
-    // Polymorphic-style resolver
+    // Native Polymorphic Relation
     public function place()
     {
-        return $this->place_type === 'masjid'
-            ? $this->belongsTo(Masjid::class, 'place_id')
-            : $this->belongsTo(Madarsa::class, 'place_id');
+        return $this->morphTo(__FUNCTION__, 'place_type', 'place_id');
     }
 }
 
