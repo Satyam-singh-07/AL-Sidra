@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\MohallaController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\MasjidExpenseController;
 use App\Http\Controllers\Api\MasjidPrayerTimingController;
+use App\Http\Controllers\Api\MasjidCampaignCategoryController;
 use App\Http\Controllers\DonorRequestController;
 
 
@@ -294,6 +295,10 @@ Route::get('masjid/{masjid_id}/prayer-timings/today', [MasjidPrayerTimingControl
 Route::get('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'index']);
 Route::get('masjids/{masjid_id}/prayer-timings/today', [MasjidPrayerTimingController::class, 'today']);
 
+// Masjid Campaign Categories (Public read)
+Route::get('masjid/{masjid_id}/campaign-categories', [MasjidCampaignCategoryController::class, 'index']);
+Route::get('masjids/{masjid_id}/campaign-categories', [MasjidCampaignCategoryController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // Mohalla Management
     Route::post('mohallas', [MohallaController::class, 'store']);
@@ -356,6 +361,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('masjid/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'deleteAdhanAudio']);
     Route::post('masjids/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'uploadAdhanAudio']);
     Route::delete('masjids/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'deleteAdhanAudio']);
+
+    // Masjid Campaign Categories Management (Mutawalli)
+    Route::post('masjid/{masjid_id}/campaign-categories', [MasjidCampaignCategoryController::class, 'store']);
+    Route::delete('masjid/{masjid_id}/campaign-categories/{id}', [MasjidCampaignCategoryController::class, 'destroy']);
+    Route::post('masjids/{masjid_id}/campaign-categories', [MasjidCampaignCategoryController::class, 'store']);
+    Route::delete('masjids/{masjid_id}/campaign-categories/{id}', [MasjidCampaignCategoryController::class, 'destroy']);
 
     // Donor Request & Review Workflow
     // User-side Endpoints

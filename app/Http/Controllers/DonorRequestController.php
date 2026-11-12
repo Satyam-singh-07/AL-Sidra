@@ -30,11 +30,14 @@ class DonorRequestController extends Controller
         $validated = $request->validate([
             'masjid_id'       => 'nullable|exists:masjids,id',
             'madarsa_id'      => 'nullable|exists:madarsas,id',
+            'mohalla_id'      => 'nullable|exists:mohallas,id',
+            'mohalla'         => 'nullable|string|max:255',
             'father_name'     => 'required|string|max:255',
             'unit_count'      => 'nullable|integer|min:0|max:50000',
             'family_count'    => 'nullable|integer|min:0|max:50000',
             'nikkah_count'    => 'nullable|integer|min:0|max:50000',
             'land_count'      => 'nullable|numeric|min:0|max:1000000',
+            'category_units'  => 'nullable|array',
             'applicant_name'  => 'nullable|string|max:255',
             'phone'           => 'nullable|string|max:25',
             'notes'           => 'nullable|string|max:1000',
@@ -76,6 +79,15 @@ class DonorRequestController extends Controller
             ], 409);
         }
 
+        $mohallaId = $validated['mohalla_id'] ?? null;
+        $mohallaName = $validated['mohalla'] ?? null;
+        if ($mohallaId && !$mohallaName) {
+            $m = Mohalla::find($mohallaId);
+            $mohallaName = $m?->name;
+        }
+
+        $categoryUnits = $validated['category_units'] ?? null;
+
         $donorRequest = DonorRequest::create([
             'user_id'        => $userId,
             'masjid_id'      => $validated['masjid_id'] ?? null,
@@ -86,6 +98,9 @@ class DonorRequestController extends Controller
             'family_count'   => $familyCount,
             'nikkah_count'   => $nikkahCount,
             'land_count'     => $landCount,
+            'category_units' => $categoryUnits,
+            'mohalla_id'     => $mohallaId,
+            'mohalla'        => $mohallaName,
             'phone'          => $phone,
             'notes'          => $validated['notes'] ?? null,
             'status'         => 'pending',
@@ -286,6 +301,9 @@ class DonorRequestController extends Controller
                 $userUpdates['family_count'] = $donorRequest->family_count ?? $donorRequest->unit_count ?? 0;
                 $userUpdates['nikkah_count'] = $donorRequest->nikkah_count ?? 0;
                 $userUpdates['land_count'] = $donorRequest->land_count ?? 0;
+                if ($donorRequest->category_units) {
+                    $userUpdates['category_units'] = $donorRequest->category_units;
+                }
                 if ($donorRequest->notes) {
                     $userUpdates['notes'] = $donorRequest->notes;
                 }

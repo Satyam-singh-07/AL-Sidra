@@ -34,7 +34,7 @@ class CampaignController extends Controller
             'masjid_id' => 'nullable|exists:masjids,id',
             'madarsa_id' => 'nullable|exists:madarsas,id',
             'name' => 'required|string|max:255',
-            'category' => 'required|in:zameen,mard,nikah,by_choice',
+            'category' => 'required|string|max:100',
             'unit_price' => 'nullable|numeric|min:0',
             'rate_per_unit' => 'nullable|numeric|min:0',
             'target_amount' => 'nullable|numeric|min:0',
@@ -76,10 +76,11 @@ class CampaignController extends Controller
 
         // Resolve unit price (accepts either unit_price or rate_per_unit)
         $unitPrice = $request->input('unit_price') ?? $request->input('rate_per_unit');
-        if (!$isLegacy && $request->category !== 'by_choice' && ($unitPrice === null || (float)$unitPrice <= 0)) {
+        $isByChoice = in_array(strtolower($request->category), ['by_choice', 'voluntary', 'by choice (اختیاری)', 'open']);
+        if (!$isLegacy && !$isByChoice && ($unitPrice === null || (float)$unitPrice <= 0)) {
             return response()->json([
                 'message' => 'Unit price is required for unit-based campaigns.',
-                'errors' => ['unit_price' => ['The unit price field is required when category is not by_choice.']],
+                'errors' => ['unit_price' => ['The unit price field is required for this campaign category.']],
             ], 422);
         }
 
@@ -165,16 +166,23 @@ class CampaignController extends Controller
 
                 // Retrieve Donor's Registered Unit Count based on Campaign Category (default 0)
                 $unitCount = 0;
-                if ($request->category === 'zameen') {
+                $catLower = strtolower($request->category);
+                $donorCustomUnits = $donor->category_units ?? $donorReq?->category_units ?? [];
+
+                if (is_array($donorCustomUnits) && isset($donorCustomUnits[$request->category])) {
+                    $unitCount = (float)$donorCustomUnits[$request->category];
+                } elseif (str_contains($catLower, 'zameen') || str_contains($catLower, 'land') || str_contains($catLower, 'beegah')) {
                     $unitCount = (float)($donor->land_count ?? $donorReq?->land_count ?? 0);
-                } elseif ($request->category === 'nikah' || $request->category === 'nikkah') {
+                } elseif (str_contains($catLower, 'nikah') || str_contains($catLower, 'nikkah') || str_contains($catLower, 'marriage')) {
                     $unitCount = (float)($donor->nikkah_count ?? $donorReq?->nikkah_count ?? 0);
-                } else {
+                } elseif (str_contains($catLower, 'mard') || str_contains($catLower, 'family') || str_contains($catLower, 'unit')) {
                     $unitCount = (float)($donor->family_count ?? $donor->unit_count ?? $donorReq?->family_count ?? $donorReq?->unit_count ?? 0);
+                } else {
+                    $unitCount = (float)($donor->family_count ?? $donor->unit_count ?? $donorReq?->family_count ?? $donorReq?->unit_count ?? 1);
                 }
 
-                // If campaign is unit-based (not 'by_choice'), it is only relevant to donors who have units > 0 for this type!
-                if ($request->category !== 'by_choice' && $unitCount <= 0) {
+                // If campaign is unit-based (not voluntary), it is only relevant to donors who have units > 0
+                if (!$isByChoice && $unitCount <= 0) {
                     continue; // Skip irrelevant donors who hold 0 units for this campaign category
                 }
 
@@ -208,7 +216,7 @@ class CampaignController extends Controller
             DB::commit();
 
             // Broadcast FCM push notification to relevant donors for this campaign
-            $notifiableDonors = ($request->category === 'by_choice') ? $donors : $relevantDonors;
+            $notifiableDonors = $isByChoice ? $donors : $relevantDonors;
             if ($notifiableDonors->isNotEmpty()) {
                 try {
                     $title = "Naya Chanda Campaign: {$campaign->name}";

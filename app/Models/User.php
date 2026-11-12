@@ -35,6 +35,7 @@ class User extends Authenticatable
         'family_count',
         'nikkah_count',
         'land_count',
+        'category_units',
         'notes',
     ];
 
@@ -43,6 +44,7 @@ class User extends Authenticatable
         'family_count' => 'integer',
         'nikkah_count' => 'integer',
         'land_count'   => 'decimal:2',
+        'category_units' => 'array',
     ];
 
     protected $hidden = [

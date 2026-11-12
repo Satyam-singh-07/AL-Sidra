@@ -21,6 +21,7 @@ class DonorRequest extends Model
         'family_count',
         'nikkah_count',
         'land_count',
+        'category_units',
         'phone',
         'mohalla_id',
         'mohalla',
@@ -36,6 +37,7 @@ class DonorRequest extends Model
         'family_count' => 'integer',
         'nikkah_count' => 'integer',
         'land_count'   => 'decimal:2',
+        'category_units' => 'array',
         'reviewed_at'  => 'datetime',
     ];
 
