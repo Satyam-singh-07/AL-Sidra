@@ -268,11 +268,20 @@ class DonorRequestController extends Controller
         $donorRequest = DonorRequest::findOrFail($id);
 
         $validated = $request->validate([
-            'mohalla_id' => 'required|exists:mohallas,id',
+            'mohalla_id' => 'nullable|exists:mohallas,id',
             'notes'      => 'nullable|string|max:1000',
         ]);
 
-        $mohalla = Mohalla::findOrFail($validated['mohalla_id']);
+        $mohallaId = $validated['mohalla_id'] ?? $donorRequest->mohalla_id;
+
+        if (!$mohallaId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select or assign a Mohalla for this donor.',
+            ], 422);
+        }
+
+        $mohalla = Mohalla::findOrFail($mohallaId);
 
         DB::transaction(function () use ($donorRequest, $mohalla, $validated, $request) {
             // 1. Update Donor Request status
