@@ -352,11 +352,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'patch', 'post'], 'masjid-expenses/{id}', [MasjidExpenseController::class, 'update']);
     Route::delete('masjid-expenses/{id}', [MasjidExpenseController::class, 'destroy']);
 
+    // Adhan Audios Library (Admin-managed)
+    Route::get('adhan-audios', [MasjidPrayerTimingController::class, 'getAvailableAdhanAudios']);
+
     // Masjid Official Adhan & Prayer Timings Management (Mutawalli)
     Route::post('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'store']);
     Route::delete('masjid/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
     Route::post('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'store']);
     Route::delete('masjids/{masjid_id}/prayer-timings', [MasjidPrayerTimingController::class, 'destroy']);
+    Route::post('masjid/{masjid_id}/set-adhan-audio', [MasjidPrayerTimingController::class, 'setAdhanAudio']);
+    Route::post('masjids/{masjid_id}/set-adhan-audio', [MasjidPrayerTimingController::class, 'setAdhanAudio']);
     Route::post('masjid/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'uploadAdhanAudio']);
     Route::delete('masjid/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'deleteAdhanAudio']);
     Route::post('masjids/{masjid_id}/adhan-audio', [MasjidPrayerTimingController::class, 'uploadAdhanAudio']);

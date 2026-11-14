@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdhanAudioController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CommunityController;
@@ -120,6 +121,7 @@ Route::prefix('admin')->group(function () {
             ->name('video-categories.toggle-status');
 
         Route::resource('masjids', MasjidController::class);
+        Route::resource('adhan-audios', AdhanAudioController::class);
         Route::patch('/masjids/{masjid}/status', [MasjidController::class, 'cycleStatus'])
             ->name('masjids.cycle-status');
         Route::patch('/masjids/{masjid}/kyc-status', [MasjidController::class, 'cycleKycStatus'])

@@ -3,6 +3,7 @@
 return [
     'manage_users',
     'manage_masjids',
+    'manage_adhan_audios',
     'manage_madarsas',
     'manage_restaurants',
     'manage_yateems',

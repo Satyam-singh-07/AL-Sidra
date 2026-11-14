@@ -23,6 +23,7 @@ class Masjid extends Model
         'registration_date',
         'video',
         'adhan_audio',
+        'adhan_audio_id',
         'latitude',
         'longitude',
         'jummah_khutba_time',
@@ -50,7 +51,15 @@ class Masjid extends Model
 
     public function getAdhanAudioUrlAttribute()
     {
+        if ($this->adhanAudio) {
+            return $this->adhanAudio->audio_url;
+        }
         return $this->adhan_audio ? asset('storage/' . $this->adhan_audio) : null;
+    }
+
+    public function adhanAudio()
+    {
+        return $this->belongsTo(AdhanAudio::class, 'adhan_audio_id');
     }
 
     public function images()

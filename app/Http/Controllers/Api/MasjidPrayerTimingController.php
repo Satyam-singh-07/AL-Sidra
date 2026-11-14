@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdhanAudio;
 use App\Models\Masjid;
 use App\Models\MasjidPrayerTiming;
 use App\Models\User;
@@ -195,8 +196,15 @@ class MasjidPrayerTimingController extends Controller
             ->where('date', $todayDate)
             ->first();
 
-        $hasCustomAdhan = !empty($masjid->adhan_audio);
+        $hasCustomAdhan = !empty($masjid->adhan_audio) || !empty($masjid->adhan_audio_id);
         $adhanAudioUrl = $masjid->adhan_audio_url;
+        $adhanAudioData = $masjid->adhanAudio ? [
+            'id'        => $masjid->adhanAudio->id,
+            'title'     => $masjid->adhanAudio->title,
+            'reciter'   => $masjid->adhanAudio->reciter,
+            'duration'  => $masjid->adhanAudio->duration,
+            'audio_url' => $masjid->adhanAudio->audio_url,
+        ] : null;
 
         if ($timing) {
             return response()->json([
@@ -207,7 +215,9 @@ class MasjidPrayerTimingController extends Controller
                     'date'                 => $todayDate,
                     'has_custom_schedule' => true,
                     'has_custom_adhan'    => $hasCustomAdhan,
+                    'adhan_audio_id'      => $masjid->adhan_audio_id,
                     'adhan_audio_url'      => $adhanAudioUrl,
+                    'adhan_audio'          => $adhanAudioData,
                     'timings'              => [
                         'fajr'    => $timing->fajr,
                         'sunrise' => $timing->sunrise,
@@ -229,7 +239,9 @@ class MasjidPrayerTimingController extends Controller
                 'date'                 => $todayDate,
                 'has_custom_schedule' => false,
                 'has_custom_adhan'    => $hasCustomAdhan,
+                'adhan_audio_id'      => $masjid->adhan_audio_id,
                 'adhan_audio_url'      => $adhanAudioUrl,
+                'adhan_audio'          => $adhanAudioData,
                 'timings'              => null,
             ],
         ]);
@@ -508,8 +520,11 @@ class MasjidPrayerTimingController extends Controller
 
         if ($masjid->adhan_audio) {
             Storage::disk('public')->delete($masjid->adhan_audio);
-            $masjid->update(['adhan_audio' => null]);
         }
+        $masjid->update([
+            'adhan_audio'    => null,
+            'adhan_audio_id' => null,
+        ]);
 
         $this->notifyConnectedUsersTimetableSync((int)$masjidId);
 
@@ -518,7 +533,105 @@ class MasjidPrayerTimingController extends Controller
             'message' => 'Custom Adhan audio removed. Reverted to standard Adhan.',
             'data'    => [
                 'masjid_id'       => (int)$masjidId,
+                'has_custom_adhan'=> false,
+                'adhan_audio_id'  => null,
                 'adhan_audio_url' => null,
+                'adhan_audio'     => null,
+            ],
+        ]);
+    }
+
+    /**
+     * 3.6 Get Available Admin-Uploaded Adhan Audios
+     * Route: GET /api/adhan-audios
+     */
+    public function getAvailableAdhanAudios()
+    {
+        $audios = AdhanAudio::where('status', 'active')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $audios,
+        ]);
+    }
+
+    /**
+     * 3.7 Set Adhan Audio for Masjid from Admin Library
+     * Route: POST /api/masjid/{masjid_id}/set-adhan-audio
+     */
+    public function setAdhanAudio(Request $request, $masjidId)
+    {
+        $masjid = Masjid::find($masjidId);
+        if (!$masjid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Masjid not found.',
+            ], 404);
+        }
+
+        $user = $request->user();
+        if (!$this->checkAuthorization($user, (int)$masjidId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not authorized to configure Adhan audio for this Masjid.',
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'adhan_audio_id' => 'required|exists:adhan_audios,id',
+        ], [
+            'adhan_audio_id.required' => 'Please select an Adhan audio.',
+            'adhan_audio_id.exists'   => 'The selected Adhan audio does not exist.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        $adhanAudio = AdhanAudio::where('id', $request->adhan_audio_id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$adhanAudio) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The selected Adhan audio is not active.',
+            ], 422);
+        }
+
+        // Clean up direct legacy file if any
+        if ($masjid->adhan_audio) {
+            Storage::disk('public')->delete($masjid->adhan_audio);
+        }
+
+        $masjid->update([
+            'adhan_audio_id' => $adhanAudio->id,
+            'adhan_audio'    => null,
+        ]);
+
+        $this->notifyConnectedUsersTimetableSync((int)$masjidId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Adhan sound set successfully.',
+            'data'    => [
+                'masjid_id'       => (int)$masjidId,
+                'has_custom_adhan'=> true,
+                'adhan_audio_id'  => $adhanAudio->id,
+                'adhan_audio_url' => $adhanAudio->audio_url,
+                'adhan_audio'     => [
+                    'id'        => $adhanAudio->id,
+                    'title'     => $adhanAudio->title,
+                    'reciter'   => $adhanAudio->reciter,
+                    'duration'  => $adhanAudio->duration,
+                    'audio_url' => $adhanAudio->audio_url,
+                ],
             ],
         ]);
     }

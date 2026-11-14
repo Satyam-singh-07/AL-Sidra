@@ -22,6 +22,14 @@
                 </a>
             @endif
 
+            {{-- Adhan Audios --}}
+            @if ($user->canAccess('manage_adhan_audios'))
+                <a href="{{ route('adhan-audios.index') }}"
+                    class="list-group-item list-group-item-action {{ request()->routeIs('adhan-audios.*') ? 'active' : '' }}">
+                    <i class="fas fa-volume-up"></i> Adhan Audios
+                </a>
+            @endif
+
             {{-- Madarsas --}}
             @if ($user->canAccess('manage_madarsas'))
                 <a href="{{ route('madarsas.index') }}"
