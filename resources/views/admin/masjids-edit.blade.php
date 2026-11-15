@@ -296,27 +296,6 @@
             </small>
         </div>
 
-        <!-- Section 6: Custom Adhan Audio -->
-        <div class="form-section">
-            <h5><i class="fas fa-volume-up me-2"></i>Custom Adhan Audio (Optional)</h5>
-
-            @if($masjid->adhan_audio)
-                <div class="mb-3">
-                    <p class="mb-1 text-success fw-semibold"><i class="fas fa-music me-1"></i>Current Custom Adhan:</p>
-                    <audio controls class="w-100 mb-2">
-                        <source src="{{ asset('storage/' . $masjid->adhan_audio) }}">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-            @endif
-
-            <label for="adhanAudio" class="form-label">Upload New Adhan Audio</label>
-            <input type="file" class="form-control" id="adhanAudio" name="adhan_audio"
-                accept="audio/mp3,audio/wav,audio/ogg,audio/aac,audio/m4a">
-            <small class="text-muted">
-                MP3, WAV, OGG, AAC or M4A. Max 10MB. If uploaded, users connected to this masjid will receive prayer alerts with this audio.
-            </small>
-        </div>
 
         <!-- Form Actions -->
         <div class="form-section">

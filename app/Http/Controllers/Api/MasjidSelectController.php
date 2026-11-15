@@ -159,27 +159,15 @@ class MasjidSelectController extends Controller
         $masjid = null;
         $madarsa = null;
 
-        // 1. Check if user is owner/creator of a Masjid or Madarsa
-        $ownedMasjid = Masjid::where('user_id', $user->id)->first();
-        if ($ownedMasjid) {
-            $masjid = $ownedMasjid;
-        }
-
-        $ownedMadarsa = Madarsa::where('user_id', $user->id)->first();
-        if ($ownedMadarsa) {
-            $madarsa = $ownedMadarsa;
-        }
-
-        // 2. Check Member Profile (Maulana / Imam / Qari / Staff / Mutvalli)
-        if (!$masjid && $user->memberProfile) {
+        // 1. Check Member Profile (Official Assigned Mutvalli / Maulana / Imam / Staff)
+        // Official appointment takes highest priority over simply being a place creator.
+        if ($user->memberProfile) {
             if ($user->memberProfile->masjid_id) {
                 $masjid = $user->memberProfile->masjid;
             } elseif ($user->memberProfile->place_type === 'masjid' && $user->memberProfile->place_id) {
                 $masjid = Masjid::find($user->memberProfile->place_id);
             }
-        }
 
-        if (!$madarsa && $user->memberProfile) {
             if ($user->memberProfile->madarsa_id) {
                 $madarsa = $user->memberProfile->madarsa;
             } elseif ($user->memberProfile->place_type === 'madarsa' && $user->memberProfile->place_id) {
@@ -187,13 +175,28 @@ class MasjidSelectController extends Controller
             }
         }
 
-        // 3. Check Selected Place (Donor / General User)
+        // 2. Check Selected Place (Donor / General User explicitly selected place)
         if (!$masjid && $user->selectedMasjid) {
             $masjid = $user->selectedMasjid;
         }
 
         if (!$madarsa && $user->selectedMadarsa) {
             $madarsa = $user->selectedMadarsa;
+        }
+
+        // 3. Fallback: Check if user is owner/creator of a Masjid or Madarsa
+        if (!$masjid) {
+            $ownedMasjid = Masjid::where('user_id', $user->id)->first();
+            if ($ownedMasjid) {
+                $masjid = $ownedMasjid;
+            }
+        }
+
+        if (!$madarsa) {
+            $ownedMadarsa = Madarsa::where('user_id', $user->id)->first();
+            if ($ownedMadarsa) {
+                $madarsa = $ownedMadarsa;
+            }
         }
 
         // 4. Comprehensive Mutvalli Detection for the resolved place
