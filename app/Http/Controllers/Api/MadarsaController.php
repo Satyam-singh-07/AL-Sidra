@@ -37,35 +37,44 @@ class MadarsaController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->latitude || !$user->longitude) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User location not set',
-            ], 422);
-        }
+        // Support live latitude and longitude query params, falling back to user's saved location
+        $lat = $request->query('latitude') !== null ? (float) $request->query('latitude') : ($user?->latitude ? (float) $user->latitude : null);
+        $lng = $request->query('longitude') !== null ? (float) $request->query('longitude') : ($user?->longitude ? (float) $user->longitude : null);
+        $hasLocation = !empty($lat) && !empty($lng);
 
-        $lat = $user->latitude;
-        $lng = $user->longitude;
+        $query = Madarsa::where('madarsas.status', 'active');
 
-        $query = Madarsa::selectRaw("
-        madarsas.id,
-        madarsas.unique_id,
-        madarsas.name,
-        madarsas.address,
-        madarsas.gender,
-        (
-            6371 * acos(
-                cos(radians(?)) *
-                cos(radians(madarsas.latitude)) *
-                cos(radians(madarsas.longitude) - radians(?)) +
-                sin(radians(?)) *
-                sin(radians(madarsas.latitude))
-            )
-        ) AS distance
-    ", [$lat, $lng, $lat])
-            ->where('madarsas.status', 'active')
+        if ($hasLocation) {
+            $query->selectRaw("
+                madarsas.id,
+                madarsas.unique_id,
+                madarsas.name,
+                madarsas.address,
+                madarsas.gender,
+                (
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(madarsas.latitude)) *
+                        cos(radians(madarsas.longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(madarsas.latitude))
+                    )
+                ) AS distance
+            ", [$lat, $lng, $lat])
             ->whereNotNull('madarsas.latitude')
-            ->whereNotNull('madarsas.longitude');
+            ->whereNotNull('madarsas.longitude')
+            ->orderBy('distance');
+        } else {
+            $query->selectRaw("
+                madarsas.id,
+                madarsas.unique_id,
+                madarsas.name,
+                madarsas.address,
+                madarsas.gender,
+                NULL AS distance
+            ")
+            ->orderBy('madarsas.id', 'desc');
+        }
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -87,8 +96,6 @@ class MadarsaController extends Controller
             )->orderBy('madarsa_images.id');
         }]);
 
-        $query->orderBy('distance');
-
         $madarsas = $query->paginate(10);
 
         $madarsas->getCollection()->transform(function ($madarsa) {
@@ -99,7 +106,7 @@ class MadarsaController extends Controller
                 'address'  => $madarsa->address,
                 'gender'   => $madarsa->gender,
                 'image'    => $madarsa->images->first()?->image_url,
-                'distance' => round($madarsa->distance, 2),
+                'distance' => $madarsa->distance !== null ? round((float) $madarsa->distance, 2) : 0.0,
             ];
         });
 

@@ -20,16 +20,10 @@ class MasjidController extends Controller
     {
         $user = $request->user();
 
-        // ✅ User must have location
-        if (!$user->latitude || !$user->longitude) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User location not set',
-            ], 422);
-        }
-
-        $lat = $user->latitude;
-        $lng = $user->longitude;
+        // Support live latitude and longitude query params, falling back to user's saved location
+        $lat = $request->query('latitude') !== null ? (float) $request->query('latitude') : ($user?->latitude ? (float) $user->latitude : null);
+        $lng = $request->query('longitude') !== null ? (float) $request->query('longitude') : ($user?->longitude ? (float) $user->longitude : null);
+        $hasLocation = !empty($lat) && !empty($lng);
 
         // Optional search
         $search = $request->query('search');
@@ -37,27 +31,32 @@ class MasjidController extends Controller
         // Pagination
         $perPage = $request->query('per_page', 10);
 
-        // ✅ Main Query (Fixed)
-        $query = Masjid::select('masjids.*') // VERY IMPORTANT
-            ->selectRaw("
-            (
-                6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(masjids.latitude)) *
-                    cos(radians(masjids.longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(masjids.latitude))
-                )
-            ) AS distance
-        ", [$lat, $lng, $lat])
-
+        // ✅ Main Query
+        $query = Masjid::select('masjids.*')
             ->where('masjids.status', 'active')
-
             // ✅ Load images properly
             ->with(['images' => function ($q) {
                 $q->select('id', 'masjid_id', 'image_path')
                     ->orderBy('id');
             }]);
+
+        if ($hasLocation) {
+            $query->selectRaw("
+                (
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(masjids.latitude)) *
+                        cos(radians(masjids.longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(masjids.latitude))
+                    )
+                ) AS distance
+            ", [$lat, $lng, $lat])
+            ->orderBy('distance');
+        } else {
+            $query->selectRaw("NULL AS distance")
+                ->orderBy('masjids.id', 'desc');
+        }
 
         // ✅ Search filter
         if (!empty($search)) {
@@ -69,13 +68,10 @@ class MasjidController extends Controller
         }
 
         // ✅ Paginate Results
-        $masjids = $query
-            ->orderBy('distance')
-            ->paginate($perPage);
+        $masjids = $query->paginate($perPage);
 
         // ✅ Transform Response
         $masjids->getCollection()->transform(function ($masjid) {
-
             $firstImage = $masjid->images->first();
 
             return [
@@ -83,10 +79,8 @@ class MasjidController extends Controller
                 'unique_id' => $masjid->unique_id,
                 'name'     => $masjid->name,
                 'address'  => $masjid->address,
-
                 'image_url'    => $firstImage ? $firstImage->image_url : null,
-
-                'distance' => round($masjid->distance, 2),
+                'distance' => $masjid->distance !== null ? round((float) $masjid->distance, 2) : 0.0,
             ];
         });
 

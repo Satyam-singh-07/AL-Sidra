@@ -13,33 +13,40 @@ class RestaurantRepository
     }
 
     public function listWithDistance(
-        float $userLat,
-        float $userLng,
+        ?float $userLat,
+        ?float $userLng,
         ?string $search,
         int $perPage = 10
     ) {
-        $query = Restaurant::select('restaurants.*') // IMPORTANT
-            ->selectRaw("
-            (
-                6371 * acos(
-                    cos(radians(?)) *
-                    cos(radians(restaurants.latitude)) *
-                    cos(radians(restaurants.longitude) - radians(?)) +
-                    sin(radians(?)) *
-                    sin(radians(restaurants.latitude))
-                )
-            ) AS distance
-        ", [$userLat, $userLng, $userLat])
+        $hasLocation = !empty($userLat) && !empty($userLng);
 
+        $query = Restaurant::select('restaurants.*')
             ->where('restaurants.status', 'approved')
-            ->whereNotNull('restaurants.latitude')
-            ->whereNotNull('restaurants.longitude')
-
             // ✅ Load images properly (no limit here)
             ->with(['images' => function ($q) {
                 $q->select('id', 'restaurant_id', 'image')
                     ->orderBy('id'); // ensure first image is predictable
             }]);
+
+        if ($hasLocation) {
+            $query->selectRaw("
+                (
+                    6371 * acos(
+                        cos(radians(?)) *
+                        cos(radians(restaurants.latitude)) *
+                        cos(radians(restaurants.longitude) - radians(?)) +
+                        sin(radians(?)) *
+                        sin(radians(restaurants.latitude))
+                    )
+                ) AS distance
+            ", [$userLat, $userLng, $userLat])
+            ->whereNotNull('restaurants.latitude')
+            ->whereNotNull('restaurants.longitude')
+            ->orderBy('distance');
+        } else {
+            $query->selectRaw("NULL AS distance")
+                ->orderBy('restaurants.id', 'desc');
+        }
 
         // ✅ Search filter
         if (!empty($search)) {
@@ -50,13 +57,10 @@ class RestaurantRepository
         }
 
         // ✅ Paginate
-        $restaurants = $query
-            ->orderBy('distance')
-            ->paginate($perPage);
+        $restaurants = $query->paginate($perPage);
 
         // ✅ Transform collection properly
         $restaurants->getCollection()->transform(function ($restaurant) {
-
             $firstImage = $restaurant->images->first();
 
             return [
@@ -64,7 +68,7 @@ class RestaurantRepository
                 'name'        => $restaurant->name,
                 'address'     => $restaurant->address,
                 'image_url'   => $firstImage ? $firstImage->image_url : null,
-                'distance'    => round($restaurant->distance, 2),
+                'distance'    => $restaurant->distance !== null ? round((float) $restaurant->distance, 2) : 0.0,
             ];
         });
 

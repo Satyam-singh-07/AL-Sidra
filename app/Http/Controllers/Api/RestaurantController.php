@@ -25,17 +25,16 @@ class RestaurantController extends Controller
     {
         $user = $request->user();
 
-        if (!$user->latitude || !$user->longitude) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User location not set',
-            ], 422);
-        }
+        // Support live latitude and longitude query params, falling back to user's saved location
+        $lat = $request->query('latitude') !== null ? (float) $request->query('latitude') : ($user?->latitude ? (float) $user->latitude : null);
+        $lng = $request->query('longitude') !== null ? (float) $request->query('longitude') : ($user?->longitude ? (float) $user->longitude : null);
 
         $restaurants = $service->listForUser(
             $user,
             $request->query('search'),
-            (int) $request->query('per_page', 10)
+            (int) $request->query('per_page', 10),
+            $lat,
+            $lng
         );
 
         return response()->json([

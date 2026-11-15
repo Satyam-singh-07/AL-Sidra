@@ -53,15 +53,14 @@ class RestaurantService
         });
     }
 
-    public function listForUser(User $user, ?string $search, int $perPage = 10)
+    public function listForUser(User $user, ?string $search, int $perPage = 10, ?float $lat = null, ?float $lng = null)
     {
-        if (!$user->latitude || !$user->longitude) {
-            throw new \Exception('User location not available');
-        }
+        $latitude = $lat ?? ($user->latitude ? (float) $user->latitude : null);
+        $longitude = $lng ?? ($user->longitude ? (float) $user->longitude : null);
 
         return $this->restaurantRepo->listWithDistance(
-            $user->latitude,
-            $user->longitude,
+            $latitude,
+            $longitude,
             $search,
             $perPage
         );
