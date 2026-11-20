@@ -44,16 +44,23 @@ class LedgerController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'campaign_id' => 'required|exists:donation_campaigns,id',
+            'campaign_id' => 'nullable|exists:donation_campaigns,id',
+            'masjid_id' => 'nullable|exists:masjids,id',
+            'madarsa_id' => 'nullable|exists:madarsas,id',
+            'donor_user_id' => 'nullable|exists:users,id',
             'mohalla' => 'nullable|string',
             'payment_status' => 'nullable|in:paid,partial,unpaid',
             'search' => 'nullable|string',
         ]);
 
+        if (!$request->filled('campaign_id') && !$request->filled('masjid_id') && !$request->filled('madarsa_id')) {
+            return response()->json(['message' => 'Please provide campaign_id, masjid_id, or madarsa_id.'], 422);
+        }
+
         $user = $request->user()->load(['roles', 'memberProfile.category']);
-        $campaign = DonationCampaign::findOrFail($request->campaign_id);
-        $masjidId = $campaign->masjid_id;
-        $madarsaId = $campaign->madarsa_id;
+        $campaign = $request->filled('campaign_id') ? DonationCampaign::find($request->campaign_id) : null;
+        $masjidId = $campaign ? $campaign->masjid_id : $request->masjid_id;
+        $madarsaId = $campaign ? $campaign->madarsa_id : $request->madarsa_id;
 
         $isMutvalli = $this->checkIsMutvalli($user, $masjidId, $madarsaId);
 
@@ -80,7 +87,19 @@ class LedgerController extends Controller
             'donor:id,name,phone,profile_picture,mohalla',
             'campaign:id,name,category,unit_price,rate_per_unit',
             'recorder:id,name',
-        ])->where('campaign_id', $campaign->id);
+        ]);
+
+        if ($campaign) {
+            $query->where('campaign_id', $campaign->id);
+        } elseif ($masjidId) {
+            $query->where('masjid_id', $masjidId);
+        } elseif ($madarsaId) {
+            $query->where('madarsa_id', $madarsaId);
+        }
+
+        if ($request->filled('donor_user_id')) {
+            $query->where('donor_user_id', $request->donor_user_id);
+        }
 
         // RBAC Scoping
         if ($isMutvalli) {
