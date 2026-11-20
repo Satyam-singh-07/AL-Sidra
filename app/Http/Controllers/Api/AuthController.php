@@ -152,6 +152,14 @@ class AuthController extends Controller
                 'kyc_status'         => 'not_started',
             ]);
 
+            // If this is a masjid without an owner (e.g. quick-created during signup), claim it
+            if ($request->place_type === 'masjid') {
+                $masjid = \App\Models\Masjid::find($request->place_id);
+                if ($masjid && empty($masjid->user_id)) {
+                    $masjid->update(['user_id' => $user->id]);
+                }
+            }
+
             // 5️⃣ Optional KYC
             $kycData = [
                 'member_profile_id'    => $memberProfile->id,

@@ -10,10 +10,79 @@ use App\Services\MasjidService;
 
 class MasjidController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-        $majids = Masjid::select('id', 'name', 'unique_id')->get();
-        return response($majids);
+        $query = Masjid::select('id', 'name', 'unique_id', 'address', 'status', 'kyc_status');
+
+        // Identify masjids that already have an assigned / active / pending Mutvalli
+        $assignedMasjidIds = \App\Models\MemberProfile::where('place_type', 'masjid')
+            ->where('member_category_id', 4) // Category 4 is Mutvalli
+            ->where('kyc_status', '!=', 'rejected')
+            ->whereNotNull('place_id')
+            ->pluck('place_id')
+            ->toArray();
+
+        $ownerMasjidIds = Masjid::whereNotNull('user_id')
+            ->whereHas('user.roles', function ($q) {
+                $q->whereIn('slug', ['mutvalli', 'mutawalli']);
+            })
+            ->pluck('id')
+            ->toArray();
+
+        $takenIds = array_flip(array_unique(array_merge($assignedMasjidIds, $ownerMasjidIds)));
+
+        if ($request->boolean('available_for_mutvalli') || $request->boolean('for_mutvalli')) {
+            if (!empty($takenIds)) {
+                $query->whereNotIn('id', array_keys($takenIds));
+            }
+            $query->where('status', 'active');
+        }
+
+        $masjids = $query->get()->map(function ($m) use ($takenIds) {
+            return [
+                'id'           => $m->id,
+                'name'         => $m->name,
+                'unique_id'    => $m->unique_id,
+                'address'      => $m->address,
+                'has_mutvalli' => isset($takenIds[$m->id]),
+            ];
+        });
+
+        return response()->json($masjids);
+    }
+
+    public function quickCreate(Request $request)
+    {
+        $validated = $request->validate([
+            'name'         => 'required|string|max:255',
+            'address'      => 'required|string|max:500',
+            'community_id' => 'nullable|exists:communities,id',
+            'latitude'     => 'nullable|numeric',
+            'longitude'    => 'nullable|numeric',
+        ]);
+
+        $masjid = Masjid::create([
+            'name'         => $validated['name'],
+            'address'      => $validated['address'],
+            'community_id' => $validated['community_id'] ?? null,
+            'latitude'     => $validated['latitude'] ?? null,
+            'longitude'    => $validated['longitude'] ?? null,
+            'status'       => 'pending',
+            'kyc_status'   => 'pending',
+            'user_id'      => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Masjid created successfully and queued for review.',
+            'data'    => [
+                'id'        => $masjid->id,
+                'name'      => $masjid->name,
+                'unique_id' => $masjid->unique_id,
+                'address'   => $masjid->address,
+                'status'    => $masjid->status,
+            ],
+        ], 201);
     }
 
     public function listMasjids(Request $request)
